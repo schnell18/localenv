@@ -1,0 +1,20 @@
+# dockerized virtual environment
+version: '3.9'
+services:
+
+  monet:
+    build:
+      context: ./frontends/monet/
+      dockerfile: Dockerfile-virtualenv
+    image: monet:LATEST
+    restart: always
+    healthcheck:
+      test: "nc -z localhost 80"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    # depends_on:
+    #   euclid:
+    #     condition: service_healthy
+    ports:
+      - "9081:80"

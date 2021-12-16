@@ -1,0 +1,17 @@
+.vagrant/
+backends/
+frontends/
+.state/
+*.swp
+*.class
+*.pyc
+*.pyo
+*.tar
+*.jar
+*.bz2
+*.zip
+*.swo
+*.bak
+*.pid
+*.log
+*.DS_STORE

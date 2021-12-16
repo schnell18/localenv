@@ -1,0 +1,33 @@
+# dockerized virtual environment
+version: '3.9'
+services:
+
+  fermat:
+    build:
+      context: ./backends/fermat/
+      # allow access to maven repo on host during docker image build
+      extra_hosts:
+        - "registry.homelab.vn:172.18.0.1"
+      dockerfile: Dockerfile-virtualenv
+    image: fermat:LATEST
+    restart: always
+    healthcheck:
+      test: "nc -z localhost 24005"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      namesrv:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+      redis-node1:
+        condition: service_healthy
+      nacos:
+        condition: service_healthy
+    volumes:
+      - ./provision/apps/fermat/bootstrap.yml:/etc/bootstrap.yml
+    ports:
+      - "24005:24005"
+      - "7084:7084"
+

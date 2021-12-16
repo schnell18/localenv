@@ -1,0 +1,22 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 1s
+data:
+  database:
+    driver: mysql
+    source: root:root@tcp(mariadb:3306)/uproduct?charset=utf8&parseTime=True&loc=Local
+    slow_threshold: 0.2s
+  redis:
+    addrs:
+      - redis-node1:7001
+      - redis-node2:7002
+      - redis-node3:7003
+    password: abc123
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+trace:
+  endpoint: http://172.20.68.55:14268/api/traces

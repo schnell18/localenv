@@ -1,0 +1,28 @@
+# dockerized virtual environment
+version: '3.9'
+services:
+
+  fourier:
+    build:
+      context: ./backends/fourier/
+      # allow access to maven repo on host during docker image build
+      extra_hosts:
+        - "registry.homelab.vn:172.18.0.1"
+      dockerfile: Dockerfile-virtualenv
+    image: fourier:LATEST
+    restart: always
+    healthcheck:
+      test: "nc -z localhost 24001"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      nacos:
+        condition: service_healthy
+    volumes:
+      - ./provision/apps/fourier/bootstrap.yml:/etc/bootstrap.yml
+    ports:
+      - "24001:24001"
+      - "7080:7080"

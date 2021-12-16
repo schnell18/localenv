@@ -1,0 +1,35 @@
+# dockerized virtual environment
+version: '3.9'
+services:
+
+  gauss:
+    build:
+      context: ./backends/gauss/
+      # allow access to maven repo on host during docker image build
+      extra_hosts:
+        - "registry.homelab.vn:172.18.0.1"
+      dockerfile: Dockerfile-virtualenv
+    image: gauss:LATEST
+    restart: always
+    healthcheck:
+      test: "nc -z localhost 24004"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      SPRING_CLOUD_NACOS_DISCOVERY_IP: gauss
+    depends_on:
+      namesrv:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+      redis-node1:
+        condition: service_healthy
+      nacos:
+        condition: service_healthy
+    volumes:
+      - ./provision/apps/gauss/bootstrap.yml:/etc/bootstrap.yml
+    ports:
+      - "24004:24004"
+      - "7083:7083"
+

@@ -1,0 +1,26 @@
+# dockerized virtual environment
+version: '3.9'
+
+services:
+
+  verdi:
+    build:
+      context: ./backends/verdi/
+      dockerfile: Dockerfile-virtualenv
+    image: schnell18/verdi:latest
+    restart: always
+    healthcheck:
+      test: "nc -z localhost 29000"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis-node1:
+        condition: service_healthy
+    volumes:
+      - ./provision/apps/verdi/configs:/data/conf
+    ports:
+      - "24002:29000"
+      - "8082:28000"

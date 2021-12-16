@@ -1,0 +1,42 @@
+# dockerized virtual environment
+version: '3.9'
+services:
+
+  euclid:
+    build:
+      context: ./backends/euclid/
+      # allow access to maven repo on host during docker image build
+      extra_hosts:
+        - "registry.homelab.vn:172.18.0.1"
+      dockerfile: Dockerfile-virtualenv
+    image: euclid:LATEST
+    restart: always
+    healthcheck:
+      test: "nc -z localhost 24007"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      - JDWP_DEBUG=true
+      - JDWP_PORT=5005
+      - JVM_XMS=1024m
+      - JVM_XMX=1024m
+      - JVM_XMN=512m
+      - JVM_XMT=256m
+    depends_on:
+      namesrv:
+        condition: service_healthy
+      mariadb:
+        condition: service_healthy
+      # redis:
+      #   condition: service_healthy
+      nacos:
+        condition: service_healthy
+      # powerjob:
+      #   condition: service_healthy
+    volumes:
+      - ./provision/apps/euclid/bootstrap.yml:/etc/bootstrap.yml
+    ports:
+      - "24007:24007"
+      - "7086:7086"
+      - "5005:5005"

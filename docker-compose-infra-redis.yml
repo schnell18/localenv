@@ -1,0 +1,63 @@
+# dockerized virtual environment
+version: '3.9'
+
+services:
+
+  redis-node1:
+    image: redis:6.2.1-alpine
+    restart: always
+    entrypoint: [redis-server, /etc/redis/redis.conf]
+    healthcheck:
+      test: "redis-cli -p 7001 info"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ./.state/redis/conf/node1:/etc/redis/
+      - ./.state/redis/data/node1:/data
+    ports:
+      - "7001:7001"
+      - "17001:17001"
+
+  redis-node2:
+    image: redis:6.2.1-alpine
+    restart: always
+    entrypoint: [redis-server, /etc/redis/redis.conf]
+    healthcheck:
+      test: "redis-cli -p 7002 info"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ./.state/redis/conf/node2:/etc/redis/
+      - ./.state/redis/data/node2:/data
+    ports:
+      - "7002:7002"
+      - "17002:17002"
+
+  redis-node3:
+    image: redis:6.2.1-alpine
+    restart: always
+    entrypoint: [redis-server, /etc/redis/redis.conf]
+    healthcheck:
+      test: "redis-cli -p 7003 info"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      # - ./provision/redis/node3:/etc/redis/
+      - ./.state/redis/conf/node3:/etc/redis/
+      - ./.state/redis/data/node3:/data
+    ports:
+      - "7003:7003"
+      - "17003:17003"
+
+  redis-cluster-creator:
+    image: redis:6.2.1-alpine
+    entrypoint: [sh, -c, /usr/local/bin/create-cluster.sh]
+    volumes:
+      - ./.state/redis/bin/create-cluster.sh:/usr/local/bin/create-cluster.sh
+    depends_on:
+      - redis-node1
+      - redis-node2
+      - redis-node3

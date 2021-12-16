@@ -1,0 +1,17 @@
+app:
+    env: dev
+    name: gauss
+
+spring:
+    profiles:
+        active:
+            - static
+            - dynamic
+    application:
+        name: ${app.name}
+    cloud:
+        nacos:
+            config:
+                file-extension: yaml
+                server-addr: nacos:8848
+                namespace: ${app.env}

@@ -1,0 +1,29 @@
+# dockerized virtual environment
+version: '3.9'
+services:
+
+  powerjob:
+    image: schnell18/powerjob-server:4.0.1-hf01
+    restart: always
+    healthcheck:
+      test: "nc -z localhost 7700"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      - JVM_XMS=1024m
+      - JVM_XMX=1024m
+      - JVM_XMN=512m
+      - SPRING_PROFILES_ACTIVE=daily
+      - SPRING_DATASOURCE_CORE_JDBC-URL=jdbc:mysql://mysql:3306/powerjob?useUnicode=true&characterEncoding=UTF-8
+      - SPRING_DATASOURCE_CORE_USERNAME=mfg
+      - SPRING_DATASOURCE_CORE_PASSWORD=abc
+      - OMS_MONGODB_ENABLE=false
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "7700:7700"
+      - "10086:10086"
+    volumes:
+      - ./.state/powerjob/logs:/powerjob/logs
