@@ -7,6 +7,7 @@ Crafted by Justin Zhang <schnell18@gmail.com>
 Usage:
     infractl.sh start infra1 [infra2 infra3 ...]
                 stop all | infra1 [infra2 infra3 ...]
+                status all | infra1 [infra2 infra3 ...]
                 refresh-db infra1 [infra2 infra3 ...]
                 webui infra1 [infra2 infra3 ...]
                 list
@@ -41,6 +42,15 @@ Usage:
 EOF
 }
 
+usage_status() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+Usage:
+    infractl.sh status all | infra1 [infra2 infra3 ...]
+EOF
+}
+
 usage_webui() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
@@ -60,6 +70,27 @@ Usage:
 EOF
 }
 
+status() {
+    PROFILE=$1
+    if [[ -z $PROFILE ]]; then
+        usage_status
+        exit 1
+    fi
+
+    compose_files=""
+    if [[ $PROFILE -eq "all" ]]; then
+        for file in docker-compose-*; do
+            compose_files="$compose_files -f $file"
+        done;
+    else
+        for infra in $@; do
+            compose_files="$compose_files -f docker-compose-infra-${infra}.yml"
+        done
+    fi
+    docker-compose $compose_files ps
+
+}
+
 stop() {
     PROFILE=$1
     if [[ -z $PROFILE ]]; then
@@ -67,19 +98,17 @@ stop() {
         exit 1
     fi
 
+    compose_files=""
     if [[ $PROFILE -eq "all" ]]; then
-        compose_files=""
         for file in docker-compose-*; do
             compose_files="$compose_files -f $file"
         done;
-        docker-compose $compose_files down
     else
-        compose_files=""
         for infra in $@; do
             compose_files="$compose_files -f docker-compose-infra-${infra}.yml"
         done
-        docker-compose $compose_files down
     fi
+    docker-compose $compose_files down
 
 }
 
@@ -170,6 +199,7 @@ shift
 case "${cmd}" in
     start)       start $@;;
     stop)        stop $@;;
+    status)      status $@;;
     list)        list $@;;
     webui)       webui $@;;
     refresh-db)  refresh_db $@;;

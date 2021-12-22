@@ -8,7 +8,12 @@ function getHostIP {
 
 function getDatabaseStatus {
     port=$(toDatabasePort $2)
-    docker exec $1 sh -c "echo select \'running\' | mysql -N -h 127.0.0.1 -P $port -u root -proot"
+    if [[ $2 -eq TiDB ]]; then
+        docker exec $1 sh -c "echo select \'running\' | mysql -N -h 127.0.0.1 -P $port -u root"
+    else
+        docker exec $1 sh -c "echo select \'running\' | mysql -N -h 127.0.0.1 -P $port -u root -proot"
+    fi
+
 }
 
 function toDatabasePort {
@@ -60,7 +65,7 @@ function refresh_infra_db {
                 PWD=$(pwd)
                 cd $infra
                 if [ -f schema/schema.sql ]; then
-                    db=$(head -1 schema/schema.sql | cut -d' ' -f2 | sed 's/;//')
+                    db=$(head -3 schema/schema.sql | grep -i USE | head -1 | cut -d' ' -f2 | sed 's/;//')
                     echo "Prepare database ${db} for infra $(basename $infra)..."
                     docker exec -it ${dbContainer} /bin/sh /setup/create-database.sh $db mfg
                     echo "Loading schema and data using docker for project $(basename $infra)..."

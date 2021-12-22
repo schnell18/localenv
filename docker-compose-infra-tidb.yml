@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   tidb:
-    image: schnell18/tidb-dev:v5.2.2
+    image: schnell18/tidb-dev:v4.0.15-amd64
     ports:
       - "4000:4000"
       - "10080:10080"
@@ -29,7 +29,7 @@ services:
     restart: on-failure
 
   pd0:
-    image: schnell18/pd-dev:v5.2.2
+    image: schnell18/pd-dev:v4.0.15-amd64
     ports:
       - "2379"
     volumes:
@@ -48,7 +48,7 @@ services:
       - --log-file=/logs/pd0.log
     restart: on-failure
   pd1:
-    image: schnell18/pd-dev:v5.2.2
+    image: schnell18/pd-dev:v4.0.15-amd64
     ports:
       - "2379"
     volumes:
@@ -67,7 +67,7 @@ services:
       - --log-file=/logs/pd1.log
     restart: on-failure
   pd2:
-    image: schnell18/pd-dev:v5.2.2
+    image: schnell18/pd-dev:v4.0.15-amd64
     ports:
       - "2379"
     volumes:
@@ -87,7 +87,7 @@ services:
     restart: on-failure
 
   tikv0:
-    image: schnell18/tikv-dev:v5.2.2
+    image: schnell18/tikv-dev:v4.0.15-amd64
     volumes:
       - ./provision/tidb/tikv/config/tikv.toml:/tikv.toml:ro
       - ./.state/tidb/tikv/data:/data
@@ -105,7 +105,7 @@ services:
       - "pd2"
     restart: on-failure
   tikv1:
-    image: schnell18/tikv-dev:v5.2.2
+    image: schnell18/tikv-dev:v4.0.15-amd64
     volumes:
       - ./provision/tidb/tikv/config/tikv.toml:/tikv.toml:ro
       - ./.state/tidb/tikv/data:/data
@@ -122,7 +122,7 @@ services:
       - "pd1"
     restart: on-failure
   tikv2:
-    image: schnell18/tikv-dev:v5.2.2
+    image: schnell18/tikv-dev:v4.0.15-amd64
     volumes:
       - ./provision/tidb/tikv/config/tikv.toml:/tikv.toml:ro
       - ./.state/tidb/tikv/data:/data

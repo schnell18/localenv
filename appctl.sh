@@ -9,6 +9,7 @@ Usage:
             start app1 [app2 app3 ...]
             refresh-db app1 [app2 app3 ...]
             validate app1 [app2 app3 ...]
+            list
 EOF
 }
 
@@ -191,7 +192,7 @@ refresh_db() {
                 PWD=$(pwd)
                 cd $app
                 if [ -f schema/schema.sql ]; then
-                    db=$(head -1 schema/schema.sql | cut -d' ' -f2 | sed 's/;//')
+                    db=$(head -3 schema/schema.sql | grep -i USE | head -1 | cut -d' ' -f2 | sed 's/;//')
                     echo "Prepare database ${db} for project $(basename $app)..."
                     docker exec -it ${dbContainer} /bin/sh /setup/create-database.sh $db mfg
                     echo "Loading schema and data using docker for project $(basename $app)..."
