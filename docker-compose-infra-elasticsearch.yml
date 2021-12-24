@@ -4,8 +4,7 @@ version: '3.9'
 services:
 
   es01:
-    image: schnell18/elasticsearch:7.15.1
-    container_name: es01
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
     environment:
       - node.name=es01
       - cluster.name=es-docker-cluster
@@ -20,14 +19,13 @@ services:
     volumes:
       - ./provision/global/etc/localtime:/etc/localtime
       - ./provision/global/etc/timezone:/etc/timezone
-      # - .state/elasticsearch/es01:/usr/share/elasticsearch/data
-      - data01:/usr/share/elasticsearch/data
+      - ./.state/elasticsearch/es01:/usr/share/elasticsearch/data
+      # - data01:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
 
   kib01:
-    image: schnell18/kibana:7.15.1
-    container_name: kib01
+    image: docker.elastic.co/kibana/kibana:7.15.1
     volumes:
       - ./provision/global/etc/localtime:/etc/localtime
       - ./provision/global/etc/timezone:/etc/timezone
@@ -36,11 +34,3 @@ services:
     environment:
       ELASTICSEARCH_URL: http://es01:9200
       ELASTICSEARCH_HOSTS: http://es01:9200
-
-volumes:
-  data01:
-    driver: local
-  data02:
-    driver: local
-  data03:
-    driver: local

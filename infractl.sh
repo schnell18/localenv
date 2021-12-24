@@ -169,6 +169,9 @@ start() {
             echo "Run post setup script for $infra..."
             sh provision/$infra/post/setup.sh
         fi
+    done
+
+    for infra in $@; do
         if [[ -f provision/$infra/post/webui.sh ]]; then
             echo "Launch webui for $infra..."
             url=$(sh provision/$infra/post/webui.sh)

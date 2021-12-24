@@ -7,6 +7,7 @@ Crafted by Justin Zhang <schnell18@gmail.com>
 Usage:
   appctl.sh build app1 [app2 app3 ...]
             start app1 [app2 app3 ...]
+            stop app1 [app2 app3 ...]
             refresh-db app1 [app2 app3 ...]
             validate app1 [app2 app3 ...]
             list
@@ -49,7 +50,17 @@ Infrastructure control tool for Virtual development environment.
 Crafted by Justin Zhang <schnell18@gmail.com>
 This command start docker container of specified apps.
 Usage:
-    appctl.sh start app1 [app2 app3 ...]
+    appctl.sh starts app1 [app2 app3 ...]
+EOF
+}
+
+usage_stop() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+This command stops docker container of specified apps.
+Usage:
+    appctl.sh stop app1 [app2 app3 ...]
 EOF
 }
 
@@ -134,6 +145,25 @@ start() {
     done
 }
 
+stop() {
+    if [[ -z $1 ]]; then
+        usage_stop
+        exit 1
+    fi
+
+    all_compose_files=""
+    for file in docker-compose-*.yml; do
+        all_compose_files="$all_compose_files -f $file"
+    done
+
+    all_apps=""
+    for app in $@; do
+        all_apps=" $app"
+    done
+
+    docker-compose $all_compose_files stop $all_apps
+}
+
 validate() {
     if [[ -z $1 ]]; then
         usage_validate
@@ -148,8 +178,8 @@ validate() {
         app_dir="$basedir/provision/$app"
         cd $app_dir
         if [[ -f $app_dir/validate.sh ]]; then
-                echo "Validating running status for project: $app"
-                sh $app_dir/validate.sh
+            echo "Validating running status for project: $app"
+            sh $app_dir/validate.sh
         fi
         cd $PWD
     done
@@ -216,6 +246,7 @@ shift
 case "${cmd}" in
     build)      build $@;;
     start)      start $@;;
+    stop)       stop $@;;
     list)       list $@;;
     validate)   validate $@;;
     refresh-db) refresh_db $@;;

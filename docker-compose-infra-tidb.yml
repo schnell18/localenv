@@ -30,12 +30,6 @@ services:
 
   pd0:
     image: schnell18/pd-dev:v4.0.15-amd64
-    ports:
-      - "2379"
-    volumes:
-      - ./provision/tidb/pd/config/pd.toml:/pd.toml:ro
-      - ./.state/tidb/pd/data:/dat.state/tidb/tikv/logsa
-      - ./.state/tidb/pd/logs:/logs
     command:
       - --name=pd0
       - --client-urls=http://0.0.0.0:2379
@@ -47,14 +41,14 @@ services:
       - --config=/pd.toml
       - --log-file=/logs/pd0.log
     restart: on-failure
-  pd1:
-    image: schnell18/pd-dev:v4.0.15-amd64
-    ports:
-      - "2379"
     volumes:
       - ./provision/tidb/pd/config/pd.toml:/pd.toml:ro
       - ./.state/tidb/pd/data:/data
       - ./.state/tidb/pd/logs:/logs
+    ports:
+      - "12379:2379"
+  pd1:
+    image: schnell18/pd-dev:v4.0.15-amd64
     command:
       - --name=pd1
       - --client-urls=http://0.0.0.0:2379
@@ -66,14 +60,14 @@ services:
       - --config=/pd.toml
       - --log-file=/logs/pd1.log
     restart: on-failure
-  pd2:
-    image: schnell18/pd-dev:v4.0.15-amd64
-    ports:
-      - "2379"
     volumes:
       - ./provision/tidb/pd/config/pd.toml:/pd.toml:ro
       - ./.state/tidb/pd/data:/data
       - ./.state/tidb/pd/logs:/logs
+    ports:
+      - "22379:2379"
+  pd2:
+    image: schnell18/pd-dev:v4.0.15-amd64
     command:
       - --name=pd2
       - --client-urls=http://0.0.0.0:2379
@@ -85,6 +79,12 @@ services:
       - --config=/pd.toml
       - --log-file=/logs/pd2.log
     restart: on-failure
+    volumes:
+      - ./provision/tidb/pd/config/pd.toml:/pd.toml:ro
+      - ./.state/tidb/pd/data:/data
+      - ./.state/tidb/pd/logs:/logs
+    ports:
+      - "32379:2379"
 
   tikv0:
     image: schnell18/tikv-dev:v4.0.15-amd64
@@ -188,6 +188,7 @@ services:
   prometheus:
     user: root
     image: prom/prometheus:v2.2.1
+    restart: on-failure
     command:
       - --log.level=error
       - --storage.tsdb.path=/data/prometheus
@@ -197,7 +198,6 @@ services:
     volumes:
       - ./provision/prometheus/config:/etc/prometheus:ro
       - ./.state/prometheus/data:/data
-    restart: on-failure
   grafana:
     image: grafana/grafana:6.0.1
     user: "0"
