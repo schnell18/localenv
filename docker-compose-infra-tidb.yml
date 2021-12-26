@@ -15,7 +15,7 @@ services:
       - ./.state/tidb/tidb/logs:/logs
     command:
       - --store=tikv
-      - --path=pd0:2379,pd1:2379,pd2:2379
+      - --path=pd0:2379
       - --config=/tidb.toml
       - --log-file=/logs/tidb.log
       - --advertise-address=tidb
@@ -24,8 +24,6 @@ services:
       - "database=true"
     depends_on:
       - "tikv0"
-      - "tikv1"
-      - "tikv2"
     restart: on-failure
 
   pd0:
@@ -36,7 +34,7 @@ services:
       - --peer-urls=http://0.0.0.0:2380
       - --advertise-client-urls=http://pd0:2379
       - --advertise-peer-urls=http://pd0:2380
-      - --initial-cluster=pd0=http://pd0:2380,pd1=http://pd1:2380,pd2=http://pd2:2380
+      - --initial-cluster=pd0=http://pd0:2380
       - --data-dir=/data/pd0
       - --config=/pd.toml
       - --log-file=/logs/pd0.log
@@ -46,45 +44,7 @@ services:
       - ./.state/tidb/pd/data:/data
       - ./.state/tidb/pd/logs:/logs
     ports:
-      - "12379:2379"
-  pd1:
-    image: schnell18/pd-dev:v4.0.15-amd64
-    command:
-      - --name=pd1
-      - --client-urls=http://0.0.0.0:2379
-      - --peer-urls=http://0.0.0.0:2380
-      - --advertise-client-urls=http://pd1:2379
-      - --advertise-peer-urls=http://pd1:2380
-      - --initial-cluster=pd0=http://pd0:2380,pd1=http://pd1:2380,pd2=http://pd2:2380
-      - --data-dir=/data/pd1
-      - --config=/pd.toml
-      - --log-file=/logs/pd1.log
-    restart: on-failure
-    volumes:
-      - ./provision/tidb/pd/config/pd.toml:/pd.toml:ro
-      - ./.state/tidb/pd/data:/data
-      - ./.state/tidb/pd/logs:/logs
-    ports:
-      - "22379:2379"
-  pd2:
-    image: schnell18/pd-dev:v4.0.15-amd64
-    command:
-      - --name=pd2
-      - --client-urls=http://0.0.0.0:2379
-      - --peer-urls=http://0.0.0.0:2380
-      - --advertise-client-urls=http://pd2:2379
-      - --advertise-peer-urls=http://pd2:2380
-      - --initial-cluster=pd0=http://pd0:2380,pd1=http://pd1:2380,pd2=http://pd2:2380
-      - --data-dir=/data/pd2
-      - --config=/pd.toml
-      - --log-file=/logs/pd2.log
-    restart: on-failure
-    volumes:
-      - ./provision/tidb/pd/config/pd.toml:/pd.toml:ro
-      - ./.state/tidb/pd/data:/data
-      - ./.state/tidb/pd/logs:/logs
-    ports:
-      - "32379:2379"
+      - "2379:2379"
 
   tikv0:
     image: schnell18/tikv-dev:v4.0.15-amd64
@@ -96,47 +56,11 @@ services:
       - --addr=0.0.0.0:20160
       - --advertise-addr=tikv0:20160
       - --data-dir=/data/tikv0
-      - --pd=pd0:2379,pd1:2379,pd2:2379
+      - --pd=pd0:2379
       - --config=/tikv.toml
       - --log-file=/logs/tikv0.log
     depends_on:
       - "pd0"
-      - "pd1"
-      - "pd2"
-    restart: on-failure
-  tikv1:
-    image: schnell18/tikv-dev:v4.0.15-amd64
-    volumes:
-      - ./provision/tidb/tikv/config/tikv.toml:/tikv.toml:ro
-      - ./.state/tidb/tikv/data:/data
-      - ./.state/tidb/tikv/logs:/logs
-    command:
-      - --addr=0.0.0.0:20160
-      - --advertise-addr=tikv1:20160
-      - --data-dir=/data/tikv1
-      - --pd=pd0:2379,pd1:2379,pd2:2379
-      - --config=/tikv.toml
-      - --log-file=/logs/tikv1.log
-    depends_on:
-      - "pd0"
-      - "pd1"
-    restart: on-failure
-  tikv2:
-    image: schnell18/tikv-dev:v4.0.15-amd64
-    volumes:
-      - ./provision/tidb/tikv/config/tikv.toml:/tikv.toml:ro
-      - ./.state/tidb/tikv/data:/data
-      - ./.state/tidb/tikv/logs:/logs
-    command:
-      - --addr=0.0.0.0:20160
-      - --advertise-addr=tikv2:20160
-      - --data-dir=/data/tikv2
-      - --pd=pd0:2379,pd1:2379,pd2:2379
-      - --config=/tikv.toml
-      - --log-file=/logs/tikv2.log
-    depends_on:
-      - "pd0"
-      - "pd1"
     restart: on-failure
 
   # tispark-master:
