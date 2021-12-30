@@ -109,8 +109,10 @@ build() {
     for APP in $@; do
         TMP_PRIV_DIR="./backends/$APP/.ssh"
         TMP_PRIV_FILE="$TMP_PRIV_DIR/$ID_FILE"
+        TMP_CONF_FILE="$TMP_PRIV_DIR/config"
         mkdir -p $TMP_PRIV_DIR
         cp ~/.ssh/$ID_FILE $TMP_PRIV_FILE
+        cp ~/.ssh/config $TMP_CONF_FILE
 
         TMP_MVN_DIR="./backends/$APP/.m2"
         if [[ -f ~/.m2/settings.xml ]]; then

@@ -7,6 +7,8 @@ services:
     build:
       context: ./backends/haydn/
       dockerfile: Dockerfile-virtualenv
+      extra_hosts:
+        - "tinker.cf:192.168.31.25"
     image: schnell18/haydn:latest
     restart: always
     healthcheck:
