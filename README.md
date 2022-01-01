@@ -26,6 +26,7 @@
 |  05   | ElasticSearch | 9200 | http://127.0.0.1:5601       |
 |  06   | nacos         | 8848 | http://127.0.0.1:8848/nacos |
 |  07   | powerjob      | 7700 | http://127.0.0.1:7700       |
+|  08   | rabbitmq      | 5672 | http://127.0.0.1:15672      |
 
 ## 开发环境安装
 
@@ -71,13 +72,14 @@
     git clone git@<your_git_server>/<your_frontend_project>.git
 
 ## 启动环境
-启动环境：
+
+启动完整的环境需要消耗较多的内存，如果只需要某些特定容器，可以指定相应的
+infra 名称。
 
     cd ~/localenv
     ./infractl list
 
-启动完整的环境需要消耗较多的内存，如果只需要某些特定容器，可以指定相应的
-infra 名称。 比如只想启动 MariaDB，那么可以运行以下命令：
+如只想启动 MariaDB，那么可以运行以下命令：
 
     ./infractl.sh start mariadb
 
