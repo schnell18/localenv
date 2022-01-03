@@ -11,4 +11,6 @@ services:
     labels:
       - "mq_broker=true"
     volumes:
+      - ./provision/global/etc/localtime:/etc/localtime
+      - ./provision/global/etc/timezone:/etc/timezone
       - ./.state/rabbitmq:/var/lib/rabbitmq
