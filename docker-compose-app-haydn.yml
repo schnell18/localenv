@@ -26,3 +26,23 @@ services:
     ports:
       - "24003:29000"
       - "8083:28000"
+
+  haydn-job-agent:
+    image: schnell18/powerjob-agent:4.0.1-hf04-amd64
+    restart: always
+    healthcheck:
+      test: "nc -z localhost 27777"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      PARAMS: --app=haydn --server=powerjob:7700
+    depends_on:
+      powerjob:
+        condition: service_healthy
+      # haydn:
+      #   condition: service_healthy
+    volumes:
+      - ./.state/ustore/powerjob-agent:/powerjob/logs
+    ports:
+      - "27777:27777"

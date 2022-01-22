@@ -9,6 +9,7 @@ Usage:
             start app1 [app2 app3 ...]
             stop app1 [app2 app3 ...]
             refresh-db app1 [app2 app3 ...]
+            logs app1 [app2 app3 ...]
             validate app1 [app2 app3 ...]
             list
 EOF
@@ -64,13 +65,33 @@ Usage:
 EOF
 }
 
+usage_stop() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+This command stop docker container of specified apps.
+Usage:
+    appctl.sh stop app1 [app2 app3 ...]
+EOF
+}
+
 usage_validate() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
 Crafted by Justin Zhang <schnell18@gmail.com>
 This command validate specified apps.
 Usage:
-    ctl.sh validate app1 [app2 app3 ...]
+    appctl.sh validate app1 [app2 app3 ...]
+EOF
+}
+
+usage_logs() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+This command continuously shows logs from specified apps.
+Usage:
+    appctl.sh logs app1 [app2 app3 ...]
 EOF
 }
 
@@ -84,11 +105,11 @@ build() {
 
     ID_FILE=""
     if [[ -f ~/.ssh/id_ed25519 ]]; then
-        ID_FILE=id_ed25519 
+        ID_FILE=id_ed25519
     elif [[ -f ~/.ssh/id_ecdsa ]]; then
         ID_FILE=id_ecdsa
     elif [[ -f ~/.ssh/id_rsa ]]; then
-        ID_FILE=id_rsa 
+        ID_FILE=id_rsa
     else
         echo "Please setup ssh key to access gitlab properly!"
         exit 2
@@ -109,10 +130,8 @@ build() {
     for APP in $@; do
         TMP_PRIV_DIR="./backends/$APP/.ssh"
         TMP_PRIV_FILE="$TMP_PRIV_DIR/$ID_FILE"
-        TMP_CONF_FILE="$TMP_PRIV_DIR/config"
         mkdir -p $TMP_PRIV_DIR
         cp ~/.ssh/$ID_FILE $TMP_PRIV_FILE
-        cp ~/.ssh/config $TMP_CONF_FILE
 
         TMP_MVN_DIR="./backends/$APP/.m2"
         if [[ -f ~/.m2/settings.xml ]]; then
@@ -142,9 +161,26 @@ start() {
         usage_start
         exit 1
     fi
-    for app in $@; do
-        docker-compose up -d $app 
+
+    all_compose_files=""
+    for file in docker-compose-*.yml; do
+        all_compose_files="$all_compose_files -f $file"
     done
+
+    all_apps=""
+    for app in $@; do
+        all_apps="$all_apps $app"
+    done
+    docker-compose $all_compose_files up -d $all_apps
+
+    # do app-specific post setup
+    for app in $@; do
+        if [[ -f provision/apps/$app/post/setup.sh ]]; then
+            echo "Run post setup script for $app..."
+            sh provision/apps/$app/post/setup.sh
+        fi
+    done
+
 }
 
 stop() {
@@ -160,10 +196,28 @@ stop() {
 
     all_apps=""
     for app in $@; do
+        all_apps="$all_apps $app"
+    done
+    docker-compose $all_compose_files stop $all_apps
+}
+
+logs() {
+    if [[ -z $1 ]]; then
+        usage_logs
+        exit 1
+    fi
+
+    all_compose_files=""
+    for file in docker-compose-*.yml; do
+        all_compose_files="$all_compose_files -f $file"
+    done
+
+    all_apps=""
+    for app in $@; do
         all_apps=" $app"
     done
 
-    docker-compose $all_compose_files stop $all_apps
+    docker-compose $all_compose_files logs -f $all_apps
 }
 
 validate() {
@@ -173,8 +227,7 @@ validate() {
     fi
 
     basedir=$(pwd)
-    for app in $@
-    do
+    for app in $@; do
         echo "Validating $app..."
         PWD=$(pwd)
         app_dir="$basedir/provision/$app"
@@ -249,6 +302,7 @@ case "${cmd}" in
     build)      build $@;;
     start)      start $@;;
     stop)       stop $@;;
+    logs)       logs $@;;
     list)       list $@;;
     validate)   validate $@;;
     refresh-db) refresh_db $@;;

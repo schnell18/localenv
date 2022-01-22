@@ -1,1 +1,1 @@
-docker build -t newton/localenv/golang-build:1.17-alpine .
+docker build -t newton:5050/repository/localenv/golang-build:1.17-alpine .

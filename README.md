@@ -38,6 +38,9 @@
 - redis client
 - git
 - tmux
+- jq
+- curl
+- xxd
 
 
 接下来需要配置一下主机的 /etc/hosts 文件，加入以下主机名映射回环地址：
@@ -102,10 +105,12 @@ infra 名称。
 
 环境启动后可以通过以下命令检测各个容器是否正常工作：
 
-    ./infractl.sh check
+    ./infractl.sh status all
 
 
-## 连接 Redis
+## Redis
+
+### Redis 集群模式
 
 本项目开发环境的 Redis 是 3 个节点的集群模式。端口为 7001～7003。
 请使用连接密码 abc123 连接该集群。
@@ -113,7 +118,7 @@ infra 名称。
 如果使用 tmux 的话，可以用 tumx.sh 自动打开命令行 rediscli 工具连接到 redis。
 
 
-## 连接 MariaDB (MySQL)
+## MariaDB (MySQL)
 
 本项目开发环境的 MariaDB （和兼容 MySQL 的变种） 服务器可以通过 127.0.0.1:3306
 访问。用户为 mfg 密码为 abc。 root 密码为 root。你可根据自己的喜好使用相应的工具连接该数据库。
@@ -122,14 +127,32 @@ infra 名称。
 MariaDB 的数据文件保存在 .state/mariadb/data 目录下。
 重启本项目的开发环境不会导致数据丢失。
 
-## RocketMQ 管理界面
+## RocketMQ
 
-开发环境启动后，RocketMQ 的管理界面可以通过 http://rocketmq:7800 访问。
+开发环境启动后，RocketMQ 的管理界面可以通过 http://rocketmq:7800 访问管理界面。
+也可以使用 ./infractl.sh webui rocketmq 命令自动打开浏览器。
 
 用户名可自行注册。
 
 RocketMQ 的数据文件保存在 .state/rocketmq/broker1/store 目录下。
 重启本项目的开发环境不会导致数据丢失。
+
+## PowerJob
+
+PowerJob 是个功能丰富的分布式任务调度中间件。本项目集成了 PowerJob 服务器及用于执行任务的任务代理节点。
+PowerJob 依赖数据库，本项目的示例使用了 mariadb。
+因此，启动 PowerJob 服务器请使用以下命令：
+
+    ./infractl.sh start mariadb powerjob
+
+任务代理节点需要和应用一起部署。本项目的实例将该代理放在应用 haydn 中。所以启动改用应及定时任务代理用以下命令：
+
+    ./appctl.sh start haydn haydn-job-agent
+
+以上命令会自动注册应用名和密码均为 `haydn` 的应用，登录管理界面时需要使用。
+环境启动后，PowerJob 的管理界面可以通过 http://powerjob:7700 访问。
+也可以使用 ./infractl.sh webui powerjob 命令自动打开浏览器。
+
 
 ## 加载数据
 
@@ -150,11 +173,16 @@ RocketMQ 的数据文件保存在 .state/rocketmq/broker1/store 目录下。
 
 请使用 ./appctl.sh refresh-db 进行应用的数据和表结构重新加载。
 如果只需要加载个别应用，比如 riemann 应用增加了一张新表，
-的那么可以使用 ./appctl.sh refresh-db riemann 加载该表。
+的那么可以使用以下命令：
+
+    ./appctl.sh refresh-db riemann
+
+加载该表。
 
 ### 加载中间件数据
 
-请使用 ./infractl.sh refresh-db 进行数据和表结构重新加载。
+正常情况下需要使用数据库的中间件在启动完毕后会自动加载数据。
+如有特殊需求，请使用 ./infractl.sh refresh-db 进行数据和表结构重新加载。
 使用此脚本会删除相关中间件在 MariaDB 中的数据，请谨慎使用此脚本。
 
 
