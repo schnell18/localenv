@@ -1,4 +1,4 @@
--- dbext:profile=ustore_local
+-- dbext:profile=haydn_local
 
 
 show tables;

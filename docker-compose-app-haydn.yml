@@ -36,6 +36,9 @@ services:
       timeout: 10s
       retries: 5
     environment:
+      JVM_XMS: 512m
+      JVM_XMX: 512m
+      JVM_XMN: 256m
       PARAMS: --app=haydn --server=powerjob:7700
     depends_on:
       powerjob:
@@ -43,6 +46,6 @@ services:
       # haydn:
       #   condition: service_healthy
     volumes:
-      - ./.state/ustore/powerjob-agent:/powerjob/logs
+      - ./.state/haydn/powerjob-agent:/powerjob/logs
     ports:
       - "27777:27777"

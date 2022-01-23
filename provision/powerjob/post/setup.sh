@@ -22,8 +22,13 @@ for attempt in {1..20}; do
 done
 
 if [ $databaseReady -eq 1 ]; then
-    echo "Run Mariadb post setup for infrastructure powerjob..."
-    refresh_infra_db $dbContainer powerjob
+    initialized=$(check_database_exists $dbContainer $dbType, powerjob)
+    if [[ $initialized == 'false' ]]; then
+        echo "Run database setup for infrastructure powerjob..."
+        refresh_infra_db $dbContainer powerjob
+    else
+        echo "Skip database setup for infrastructure powerjob..."
+    fi
 else
     echo "$dbtype is not working, try to setup database later!!!"
 fi

@@ -99,7 +99,7 @@ stop() {
     fi
 
     compose_files=""
-    if [[ $PROFILE -eq "all" ]]; then
+    if [[ $PROFILE == "all" ]]; then
         for file in docker-compose-*; do
             compose_files="$compose_files -f $file"
         done;
@@ -132,7 +132,7 @@ webui() {
             echo "Launch webui for $infra..."
             url=$(sh provision/$infra/post/webui.sh)
             if [[ ! -z $url ]]; then
-                xdg-open $url
+                open_browser $url
             fi
         fi
     done
@@ -176,7 +176,7 @@ start() {
             echo "Launch webui for $infra..."
             url=$(sh provision/$infra/post/webui.sh)
             if [[ ! -z $url ]]; then
-                xdg-open $url
+                open_browser $url
             fi
         fi
     done

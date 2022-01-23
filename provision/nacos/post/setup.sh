@@ -23,7 +23,13 @@ done
 
 if [ $databaseReady -eq 1 ]; then
     echo "Run Mariadb post setup for infrastructure nacos..."
-    refresh_infra_db $dbContainer nacos
+    initialized=$(check_database_exists $dbContainer $dbType, nacos)
+    if [[ $initialized == 'false' ]]; then
+        echo "Run database setup for infrastructure nacos..."
+        refresh_infra_db $dbContainer nacos
+    else
+        echo "Skip database setup for infrastructure nacos..."
+    fi
 else
     echo "$dbtype is not working, try to setup database later!!!"
 fi
