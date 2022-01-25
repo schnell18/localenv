@@ -13,8 +13,8 @@ services:
       timeout: 10s
       retries: 5
     volumes:
-      - ./.state/redis/conf/node1:/etc/redis/
-      - ./.state/redis/data/node1:/data
+      - ./.state/redis-cluster/conf/node1:/etc/redis/
+      - ./.state/redis-cluster/data/node1:/data
     ports:
       - "7001:7001"
       - "17001:17001"
@@ -29,8 +29,8 @@ services:
       timeout: 10s
       retries: 5
     volumes:
-      - ./.state/redis/conf/node2:/etc/redis/
-      - ./.state/redis/data/node2:/data
+      - ./.state/redis-cluster/conf/node2:/etc/redis/
+      - ./.state/redis-cluster/data/node2:/data
     ports:
       - "7002:7002"
       - "17002:17002"
@@ -46,8 +46,8 @@ services:
       retries: 5
     volumes:
       # - ./provision/redis/node3:/etc/redis/
-      - ./.state/redis/conf/node3:/etc/redis/
-      - ./.state/redis/data/node3:/data
+      - ./.state/redis-cluster/conf/node3:/etc/redis/
+      - ./.state/redis-cluster/data/node3:/data
     ports:
       - "7003:7003"
       - "17003:17003"
@@ -56,7 +56,7 @@ services:
     image: redis:6.2.1-alpine
     entrypoint: [sh, -c, /usr/local/bin/create-cluster.sh]
     volumes:
-      - ./.state/redis/bin/create-cluster.sh:/usr/local/bin/create-cluster.sh
+      - ./.state/redis-cluster/bin/create-cluster.sh:/usr/local/bin/create-cluster.sh
     depends_on:
       - redis-cnode1
       - redis-cnode2

@@ -12,9 +12,9 @@ data:
     slow_threshold: 0.2s
   redis:
     addrs:
-      - redis-node1:7001
-      - redis-node2:7002
-      - redis-node3:7003
+      - redis-cnode1:7001
+      - redis-cnode2:7002
+      - redis-cnode3:7003
     password: abc123
     read_timeout: 0.2s
     write_timeout: 0.2s
