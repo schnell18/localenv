@@ -1,1 +1,1 @@
-docker build -t newton:5050/repository/localenv/golang-build:1.17-alpine .
+docker build -t schnell18/golang-build:1.17-alpine -f Dockerfile2 .

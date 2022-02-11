@@ -11,6 +11,7 @@ Usage:
             refresh-db app1 [app2 app3 ...]
             logs app1 [app2 app3 ...]
             validate app1 [app2 app3 ...]
+            attach app1
             list
 EOF
 }
@@ -32,6 +33,16 @@ Crafted by Justin Zhang <schnell18@gmail.com>
 List available applications managed by virtual environment.
 Usage:
     appctl.sh list
+EOF
+}
+
+usage_attach() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+Attach to running app and get a login shell.
+Usage:
+    appctl.sh attach app
 EOF
 }
 
@@ -60,16 +71,6 @@ usage_stop() {
 Infrastructure control tool for Virtual development environment.
 Crafted by Justin Zhang <schnell18@gmail.com>
 This command stops docker container of specified apps.
-Usage:
-    appctl.sh stop app1 [app2 app3 ...]
-EOF
-}
-
-usage_stop() {
-    cat <<EOF
-Infrastructure control tool for Virtual development environment.
-Crafted by Justin Zhang <schnell18@gmail.com>
-This command stop docker container of specified apps.
 Usage:
     appctl.sh stop app1 [app2 app3 ...]
 EOF
@@ -147,6 +148,17 @@ build() {
     done
 }
 
+attach() {
+
+    ARG=$1
+    if [[ -z $ARG ]]; then
+        usage_attach
+        exit 1
+    fi
+
+    docker-compose -f "docker-compose-app-${ARG}.yml" exec $ARG sh
+
+}
 
 list() {
     for file in docker-compose-app-*; do
@@ -304,6 +316,7 @@ case "${cmd}" in
     stop)       stop $@;;
     logs)       logs $@;;
     list)       list $@;;
+    attach)     attach $@;;
     validate)   validate $@;;
     refresh-db) refresh_db $@;;
     *) usage && exit 1;;

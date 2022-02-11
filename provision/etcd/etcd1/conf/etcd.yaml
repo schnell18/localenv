@@ -1,7 +1,7 @@
 # This is the configuration file for the etcd server.
 
 # Human-readable name for this member.
-name: 'default'
+name: 'etcd1'
 
 # Path to the data directory.
 data-dir: '/etcd_data'
@@ -39,11 +39,11 @@ cors:
 
 # List of this member's peer URLs to advertise to the rest of the cluster.
 # The URLs needed to be a comma-separated list.
-initial-advertise-peer-urls: http://0.0.0.0:2380
+# initial-advertise-peer-urls: "http://etcd1:2380,http://etcd2:2380,http://etcd3:2380"
 
 # List of this member's client URLs to advertise to the public.
 # The URLs needed to be a comma-separated list.
-advertise-client-urls: http://0.0.0.0:2379
+advertise-client-urls: "http://etcd1:2379,http://etcd2:2379,http://etcd3:2379"
 
 # Discovery URL used to bootstrap the cluster.
 discovery:
@@ -58,7 +58,7 @@ discovery-proxy:
 discovery-srv:
 
 # Initial cluster configuration for bootstrapping.
-initial-cluster:
+initial-cluster: etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
 
 # Initial cluster token for the etcd cluster during bootstrap.
 initial-cluster-token: 'etcd-cluster'
@@ -138,6 +138,3 @@ force-new-cluster: false
 
 auto-compaction-mode: periodic
 auto-compaction-retention: "1"
-
-# required by apisix
-enable-grpc-gateway: true

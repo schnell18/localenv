@@ -24,6 +24,16 @@ Usage:
 EOF
 }
 
+usage_attach() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+Attach to running infra and get a login shell.
+Usage:
+    infractl.sh attach infra
+EOF
+}
+
 usage_refresh_db() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
@@ -183,6 +193,23 @@ start() {
 
 }
 
+attach() {
+
+    ARG=$1
+    if [[ -z $ARG ]]; then
+        usage_attach
+        exit 1
+    fi
+
+    compose_files=""
+    for file in docker-compose-infra-*; do
+        compose_files="$compose_files -f $file"
+    done;
+
+    docker-compose $compose_files exec $ARG sh
+
+}
+
 refresh_db() {
     if [[ -z $1 ]]; then
         usage_refresh_db
@@ -203,6 +230,7 @@ case "${cmd}" in
     start)       start $@;;
     stop)        stop $@;;
     status)      status $@;;
+    attach)      attach $@;;
     list)        list $@;;
     webui)       webui $@;;
     refresh-db)  refresh_db $@;;
