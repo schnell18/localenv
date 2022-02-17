@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   grafana:
-    image: grafana/grafana:6.0.1
+    image: docker.io/grafana/grafana:6.0.1
     user: "0"
     environment:
       GF_LOG_LEVEL: error

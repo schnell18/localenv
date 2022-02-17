@@ -2,17 +2,17 @@
 version: '3.9'
 services:
 
-  poincare:
+  leibniz:
     build:
-      context: ./backends/poincare/
+      context: ./backends/leibniz/
       # allow access to maven repo on host during docker image build
       extra_hosts:
         - "registry.homelab.vn:172.18.0.1"
       dockerfile: Dockerfile-virtualenv
-    image: poincare:LATEST
+    image: docker.io/schnell18/leibniz:LATEST
     restart: always
     healthcheck:
-      test: "nc -z localhost 24002"
+      test: "nc -z localhost 24008"
       interval: 30s
       timeout: 10s
       retries: 5
@@ -21,13 +21,12 @@ services:
         condition: service_healthy
       mariadb:
         condition: service_healthy
-      redis-cnode1:
-        condition: service_healthy
       nacos:
         condition: service_healthy
+      gauss:
+        condition: service_healthy
     volumes:
-      - ./provision/apps/poincare/bootstrap.yml:/etc/bootstrap.yml
+      - ./provision/apps/leibniz/bootstrap.yml:/etc/bootstrap.yml
     ports:
-      - "24002:24002"
-      - "7081:7081"
-
+      - "24008:24008"
+      - "7087:7087"

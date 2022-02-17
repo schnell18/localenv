@@ -124,7 +124,7 @@ build() {
     done
 
     all_compose_files=""
-    for file in docker-compose-*.yml; do
+    for file in containerized-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -141,7 +141,7 @@ build() {
             cp ~/.m2/settings.xml $TMP_MVN_SETTINGS
         fi
 
-        docker-compose $all_compose_files build --build-arg ID_FILE=$ID_FILE $APP
+        podman-compose $all_compose_files build --build-arg ID_FILE=$ID_FILE $APP
 
         rm -fr $TMP_PRIV_DIR
         rm -fr $TMP_MVN_DIR
@@ -156,13 +156,13 @@ attach() {
         exit 1
     fi
 
-    docker-compose -f "docker-compose-app-${ARG}.yml" exec $ARG sh
+    podman-compose -f "containerized-app-${ARG}.yml" exec $ARG sh
 
 }
 
 list() {
-    for file in docker-compose-app-*; do
-        if [[ $file =~ ^docker-compose-app-(.+).yml$ ]]; then
+    for file in containerized-app-*; do
+        if [[ $file =~ ^containerized-app-(.+).yml$ ]]; then
             echo ${BASH_REMATCH[1]}
         fi
     done;
@@ -175,7 +175,7 @@ start() {
     fi
 
     all_compose_files=""
-    for file in docker-compose-*.yml; do
+    for file in containerized-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -183,7 +183,7 @@ start() {
     for app in $@; do
         all_apps="$all_apps $app"
     done
-    docker-compose $all_compose_files up -d $all_apps
+    podman-compose $all_compose_files up -d $all_apps
 
     # do app-specific post setup
     for app in $@; do
@@ -202,7 +202,7 @@ stop() {
     fi
 
     all_compose_files=""
-    for file in docker-compose-*.yml; do
+    for file in containerized-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -210,7 +210,7 @@ stop() {
     for app in $@; do
         all_apps="$all_apps $app"
     done
-    docker-compose $all_compose_files stop $all_apps
+    podman-compose $all_compose_files stop $all_apps
 }
 
 logs() {
@@ -220,7 +220,7 @@ logs() {
     fi
 
     all_compose_files=""
-    for file in docker-compose-*.yml; do
+    for file in containerized-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -229,7 +229,7 @@ logs() {
         all_apps=" $app"
     done
 
-    docker-compose $all_compose_files logs -f $all_apps
+    podman-compose $all_compose_files logs -f $all_apps
 }
 
 validate() {

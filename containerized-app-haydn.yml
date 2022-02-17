@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile-virtualenv
       extra_hosts:
         - "tinker.cf:192.168.31.25"
-    image: schnell18/haydn:latest
+    image: docker.io/schnell18/haydn:latest
     restart: always
     healthcheck:
       test: "nc -z localhost 29000"
@@ -28,7 +28,7 @@ services:
       - "8083:28000"
 
   haydn-job-agent:
-    image: schnell18/powerjob-agent:4.0.1-hf04-amd64
+    image: docker.io/schnell18/powerjob-agent:4.0.1-hf04-amd64
     restart: always
     healthcheck:
       test: "nc -z localhost 27777"

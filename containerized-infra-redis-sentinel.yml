@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   redis-snode1:
-    image: redis:6.2.1-alpine
+    image: docker.io/redis:6.2.1-alpine
     restart: always
     entrypoint: [redis-server, /etc/redis/redis.conf]
     healthcheck:
@@ -19,7 +19,7 @@ services:
       - "6379:6379"
 
   redis-snode2:
-    image: redis:6.2.1-alpine
+    image: docker.io/redis:6.2.1-alpine
     restart: always
     entrypoint: [redis-server, /etc/redis/redis.conf]
     healthcheck:
@@ -34,7 +34,7 @@ services:
       - "6380:6380"
 
   redis-snode3:
-    image: redis:6.2.1-alpine
+    image: docker.io/redis:6.2.1-alpine
     restart: always
     entrypoint: [redis-server, /etc/redis/redis.conf]
     healthcheck:
@@ -50,7 +50,7 @@ services:
       - "6381:6381"
 
   redis-sentinel1:
-    image: redis:6.2.1-alpine
+    image: docker.io/redis:6.2.1-alpine
     restart: always
     entrypoint: [redis-sentinel, /etc/redis/sentinel.conf]
     healthcheck:
@@ -64,7 +64,7 @@ services:
       - "5001:5001"
 
   redis-sentinel2:
-    image: redis:6.2.1-alpine
+    image: docker.io/redis:6.2.1-alpine
     restart: always
     entrypoint: [redis-sentinel, /etc/redis/sentinel.conf]
     healthcheck:
@@ -78,7 +78,7 @@ services:
       - "5002:5002"
 
   redis-sentinel3:
-    image: redis:6.2.1-alpine
+    image: docker.io/redis:6.2.1-alpine
     restart: always
     entrypoint: [redis-sentinel, /etc/redis/sentinel.conf]
     healthcheck:

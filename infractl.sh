@@ -89,15 +89,15 @@ status() {
 
     compose_files=""
     if [[ $PROFILE -eq "all" ]]; then
-        for file in docker-compose-*; do
+        for file in containerized-*; do
             compose_files="$compose_files -f $file"
         done;
     else
         for infra in $@; do
-            compose_files="$compose_files -f docker-compose-infra-${infra}.yml"
+            compose_files="$compose_files -f containerized-infra-${infra}.yml"
         done
     fi
-    docker-compose $compose_files ps
+    podman-compose $compose_files ps
 
 }
 
@@ -110,21 +110,21 @@ stop() {
 
     compose_files=""
     if [[ $PROFILE == "all" ]]; then
-        for file in docker-compose-*; do
+        for file in containerized-*; do
             compose_files="$compose_files -f $file"
         done;
     else
         for infra in $@; do
-            compose_files="$compose_files -f docker-compose-infra-${infra}.yml"
+            compose_files="$compose_files -f containerized-infra-${infra}.yml"
         done
     fi
-    docker-compose $compose_files down
+    podman-compose $compose_files down
 
 }
 
 list() {
-    for file in docker-compose-infra-*; do
-        if [[ $file =~ ^docker-compose-infra-(.+).yml$ ]]; then
+    for file in containerized-infra-*; do
+        if [[ $file =~ ^containerized-infra-(.+).yml$ ]]; then
             echo ${BASH_REMATCH[1]}
         fi
     done;
@@ -166,12 +166,12 @@ start() {
             echo "Run prepare script for $infra..."
             sh provision/$infra/pre/prepare.sh
         fi
-        compose_files="$compose_files -f docker-compose-infra-${infra}.yml"
+        compose_files="$compose_files -f containerized-infra-${infra}.yml"
     done
     echo $compose_files > .state/compose-files.txt
 
-    # start containers managed by docker-compose
-    docker-compose $compose_files up -d --force-recreate
+    # start containers managed by containerized
+    podman-compose $compose_files up -d --force-recreate
 
     # do infra-specific post setup
     for infra in $@; do
@@ -202,11 +202,11 @@ attach() {
     fi
 
     compose_files=""
-    for file in docker-compose-infra-*; do
+    for file in containerized-infra-*; do
         compose_files="$compose_files -f $file"
     done;
 
-    docker-compose $compose_files exec $ARG sh
+    podman-compose $compose_files exec $ARG sh
 
 }
 
