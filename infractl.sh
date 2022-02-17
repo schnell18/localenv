@@ -9,6 +9,7 @@ Usage:
                 stop all | infra1 [infra2 infra3 ...]
                 status all | infra1 [infra2 infra3 ...]
                 refresh-db infra1 [infra2 infra3 ...]
+                logs infra1 [infra2 infra3 ...]
                 webui infra1 [infra2 infra3 ...]
                 logs infra1
                 attach infra1
@@ -43,6 +44,16 @@ Crafted by Justin Zhang <schnell18@gmail.com>
 Attach to running infra and get a login shell.
 Usage:
     infractl.sh attach infra
+EOF
+}
+
+usage_logs() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+This command continuously shows logs from specified infra.
+Usage:
+    infractl.sh logs infra1 [infra2 infra3 ...]
 EOF
 }
 
@@ -100,16 +111,16 @@ status() {
     fi
 
     compose_files=""
-    if [[ $PROFILE -eq "all" ]]; then
-        for file in docker-compose-*; do
+    if [[ $PROFILE == "all" ]]; then
+        for file in *-*; do
             compose_files="$compose_files -f $file"
         done;
     else
         for infra in $@; do
-            compose_files="$compose_files -f docker-compose-infra-${infra}.yml"
+            compose_files="$compose_files -f infra-${infra}.yml"
         done
     fi
-    docker-compose $compose_files ps
+    podman-compose $compose_files ps
 
 }
 
@@ -122,21 +133,21 @@ stop() {
 
     compose_files=""
     if [[ $PROFILE == "all" ]]; then
-        for file in docker-compose-*; do
+        for file in *-*; do
             compose_files="$compose_files -f $file"
         done;
     else
         for infra in $@; do
-            compose_files="$compose_files -f docker-compose-infra-${infra}.yml"
+            compose_files="$compose_files -f infra-${infra}.yml"
         done
     fi
-    docker-compose $compose_files down
+    podman-compose $compose_files down
 
 }
 
 list() {
-    for file in docker-compose-infra-*; do
-        if [[ $file =~ ^docker-compose-infra-(.+).yml$ ]]; then
+    for file in infra-*; do
+        if [[ $file =~ ^infra-(.+).yml$ ]]; then
             echo ${BASH_REMATCH[1]}
         fi
     done;
@@ -197,12 +208,12 @@ start() {
             echo "Run prepare script for $infra..."
             sh provision/$infra/pre/prepare.sh
         fi
-        compose_files="$compose_files -f docker-compose-infra-${infra}.yml"
+        compose_files="$compose_files -f infra-${infra}.yml"
     done
     echo $compose_files > .state/compose-files.txt
 
-    # start containers managed by docker-compose
-    docker-compose $compose_files up -d --force-recreate
+    # start containers managed by podman
+    podman-compose $compose_files up -d --force-recreate
 
     # do infra-specific post setup
     for infra in $@; do
@@ -233,11 +244,11 @@ attach() {
     fi
 
     compose_files=""
-    for file in docker-compose-infra-*; do
+    for file in infra-*; do
         compose_files="$compose_files -f $file"
     done;
 
-    docker-compose $compose_files exec $ARG sh
+    podman-compose $compose_files exec $ARG sh
 
 }
 
@@ -249,6 +260,25 @@ refresh_db() {
 
     refresh_infra_db $@
 
+}
+
+logs() {
+    if [[ -z $1 ]]; then
+        usage_logs
+        exit 1
+    fi
+
+    all_compose_files=""
+    for file in infra-*.yml; do
+        all_compose_files="$all_compose_files -f $file"
+    done
+
+    all_infras=""
+    for infra in $@; do
+        all_infras=" $infra"
+    done
+
+    podman-compose $all_compose_files logs -f $all_infras
 }
 
 cmd=$1

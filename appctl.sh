@@ -50,7 +50,7 @@ usage_build() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
 Crafted by Justin Zhang <schnell18@gmail.com>
-This command builds docker image of specified apps from source.
+This command builds container image of specified apps from source.
 Usage:
     appctl.sh build app1 [app2 app3 ...]
 EOF
@@ -60,7 +60,7 @@ usage_start() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
 Crafted by Justin Zhang <schnell18@gmail.com>
-This command start docker container of specified apps.
+This command start container of specified apps.
 Usage:
     appctl.sh starts app1 [app2 app3 ...]
 EOF
@@ -70,7 +70,7 @@ usage_stop() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
 Crafted by Justin Zhang <schnell18@gmail.com>
-This command stops docker container of specified apps.
+This command stops container of specified apps.
 Usage:
     appctl.sh stop app1 [app2 app3 ...]
 EOF
@@ -124,7 +124,7 @@ build() {
     done
 
     all_compose_files=""
-    for file in docker-compose-*.yml; do
+    for file in *-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -141,7 +141,7 @@ build() {
             cp ~/.m2/settings.xml $TMP_MVN_SETTINGS
         fi
 
-        docker-compose $all_compose_files build --build-arg ID_FILE=$ID_FILE $APP
+        podman-compose $all_compose_files build --build-arg ID_FILE=$ID_FILE $APP
 
         rm -fr $TMP_PRIV_DIR
         rm -fr $TMP_MVN_DIR
@@ -156,13 +156,13 @@ attach() {
         exit 1
     fi
 
-    docker-compose -f "docker-compose-app-${ARG}.yml" exec $ARG sh
+    podman-compose -f "app-${ARG}.yml" exec $ARG sh
 
 }
 
 list() {
-    for file in docker-compose-app-*; do
-        if [[ $file =~ ^docker-compose-app-(.+).yml$ ]]; then
+    for file in app-*; do
+        if [[ $file =~ ^app-(.+).yml$ ]]; then
             echo ${BASH_REMATCH[1]}
         fi
     done;
@@ -175,7 +175,7 @@ start() {
     fi
 
     all_compose_files=""
-    for file in docker-compose-*.yml; do
+    for file in *-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -183,7 +183,7 @@ start() {
     for app in $@; do
         all_apps="$all_apps $app"
     done
-    docker-compose $all_compose_files up -d $all_apps
+    podman-compose $all_compose_files up -d $all_apps
 
     # do app-specific post setup
     for app in $@; do
@@ -202,7 +202,7 @@ stop() {
     fi
 
     all_compose_files=""
-    for file in docker-compose-*.yml; do
+    for file in *-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -210,7 +210,7 @@ stop() {
     for app in $@; do
         all_apps="$all_apps $app"
     done
-    docker-compose $all_compose_files stop $all_apps
+    podman-compose $all_compose_files stop $all_apps
 }
 
 logs() {
@@ -220,7 +220,7 @@ logs() {
     fi
 
     all_compose_files=""
-    for file in docker-compose-*.yml; do
+    for file in *-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -229,7 +229,7 @@ logs() {
         all_apps=" $app"
     done
 
-    docker-compose $all_compose_files logs -f $all_apps
+    podman-compose $all_compose_files logs -f $all_apps
 }
 
 validate() {
@@ -262,13 +262,13 @@ refresh_db() {
     # provision databases for backend service
     databaseReady=0
 
-    dbContainer=$(docker ps -f label=database=true -q)
+    dbContainer=$(podman ps -f label=database=true -q)
     if [[ -z $dbContainer ]]; then
         echo "Database is not ready..."
         exit 1
     fi
 
-    dbType=$(docker inspect -f {{.Config.Labels.dbtype}} $dbContainer)
+    dbType=$(podman inspect -f {{.Config.Labels.dbtype}} $dbContainer)
     printf "Checking $dbType readiness"
     for attempt in {1..20}; do
         printf "."
@@ -291,9 +291,9 @@ refresh_db() {
                 if [ -f schema/schema.sql ]; then
                     db=$(head -3 schema/schema.sql | grep -i USE | head -1 | cut -d' ' -f2 | sed 's/;//')
                     echo "Prepare database ${db} for project $(basename $app)..."
-                    docker exec -it ${dbContainer} /bin/sh /setup/create-database.sh $db mfg
-                    echo "Loading schema and data using docker for project $(basename $app)..."
-                    docker exec -it ${dbContainer} /bin/sh /setup/load-schema-and-data.sh $(basename $app) mfg $db backends
+                    podman exec -it ${dbContainer} /bin/sh /setup/create-database.sh $db mfg
+                    echo "Loading schema and data using podman for project $(basename $app)..."
+                    podman exec -it ${dbContainer} /bin/sh /setup/load-schema-and-data.sh $(basename $app) mfg $db backends
                 fi
                 cd $PWD
             fi

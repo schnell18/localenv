@@ -7,7 +7,7 @@ services:
     build:
       context: ./backends/verdi/
       dockerfile: Dockerfile-virtualenv
-    image: schnell18/verdi:latest
+    image: docker.io/schnell18/verdi:latest
     restart: always
     healthcheck:
       test: "nc -z localhost 29000"

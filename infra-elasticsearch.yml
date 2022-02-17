@@ -5,17 +5,18 @@ services:
 
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
+    # image: docker.elastic.co/elasticsearch/elasticsearch:8.2.2
     environment:
       - node.name=es01
       - cluster.name=es-docker-cluster
       - discovery.seed_hosts=es01
       - cluster.initial_master_nodes=es01
-      - bootstrap.memory_lock=true
+      - bootstrap.memory_lock=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+    # ulimits:
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
     volumes:
       - ./provision/global/etc/localtime:/etc/localtime
       - ./provision/global/etc/timezone:/etc/timezone
@@ -26,6 +27,7 @@ services:
 
   kib01:
     image: docker.elastic.co/kibana/kibana:7.15.1
+    # image: docker.elastic.co/kibana/kibana:8.2.2
     volumes:
       - ./provision/global/etc/localtime:/etc/localtime
       - ./provision/global/etc/timezone:/etc/timezone

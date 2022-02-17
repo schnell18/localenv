@@ -1,0 +1,59 @@
+version: '3.9'
+services:
+
+  zookeeper1:
+    image: docker.io/schnell18/zookeeper:3.5.9-1-alpine-amd64
+    healthcheck:
+      test: "nc -z localhost 2181"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    environment:
+      - MAX_HEAP_SIZE=256m
+    volumes:
+      - ./provision/zookeeper/common/zoo.cfg:/zookeeper/conf/zoo.cfg
+      - ./provision/zookeeper/common/log4j.properties:/zookeeper/conf/log4j.properties
+      - ./.state/zookeeper/zk1/data:/var/lib/zookeeper/data
+      - ./.state/zookeeper/zk1/logs:/var/lib/zookeeper/logs
+    ports:
+      - "2181:2181"
+    restart: on-failure
+
+  zookeeper2:
+    image: docker.io/schnell18/zookeeper:3.5.9-1-alpine-amd64
+    healthcheck:
+      test: "nc -z localhost 2181"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    environment:
+      - MAX_HEAP_SIZE=256m
+    volumes:
+      - ./provision/zookeeper/common/zoo.cfg:/zookeeper/conf/zoo.cfg
+      - ./provision/zookeeper/common/log4j.properties:/zookeeper/conf/log4j.properties
+      - ./.state/zookeeper/zk2/data:/var/lib/zookeeper/data
+      - ./.state/zookeeper/zk2/logs:/var/lib/zookeeper/logs
+    ports:
+      - "2182:2181"
+    restart: on-failure
+
+  zookeeper3:
+    image: docker.io/schnell18/zookeeper:3.5.9-1-alpine-amd64
+    healthcheck:
+      test: "nc -z localhost 2181"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    environment:
+      - MAX_HEAP_SIZE=256m
+    volumes:
+      - ./provision/zookeeper/common/zoo.cfg:/zookeeper/conf/zoo.cfg
+      - ./provision/zookeeper/common/log4j.properties:/zookeeper/conf/log4j.properties
+      - ./.state/zookeeper/zk3/data:/var/lib/zookeeper/data
+      - ./.state/zookeeper/zk3/logs:/var/lib/zookeeper/logs
+    ports:
+      - "2183:2181"
+    restart: on-failure

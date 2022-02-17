@@ -70,15 +70,15 @@ db.posts.insert([
 ])
 
 db.posts.insert([
-	{
-		title: "MongoDB Overview",
-		description: "MongoDB is no SQL database",
-		by: "tinker point",
-		url: "http://www.tinkerpoint.com",
-		tags: ["mongodb", "database", "NoSQL"],
-		likes: 100
-	},
-	{
+    {
+        title: "MongoDB Overview",
+        description: "MongoDB is no SQL database",
+        by: "tinker point",
+        url: "http://www.tinkerpoint.com",
+        tags: ["mongodb", "database", "NoSQL"],
+        likes: 100
+    },
+    {
         title: "NoSQL Database",
         description: "NoSQL database doesn't have tables",
         by: "tinker point",

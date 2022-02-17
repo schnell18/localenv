@@ -3,8 +3,8 @@ version: '3.9'
 services:
 
   etcd1:
-    image: bitnami/etcd:3.5.2
-    user: root
+    image: docker.io/bitnami/etcd:3.5.2
+    # user: root
     restart: always
     healthcheck:
       test: "curl -s http://127.0.0.1:2379/health | jq .health | grep true"
@@ -31,8 +31,8 @@ services:
       - "2379:2379/tcp"
 
   etcd2:
-    image: bitnami/etcd:3.5.2
-    user: root
+    image: docker.io/bitnami/etcd:3.5.2
+    # user: root
     restart: always
     healthcheck:
       test: "curl -s http://127.0.0.1:2379/health | jq .health | grep true"
@@ -59,8 +59,8 @@ services:
       - "2380:2379/tcp"
 
   etcd3:
-    image: bitnami/etcd:3.5.2
-    user: root
+    image: docker.io/bitnami/etcd:3.5.2
+    # user: root
     restart: always
     healthcheck:
       test: "curl -s http://127.0.0.1:2379/health | jq .health | grep true"

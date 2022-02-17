@@ -1,12 +1,14 @@
 # 容器化本地开发环境
 
 本虚拟开发环境提供了快捷的、跨平台的、一致开发体验，可有效地管理复杂的技术栈设置。
-通过 docker 容器减少了对宿主机的配置污染。 本开发环境预装了以下中间件：
+通过容器减少了对宿主机的配置污染。 本开发环境预装了以下中间件：
 
 * MariaDB
+* MongoDB
 * TiDB
 * Redis
 * RocketMQ
+* RabbitMQ
 * ElasticSearch
 * nginx
 * nacos
@@ -19,25 +21,29 @@
 
 下表列出了这些中间件的宿主机中的端口以及 web 管理界面的地址。
 
-|  序号 | 中间件        | 端口 | web 管理界面链接            |
-| ----- | ------------- | ---- | --------------------------- |
-|  01   | MariaDB       | 3306 |                             |
-|  02   | TiDB          | 4000 |                             |
-|  03   | Redis         | 7001 |                             |
-|  04   | RocketMQ      | 9876 | http://127.0.0.1:7080       |
-|  05   | ElasticSearch | 9200 | http://127.0.0.1:5601       |
-|  06   | nacos         | 8848 | http://127.0.0.1:8848/nacos |
-|  07   | powerjob      | 7700 | http://127.0.0.1:7700       |
-|  08   | rabbitmq      | 5672 | http://127.0.0.1:15672      |
-|  09   | zookeeper     | 2181 |                             |
-|  10   | kafka         | 9092 |                             |
+|  序号 | 中间件        | 端口  | web 管理界面链接            |
+| ----- | ------------- | ----- | --------------------------- |
+|  01   | MariaDB       | 3306  |                             |
+|  02   | MongoDB       | 27017 |                             |
+|  04   | TiDB          | 4000  |                             |
+|  05   | Redis         | 7001  |                             |
+|  06   | RocketMQ      | 9876  | http://127.0.0.1:7080       |
+|  07   | ElasticSearch | 9200  | http://127.0.0.1:5601       |
+|  08   | nacos         | 8848  | http://127.0.0.1:8848/nacos |
+|  09   | powerjob      | 7700  | http://127.0.0.1:7700       |
+|  10   | rabbitmq      | 5672  | http://127.0.0.1:15672      |
+|  11   | kafka         | 9092  |                             |
 
 ## 开发环境安装
 
 本项目开发环境在 MacOS 测试验证过，理论上也可以在 Linux 及 Windows 运行。
-使用本项目开发环境时请安装 Docker Desktop 3.5。[MacOS 版本下载地址][1]
+使用本项目开发环境时请安装 podman 4.0.0+ 。
 此外，为方便使用命令行工具，安装配置好相关工具：
 
+- podman
+- podman-compose
+- podman-dnsname
+- aardvark-dns
 - mysql client
 - redis client
 - git
@@ -46,17 +52,6 @@
 - curl
 - xxd
 
-
-接下来需要配置一下主机的 /etc/hosts 文件，加入以下主机名映射回环地址：
-
-    127.0.0.1	mariadb
-    127.0.0.1	tidb
-    127.0.0.1	namesrv
-    127.0.0.1	rocketmq
-    127.0.0.1	mysql
-    127.0.0.1	redis
-    127.0.0.1	nacos
-    127.0.0.1	powerjob
 
 以上步骤完成后请克隆 [localenv 项目 git 库][2]，命令如下：
 
@@ -78,6 +73,46 @@
     cd frontends
     git clone git@<your_git_server>/<your_frontend_project>.git
 
+## config rootless container
+
+If you use Arch/Manjaro Linux, you may refer to [this page][3] for detailed
+setup instructions.
+
+    usermod --add-subuids 200000-201000 --add-subgids 200000-201000 johndoe
+    grep johndoe /etc/subuid /etc/subgid
+    /etc/subuid:johndoe:200001:1001
+    /etc/subgid:johndoe:200000:1001
+
+If you encounter:
+
+    potentially insufficient UIDs or GIDs available in user namespace
+
+Try to run:
+
+    podman system migrate
+
+or:
+
+    rm -rf $HOME/.local/share/containers/storage
+
+Set environment variable `DOCKER_HOST`:
+
+    export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
+
+Enable `podman.service` for per-user systemd:
+
+    systemctl enable podman.service --user
+
+And start `podman.service`:
+
+    systemctl start podman.service --user
+
+Install, enable and start `dnsmasq`:
+
+    sudo pacman -S dnsmasq
+    sudo systemctl enable dnsmasq
+    sudo systemctl start dnsmasq
+
 ## 启动环境
 
 启动完整的环境需要消耗较多的内存，如果只需要某些特定容器，可以指定相应的
@@ -92,7 +127,7 @@ infra 名称。
 
 比如只想启动 MariaDB 和 Redis，那么可以运行以下命令：
 
-    ./infractl.sh start mariadb redis
+    ./infractl.sh start mariadb redis-cluster
 
 下表是 `infractl.sh` 支持的 infra：
 
@@ -102,12 +137,14 @@ infra 名称。
 |  02   | mariadb                     | 启动 MariaDB 相关的容器         |
 |  03   | redis                       | 启动 Redis                      |
 |  04   | rocketmq                    | 启动 RocketMQ 相关的容器        |
+|  04   | rabbitmq                    | 启动 RabbitMQ 相关的容器        |
 |  05   | tidb                        | 启动 TiDB                       |
 |  06   | nacos                       | 启动 nacos                      |
 |  07   | powerjob                    | 启动 powerjob                   |
 |  08   | etcd                        | 启动 etcd                       |
 |  09   | zookeeper                   | 启动 zookeeper                  |
 |  10   | kafka                       | 启动 kafka                      |
+|  11   | mongodb                     | 启动 mongodb                    |
 
 环境启动后可以通过以下命令检测各个容器是否正常工作：
 
@@ -135,13 +172,29 @@ MariaDB 的数据文件保存在 .state/mariadb/data 目录下。
 
 ## RocketMQ
 
-开发环境启动后，RocketMQ 的管理界面可以通过 http://rocketmq:7800 访问管理界面。
+开发环境启动后，RocketMQ 的管理界面可以通过 http://127.0.0.1:7800 访问管理界面。
 也可以使用 ./infractl.sh webui rocketmq 命令自动打开浏览器。
 
 用户名可自行注册。
 
 RocketMQ 的数据文件保存在 .state/rocketmq/broker1/store 目录下。
 重启本项目的开发环境不会导致数据丢失。
+
+## RabbitMQ
+
+开发环境启动后，RabbitMQ 的管理界面可以通过 http://127.0.0.1:15672 访问管理界面。
+也可以使用 ./infractl.sh webui rabbitmq 命令自动打开浏览器。
+使用 guest/guest 可登录管理界面。
+
+## nacos
+
+nacos 是个配置中心及服务注册中心。 nacos 依赖数据库，本项目的示例使用了 mariadb。
+因此，启动 nacos 服务器请使用以下命令：
+
+    ./infractl.sh start mariadb nacos
+
+以上命令执行成功后会自动打开浏览器，展示 nacos 管理界面。默认登录用户名为 nacos，密码同用户名。
+也可以使用 ./infractl.sh webui nacos 命令自动打开浏览器。
 
 ## PowerJob
 
@@ -156,7 +209,7 @@ PowerJob 依赖数据库，本项目的示例使用了 mariadb。
     ./appctl.sh start haydn haydn-job-agent
 
 以上命令会自动注册应用名和密码均为 `haydn` 的应用，登录管理界面时需要使用。
-环境启动后，PowerJob 的管理界面可以通过 http://powerjob:7700 访问。
+环境启动后，PowerJob 的管理界面可以通过 http://127.0.0.1:7700 访问。
 也可以使用 ./infractl.sh webui powerjob 命令自动打开浏览器。
 
 
@@ -233,7 +286,7 @@ JVM。此时，设置合适的断点并触发相应的条件即可进行单步�
 
 ## 配置镜像加速
 
-请在 Docker Desktop 中打开 preference 并加入以下国内镜像：
+请在 ~/.config/containers/registries.conf 并加入以下国内镜像：
 
     "registry-mirrors": [
         "https://docker.mirrors.ustc.edu.cn",
@@ -243,3 +296,4 @@ JVM。此时，设置合适的断点并触发相应的条件即可进行单步�
 
 [1]: https://desktop.docker.com/mac/stable/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=header
 [2]: https://github.com/schnell18/localenv.git
+[3]: https://wiki.archlinux.org/title/Podman

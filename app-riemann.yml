@@ -9,7 +9,7 @@ services:
       extra_hosts:
         - "registry.homelab.vn:172.18.0.1"
       dockerfile: Dockerfile-virtualenv
-    image: riemann:LATEST
+    image: docker.io/schnell18/riemann:LATEST
     restart: always
     healthcheck:
       test: "nc -z localhost 24006"

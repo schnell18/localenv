@@ -6,7 +6,7 @@ services:
     build:
       context: ./frontends/monet/
       dockerfile: Dockerfile-virtualenv
-    image: monet:LATEST
+    image: docker.io/monet:LATEST
     restart: always
     healthcheck:
       test: "nc -z localhost 80"

@@ -3,8 +3,8 @@ version: '3.9'
 services:
 
   nacos:
-    image: schnell18/nacos-server:1.4.2-alpine
-    # image: nacos/nacos-server:2.0.3-slim
+    image: docker.io/schnell18/nacos-server:1.4.2-alpine
+    # image: docker.io/nacos/nacos-server:2.0.3-slim
     healthcheck:
       # test: "cat /proc/1/cmdline | grep nacos"
       test: "nc -z localhost 8848"

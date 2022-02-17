@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   namesrv:
-    image: schnell18/rocketmq:4.9.2-2-alpine
+    image: docker.io/schnell18/rocketmq:4.9.2-2-alpine
     healthcheck:
       test: "nc -z localhost 9876"
       interval: 30s
@@ -19,7 +19,7 @@ services:
     command: sh /home/rocketmq/rocketmq-4.9.2/bin/runnamesrv-java17.sh
 
   broker1:
-    image: schnell18/rocketmq:4.9.2-2-alpine
+    image: docker.io/schnell18/rocketmq:4.9.2-2-alpine
     healthcheck:
       test: "nc -z localhost 10911"
       interval: 30s
@@ -45,13 +45,15 @@ services:
     command: sh /home/rocketmq/rocketmq-4.9.2/bin/runbroker-java17.sh -c /home/rocketmq/rocketmq-4.9.2/conf/broker.conf
 
   rmq-dashboard:
-    image: schnell18/rocketmq-dashboard:1.0.0-alpine
+    image: docker.io/schnell18/rocketmq-dashboard:1.0.0-alpine
     healthcheck:
       test: "nc -z localhost 8080"
       interval: 30s
       timeout: 10s
       retries: 5
     depends_on:
+      - namesrv
+    links:
       - namesrv
     environment:
       - ROCKETMQ_CONFIG_NAMESRVADDR=namesrv:9876

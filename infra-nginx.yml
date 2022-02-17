@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   nginx:
-    image: nginx:1.20.1-alpine
+    image: docker.io/nginx:1.20.1-alpine
     restart: always
     healthcheck:
       test: "nc -z localhost 80"

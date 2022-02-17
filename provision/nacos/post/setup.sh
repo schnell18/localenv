@@ -1,13 +1,13 @@
 source provision/global/libs/functions.sh
 
 databaseReady=0
-dbContainer=$(docker ps -f label=database=true -q)
+dbContainer=$(podman ps -f label=database=true -q)
 if [[ -z $dbContainer ]]; then
     echo "Database is not ready..."
     exit 1
 fi
 
-dbType=$(docker inspect -f {{.Config.Labels.dbtype}} $dbContainer)
+dbType=$(podman inspect -f {{.Config.Labels.dbtype}} $dbContainer)
 printf "Checking $dbType readiness"
 for attempt in {1..20}; do
     printf "."
