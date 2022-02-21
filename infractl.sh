@@ -10,6 +10,8 @@ Usage:
                 status all | infra1 [infra2 infra3 ...]
                 refresh-db infra1 [infra2 infra3 ...]
                 webui infra1 [infra2 infra3 ...]
+                logs infra1
+                attach infra1
                 list
 EOF
 }
@@ -21,6 +23,16 @@ Crafted by Justin Zhang <schnell18@gmail.com>
 List available infrastructure database/middleware.
 Usage:
     infractl.sh list
+EOF
+}
+
+usage_logs() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+This command continuously shows logs from specified infra.
+Usage:
+    infractl.sh logs infra1
 EOF
 }
 
@@ -130,6 +142,25 @@ list() {
     done;
 }
 
+logs() {
+    if [[ -z $1 ]]; then
+        usage_logs
+        exit 1
+    fi
+
+    all_compose_files=""
+    for file in docker-compose-*.yml; do
+        all_compose_files="$all_compose_files -f $file"
+    done
+
+    all_apps=""
+    for app in $@; do
+        all_apps=" $app"
+    done
+
+    docker-compose $all_compose_files logs -f $all_apps
+}
+
 webui() {
     if [[ -z $1 ]]; then
         usage_webui
@@ -232,6 +263,7 @@ case "${cmd}" in
     status)      status $@;;
     attach)      attach $@;;
     list)        list $@;;
+    logs)        logs $@;;
     webui)       webui $@;;
     refresh-db)  refresh_db $@;;
     *) usage && exit 1;;
