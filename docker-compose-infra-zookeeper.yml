@@ -36,7 +36,7 @@ services:
       - ./.state/zookeeper/zk2/data:/var/lib/zookeeper/data
       - ./.state/zookeeper/zk2/logs:/var/lib/zookeeper/logs
     ports:
-      - "3181:2181"
+      - "2182:2181"
     restart: on-failure
 
   zookeeper3:
@@ -55,5 +55,5 @@ services:
       - ./.state/zookeeper/zk3/data:/var/lib/zookeeper/data
       - ./.state/zookeeper/zk3/logs:/var/lib/zookeeper/logs
     ports:
-      - "4181:2181"
+      - "2183:2181"
     restart: on-failure

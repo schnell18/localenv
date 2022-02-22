@@ -12,6 +12,8 @@
 * nacos
 * powerjob
 * etcd
+* zookeeper
+* kafka
 
 其它需要的中间件可以按需扩充。
 
@@ -27,6 +29,8 @@
 |  06   | nacos         | 8848 | http://127.0.0.1:8848/nacos |
 |  07   | powerjob      | 7700 | http://127.0.0.1:7700       |
 |  08   | rabbitmq      | 5672 | http://127.0.0.1:15672      |
+|  09   | zookeeper     | 2181 |                             |
+|  10   | kafka         | 9092 |                             |
 
 ## 开发环境安装
 
@@ -102,6 +106,8 @@ infra 名称。
 |  06   | nacos                       | 启动 nacos                      |
 |  07   | powerjob                    | 启动 powerjob                   |
 |  08   | etcd                        | 启动 etcd                       |
+|  09   | zookeeper                   | 启动 zookeeper                  |
+|  10   | kafka                       | 启动 kafka                      |
 
 环境启动后可以通过以下命令检测各个容器是否正常工作：
 
