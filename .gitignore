@@ -7,6 +7,7 @@ frontends/
 *.pyc
 *.pyo
 *.tar
+*.tgz
 *.jar
 *.bz2
 *.zip
