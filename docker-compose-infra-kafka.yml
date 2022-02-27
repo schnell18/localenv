@@ -66,3 +66,23 @@ services:
     ports:
       - "9094:9092"
     restart: on-failure
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:3.29.0
+    healthcheck:
+      test: "nc -z localhost 9000"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    depends_on:
+      kafka1:
+        condition: service_healthy
+    command: obsidiandynamics/kafdrop
+    environment:
+      - KAFKA_BROKERCONNECT=kafka1:9092,kafka2:9092,kafka3:9092
+      - JVM_OPTS=-Xms32M -Xmx64M
+      - SERVER_SERVLET_CONTEXTPATH=/
+    ports:
+      - "9000:9000"
+    restart: on-failure
