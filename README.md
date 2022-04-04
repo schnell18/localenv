@@ -43,7 +43,6 @@
 - podman
 - podman-compose
 - podman-dnsname
-- aardvark-dns
 - mysql client
 - redis client
 - git
@@ -108,7 +107,6 @@ And start `podman.service`:
     systemctl start podman.service --user
 
 Install, enable and start `dnsmasq`:
-
     sudo pacman -S dnsmasq
     sudo systemctl enable dnsmasq
     sudo systemctl start dnsmasq
