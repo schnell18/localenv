@@ -31,9 +31,12 @@
 ## 开发环境安装
 
 本项目开发环境在 MacOS 测试验证过，理论上也可以在 Linux 及 Windows 运行。
-使用本项目开发环境时请安装 Docker Desktop 3.5。[MacOS 版本下载地址][1]
+使用本项目开发环境时请安装 podman 4.0.0+ 。
 此外，为方便使用命令行工具，安装配置好相关工具：
 
+- podman
+- podman-compose
+- podman-dnsname
 - mysql client
 - redis client
 - git
@@ -73,6 +76,45 @@
     mkdir frontends
     cd frontends
     git clone git@<your_git_server>/<your_frontend_project>.git
+
+## config rootless container
+
+If you use Arch/Manjaro Linux, you may refer to [this page][3] for detailed
+setup instructions.
+
+    usermod --add-subuids 200000-201000 --add-subgids 200000-201000 johndoe
+    grep johndoe /etc/subuid /etc/subgid
+    /etc/subuid:johndoe:200001:1001
+    /etc/subgid:johndoe:200000:1001
+
+If you encounter:
+
+    potentially insufficient UIDs or GIDs available in user namespace
+
+Try to run:
+
+    podman system migrate
+
+or:
+
+    rm -rf $HOME/.local/share/containers/storage
+
+Set environment variable `DOCKER_HOST`:
+
+    export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
+
+Enable `podman.service` for per-user systemd:
+
+    systemctl enable podman.service --user
+
+And start `podman.service`:
+
+    systemctl start podman.service --user
+
+Install, enable and start `dnsmasq`:
+    sudo pacman -S dnsmasq
+    sudo systemctl enable dnsmasq
+    sudo systemctl start dnsmasq
 
 ## 启动环境
 
@@ -237,3 +279,4 @@ JVM。此时，设置合适的断点并触发相应的条件即可进行单步�
 
 [1]: https://desktop.docker.com/mac/stable/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=header
 [2]: https://github.com/schnell18/localenv.git
+[3]: https://wiki.archlinux.org/title/Podman

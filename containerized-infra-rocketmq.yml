@@ -53,6 +53,8 @@ services:
       retries: 5
     depends_on:
       - namesrv
+    links:
+      - namesrv
     environment:
       - ROCKETMQ_CONFIG_NAMESRVADDR=namesrv:9876
     ports:
