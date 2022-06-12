@@ -1,0 +1,25 @@
+# dockerized virtual environment
+version: '3.9'
+
+services:
+
+  mongodb:
+    image: docker.io/library/mongo:4.4.14
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    healthcheck:
+      test: "/usr/bin/mongo -uroot -proot --eval 'version()'"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "27017:27017"
+    labels:
+      - "dbtype=mongodb"
+      - "database=true"
+    volumes:
+      - ./:/work
+      - ./.state/mongodb/data:/data/db
+

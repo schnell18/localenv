@@ -50,7 +50,7 @@ usage_build() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
 Crafted by Justin Zhang <schnell18@gmail.com>
-This command builds docker image of specified apps from source.
+This command builds container image of specified apps from source.
 Usage:
     appctl.sh build app1 [app2 app3 ...]
 EOF
@@ -60,7 +60,7 @@ usage_start() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
 Crafted by Justin Zhang <schnell18@gmail.com>
-This command start docker container of specified apps.
+This command start container of specified apps.
 Usage:
     appctl.sh starts app1 [app2 app3 ...]
 EOF
@@ -70,7 +70,7 @@ usage_stop() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
 Crafted by Justin Zhang <schnell18@gmail.com>
-This command stops docker container of specified apps.
+This command stops container of specified apps.
 Usage:
     appctl.sh stop app1 [app2 app3 ...]
 EOF
@@ -262,13 +262,13 @@ refresh_db() {
     # provision databases for backend service
     databaseReady=0
 
-    dbContainer=$(docker ps -f label=database=true -q)
+    dbContainer=$(podman ps -f label=database=true -q)
     if [[ -z $dbContainer ]]; then
         echo "Database is not ready..."
         exit 1
     fi
 
-    dbType=$(docker inspect -f {{.Config.Labels.dbtype}} $dbContainer)
+    dbType=$(podman inspect -f {{.Config.Labels.dbtype}} $dbContainer)
     printf "Checking $dbType readiness"
     for attempt in {1..20}; do
         printf "."
@@ -291,9 +291,9 @@ refresh_db() {
                 if [ -f schema/schema.sql ]; then
                     db=$(head -3 schema/schema.sql | grep -i USE | head -1 | cut -d' ' -f2 | sed 's/;//')
                     echo "Prepare database ${db} for project $(basename $app)..."
-                    docker exec -it ${dbContainer} /bin/sh /setup/create-database.sh $db mfg
-                    echo "Loading schema and data using docker for project $(basename $app)..."
-                    docker exec -it ${dbContainer} /bin/sh /setup/load-schema-and-data.sh $(basename $app) mfg $db backends
+                    podman exec -it ${dbContainer} /bin/sh /setup/create-database.sh $db mfg
+                    echo "Loading schema and data using podman for project $(basename $app)..."
+                    podman exec -it ${dbContainer} /bin/sh /setup/load-schema-and-data.sh $(basename $app) mfg $db backends
                 fi
                 cd $PWD
             fi
