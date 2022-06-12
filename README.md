@@ -32,7 +32,6 @@
 |  08   | nacos         | 8848  | http://127.0.0.1:8848/nacos |
 |  09   | powerjob      | 7700  | http://127.0.0.1:7700       |
 |  10   | rabbitmq      | 5672  | http://127.0.0.1:15672      |
-|  11   | kafka         | 9092  |                             |
 
 ## 开发环境安装
 
@@ -43,6 +42,7 @@
 - podman
 - podman-compose
 - podman-dnsname
+- aardvark-dns
 - mysql client
 - redis client
 - git
@@ -107,6 +107,7 @@ And start `podman.service`:
     systemctl start podman.service --user
 
 Install, enable and start `dnsmasq`:
+
     sudo pacman -S dnsmasq
     sudo systemctl enable dnsmasq
     sudo systemctl start dnsmasq
@@ -140,9 +141,7 @@ infra 名称。
 |  06   | nacos                       | 启动 nacos                      |
 |  07   | powerjob                    | 启动 powerjob                   |
 |  08   | etcd                        | 启动 etcd                       |
-|  09   | zookeeper                   | 启动 zookeeper                  |
-|  10   | kafka                       | 启动 kafka                      |
-|  11   | mongodb                     | 启动 mongodb                    |
+|  09   | mongodb                     | 启动 mongodb                    |
 
 环境启动后可以通过以下命令检测各个容器是否正常工作：
 
