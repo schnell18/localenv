@@ -1,0 +1,88 @@
+version: '3.9'
+services:
+
+  kafka1:
+    image: docker.io/schnell18/kafka:3.1.0-1-alpine-amd64
+    healthcheck:
+      test: "nc -z localhost 9092"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    depends_on:
+      zookeeper1:
+        condition: service_healthy
+    environment:
+      - MAX_HEAP_SIZE=256m
+    volumes:
+      - ./provision/kafka/common/log4j.properties:/kafka/config/log4j.properties
+      - ./provision/kafka/broker1/server.properties:/kafka/config/server.properties
+      - ./.state/kafka/broker1/data:/var/lib/kafka/data
+      - ./.state/kafka/broker1/logs:/var/lib/kafka/logs
+    ports:
+      - "9092:9092"
+    restart: on-failure
+
+  kafka2:
+    image: docker.io/schnell18/kafka:3.1.0-1-alpine-amd64
+    healthcheck:
+      test: "nc -z localhost 9092"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    depends_on:
+      zookeeper1:
+        condition: service_healthy
+    environment:
+      - MAX_HEAP_SIZE=256m
+    volumes:
+      - ./provision/kafka/common/log4j.properties:/kafka/config/log4j.properties
+      - ./provision/kafka/broker2/server.properties:/kafka/config/server.properties
+      - ./.state/kafka/broker2/data:/var/lib/kafka/data
+      - ./.state/kafka/broker2/logs:/var/lib/kafka/logs
+    ports:
+      - "9093:9092"
+    restart: on-failure
+
+  kafka3:
+    image: docker.io/schnell18/kafka:3.1.0-1-alpine-amd64
+    healthcheck:
+      test: "nc -z localhost 9092"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    depends_on:
+      zookeeper1:
+        condition: service_healthy
+    environment:
+      - MAX_HEAP_SIZE=256m
+    volumes:
+      - ./provision/kafka/common/log4j.properties:/kafka/config/log4j.properties
+      - ./provision/kafka/broker3/server.properties:/kafka/config/server.properties
+      - ./.state/kafka/broker3/data:/var/lib/kafka/data
+      - ./.state/kafka/broker3/logs:/var/lib/kafka/logs
+    ports:
+      - "9094:9092"
+    restart: on-failure
+
+  kafdrop:
+    image: docker.io/obsidiandynamics/kafdrop:3.29.0
+    healthcheck:
+      test: "nc -z localhost 9000"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    depends_on:
+      kafka1:
+        condition: service_healthy
+    command: obsidiandynamics/kafdrop
+    environment:
+      - KAFKA_BROKERCONNECT=kafka1:9092,kafka2:9092,kafka3:9092
+      - JVM_OPTS=-Xms32M -Xmx64M
+      - SERVER_SERVLET_CONTEXTPATH=/
+    ports:
+      - "9000:9000"
+    restart: on-failure
