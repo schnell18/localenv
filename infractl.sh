@@ -111,13 +111,13 @@ status() {
     fi
 
     compose_files=""
-    if [[ $PROFILE -eq "all" ]]; then
-        for file in containerized-*; do
+    if [[ $PROFILE == "all" ]]; then
+        for file in *-*; do
             compose_files="$compose_files -f $file"
         done;
     else
         for infra in $@; do
-            compose_files="$compose_files -f containerized-infra-${infra}.yml"
+            compose_files="$compose_files -f infra-${infra}.yml"
         done
     fi
     podman-compose $compose_files ps
@@ -133,12 +133,12 @@ stop() {
 
     compose_files=""
     if [[ $PROFILE == "all" ]]; then
-        for file in containerized-*; do
+        for file in *-*; do
             compose_files="$compose_files -f $file"
         done;
     else
         for infra in $@; do
-            compose_files="$compose_files -f containerized-infra-${infra}.yml"
+            compose_files="$compose_files -f infra-${infra}.yml"
         done
     fi
     podman-compose $compose_files down
@@ -146,8 +146,8 @@ stop() {
 }
 
 list() {
-    for file in containerized-infra-*; do
-        if [[ $file =~ ^containerized-infra-(.+).yml$ ]]; then
+    for file in infra-*; do
+        if [[ $file =~ ^infra-(.+).yml$ ]]; then
             echo ${BASH_REMATCH[1]}
         fi
     done;
@@ -208,11 +208,11 @@ start() {
             echo "Run prepare script for $infra..."
             sh provision/$infra/pre/prepare.sh
         fi
-        compose_files="$compose_files -f containerized-infra-${infra}.yml"
+        compose_files="$compose_files -f infra-${infra}.yml"
     done
     echo $compose_files > .state/compose-files.txt
 
-    # start containers managed by containerized
+    # start containers managed by podman
     podman-compose $compose_files up -d --force-recreate
 
     # do infra-specific post setup
@@ -244,7 +244,7 @@ attach() {
     fi
 
     compose_files=""
-    for file in containerized-infra-*; do
+    for file in infra-*; do
         compose_files="$compose_files -f $file"
     done;
 
