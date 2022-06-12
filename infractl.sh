@@ -9,6 +9,7 @@ Usage:
                 stop all | infra1 [infra2 infra3 ...]
                 status all | infra1 [infra2 infra3 ...]
                 refresh-db infra1 [infra2 infra3 ...]
+                logs infra1 [infra2 infra3 ...]
                 webui infra1 [infra2 infra3 ...]
                 list
 EOF
@@ -31,6 +32,16 @@ Crafted by Justin Zhang <schnell18@gmail.com>
 Attach to running infra and get a login shell.
 Usage:
     infractl.sh attach infra
+EOF
+}
+
+usage_logs() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+This command continuously shows logs from specified infra.
+Usage:
+    infractl.sh logs infra1 [infra2 infra3 ...]
 EOF
 }
 
@@ -88,13 +99,13 @@ status() {
     fi
 
     compose_files=""
-    if [[ $PROFILE -eq "all" ]]; then
-        for file in containerized-*; do
+    if [[ $PROFILE == "all" ]]; then
+        for file in *-*; do
             compose_files="$compose_files -f $file"
         done;
     else
         for infra in $@; do
-            compose_files="$compose_files -f containerized-infra-${infra}.yml"
+            compose_files="$compose_files -f infra-${infra}.yml"
         done
     fi
     podman-compose $compose_files ps
@@ -110,12 +121,12 @@ stop() {
 
     compose_files=""
     if [[ $PROFILE == "all" ]]; then
-        for file in containerized-*; do
+        for file in *-*; do
             compose_files="$compose_files -f $file"
         done;
     else
         for infra in $@; do
-            compose_files="$compose_files -f containerized-infra-${infra}.yml"
+            compose_files="$compose_files -f infra-${infra}.yml"
         done
     fi
     podman-compose $compose_files down
@@ -123,8 +134,8 @@ stop() {
 }
 
 list() {
-    for file in containerized-infra-*; do
-        if [[ $file =~ ^containerized-infra-(.+).yml$ ]]; then
+    for file in infra-*; do
+        if [[ $file =~ ^infra-(.+).yml$ ]]; then
             echo ${BASH_REMATCH[1]}
         fi
     done;
@@ -166,11 +177,11 @@ start() {
             echo "Run prepare script for $infra..."
             sh provision/$infra/pre/prepare.sh
         fi
-        compose_files="$compose_files -f containerized-infra-${infra}.yml"
+        compose_files="$compose_files -f infra-${infra}.yml"
     done
     echo $compose_files > .state/compose-files.txt
 
-    # start containers managed by containerized
+    # start containers managed by podman
     podman-compose $compose_files up -d --force-recreate
 
     # do infra-specific post setup
@@ -202,7 +213,7 @@ attach() {
     fi
 
     compose_files=""
-    for file in containerized-infra-*; do
+    for file in infra-*; do
         compose_files="$compose_files -f $file"
     done;
 
@@ -220,6 +231,25 @@ refresh_db() {
 
 }
 
+logs() {
+    if [[ -z $1 ]]; then
+        usage_logs
+        exit 1
+    fi
+
+    all_compose_files=""
+    for file in infra-*.yml; do
+        all_compose_files="$all_compose_files -f $file"
+    done
+
+    all_infras=""
+    for infra in $@; do
+        all_infras=" $infra"
+    done
+
+    podman-compose $all_compose_files logs -f $all_infras
+}
+
 cmd=$1
 if [[ -z $cmd ]]; then
     usage
@@ -232,6 +262,7 @@ case "${cmd}" in
     status)      status $@;;
     attach)      attach $@;;
     list)        list $@;;
+    logs)        logs $@;;
     webui)       webui $@;;
     refresh-db)  refresh_db $@;;
     *) usage && exit 1;;

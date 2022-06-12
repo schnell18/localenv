@@ -124,7 +124,7 @@ build() {
     done
 
     all_compose_files=""
-    for file in containerized-*.yml; do
+    for file in *-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -156,13 +156,13 @@ attach() {
         exit 1
     fi
 
-    podman-compose -f "containerized-app-${ARG}.yml" exec $ARG sh
+    podman-compose -f "app-${ARG}.yml" exec $ARG sh
 
 }
 
 list() {
-    for file in containerized-app-*; do
-        if [[ $file =~ ^containerized-app-(.+).yml$ ]]; then
+    for file in app-*; do
+        if [[ $file =~ ^app-(.+).yml$ ]]; then
             echo ${BASH_REMATCH[1]}
         fi
     done;
@@ -175,7 +175,7 @@ start() {
     fi
 
     all_compose_files=""
-    for file in containerized-*.yml; do
+    for file in *-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -202,7 +202,7 @@ stop() {
     fi
 
     all_compose_files=""
-    for file in containerized-*.yml; do
+    for file in *-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
@@ -220,7 +220,7 @@ logs() {
     fi
 
     all_compose_files=""
-    for file in containerized-*.yml; do
+    for file in *-*.yml; do
         all_compose_files="$all_compose_files -f $file"
     done
 
