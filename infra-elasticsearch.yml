@@ -20,7 +20,8 @@ services:
     volumes:
       - ./provision/global/etc/localtime:/etc/localtime
       - ./provision/global/etc/timezone:/etc/timezone
-      - ./.state/elasticsearch/es01:/usr/share/elasticsearch/data
+      - ./.state/elasticsearch/es01/data:/usr/share/elasticsearch/data
+      - ./.state/elasticsearch/es01/logs:/usr/share/elasticsearch/logs
       # - data01:/usr/share/elasticsearch/data
     ports:
       - 9200:9200

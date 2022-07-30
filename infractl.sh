@@ -11,8 +11,7 @@ Usage:
                 refresh-db infra1 [infra2 infra3 ...]
                 logs infra1 [infra2 infra3 ...]
                 webui infra1 [infra2 infra3 ...]
-                logs infra1
-                attach infra1
+                init
                 list
 EOF
 }
@@ -27,13 +26,13 @@ Usage:
 EOF
 }
 
-usage_logs() {
+usage_init() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
 Crafted by Justin Zhang <schnell18@gmail.com>
-This command continuously shows logs from specified infra.
+Initialize local environment.
 Usage:
-    infractl.sh logs infra1
+    infractl.sh init
 EOF
 }
 
@@ -153,23 +152,10 @@ list() {
     done;
 }
 
-logs() {
-    if [[ -z $1 ]]; then
-        usage_logs
-        exit 1
+init() {
+    if [[ `uname` == 'Darwin' ]]; then
+        podman machine init --rootful -v $HOME:$HOME --now
     fi
-
-    all_compose_files=""
-    for file in docker-compose-*.yml; do
-        all_compose_files="$all_compose_files -f $file"
-    done
-
-    all_apps=""
-    for app in $@; do
-        all_apps=" $app"
-    done
-
-    docker-compose $all_compose_files logs -f $all_apps
 }
 
 webui() {
@@ -293,6 +279,7 @@ case "${cmd}" in
     status)      status $@;;
     attach)      attach $@;;
     list)        list $@;;
+    init)        init $@;;
     logs)        logs $@;;
     webui)       webui $@;;
     refresh-db)  refresh_db $@;;

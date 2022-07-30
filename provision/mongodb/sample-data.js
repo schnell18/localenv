@@ -1,4 +1,4 @@
-use mydb
+db = db.getSiblingDB("mydb")
 db.posts.drop()
 db.posts.insert({
     _id : ObjectId("507f191e810c19729de860ea"),
