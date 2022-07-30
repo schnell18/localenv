@@ -14,6 +14,8 @@
 * nacos
 * powerjob
 * etcd
+* zookeeper
+* kafka
 
 其它需要的中间件可以按需扩充。
 
@@ -30,6 +32,7 @@
 |  08   | nacos         | 8848  | http://127.0.0.1:8848/nacos |
 |  09   | powerjob      | 7700  | http://127.0.0.1:7700       |
 |  10   | rabbitmq      | 5672  | http://127.0.0.1:15672      |
+|  11   | grafana       | 3000  | http://127.0.0.1:3000       |
 
 ## 开发环境安装
 
@@ -145,6 +148,19 @@ infra 名称。
 
     ./infractl.sh status all
 
+## 容器镜像构建
+
+本项目也收录以上常用中间件及其依赖的基础镜像的构建文件。
+这些构建文件本身以子项目形式存放在`Containerfiles`目录下。
+这些容器的构建都支持 x86\_64 和 arm64 架构。
+可在 Apple M1 及 M2 芯片上运行。
+容器的构建依赖 podman 及 qemu。
+在 MacOS 上请在 podman 创建的虚拟机中安装`qemu-user-static`。示例如下：
+
+    $ podman machine ssh
+    $ rpm-ostree install qemu-user-static
+    $ systemctl reboot
+
 
 ## Redis
 
@@ -247,11 +263,11 @@ TBD
 
 本环境支持用本地 IDE 连接容器中的 Java 程序进行单步调试。
 调试使用了 JVM 的 JDWP 技术。默认是不开启的。如果需要启用该功能，
-需要修改 docker-compose-app-xxx.yml 文件。 请按照以下步骤操作：
+需要修改 app-xxx.yml 文件。 请按照以下步骤操作：
 
 ### 设置 debug 模式
 
-打开 docker-compose-app-xxx.yml 文件，找到需要 debug 的 Java 应用，加上环境变量：
+打开 app-xxx.yml 文件，找到需要 debug 的 Java 应用，加上环境变量：
 
     environment:
       - JDWP_DEBUG=true
@@ -260,7 +276,7 @@ TBD
 ### 暴露 debug 端口
 
 IDE 不能直接访问容器，所以需要吧上述 JVM 调试端口映射到宿主机 打开
-docker-compose-app-xxx.yml 文件，找到需要 debug 的 Java 应用，端口映射设置：
+app-xxx.yml 文件，找到需要 debug 的 Java 应用，端口映射设置：
 
     ports:
       - "5005:5005"
@@ -289,6 +305,5 @@ JVM。此时，设置合适的断点并触发相应的条件即可进行单步�
         "https://mirror.baidubce.com"
     ]
 
-[1]: https://desktop.docker.com/mac/stable/amd64/Docker.dmg?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=header
 [2]: https://github.com/schnell18/localenv.git
 [3]: https://wiki.archlinux.org/title/Podman

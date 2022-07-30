@@ -11,6 +11,7 @@ Usage:
                 refresh-db infra1 [infra2 infra3 ...]
                 logs infra1 [infra2 infra3 ...]
                 webui infra1 [infra2 infra3 ...]
+                init
                 list
 EOF
 }
@@ -22,6 +23,16 @@ Crafted by Justin Zhang <schnell18@gmail.com>
 List available infrastructure database/middleware.
 Usage:
     infractl.sh list
+EOF
+}
+
+usage_init() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+Initialize local environment.
+Usage:
+    infractl.sh init
 EOF
 }
 
@@ -139,6 +150,12 @@ list() {
             echo ${BASH_REMATCH[1]}
         fi
     done;
+}
+
+init() {
+    if [[ `uname` == 'Darwin' ]]; then
+        podman machine init --rootful -v $HOME:$HOME --now
+    fi
 }
 
 webui() {
@@ -262,6 +279,7 @@ case "${cmd}" in
     status)      status $@;;
     attach)      attach $@;;
     list)        list $@;;
+    init)        init $@;;
     logs)        logs $@;;
     webui)       webui $@;;
     refresh-db)  refresh_db $@;;

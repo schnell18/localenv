@@ -1,0 +1,25 @@
+# Explicitly declare text files we want to always be normalized and
+# converted to native line endings on checkout.
+*.pl         text
+*.pm         text
+*.properties text
+*.yml        text
+*.sql        text
+*.csv        text
+*.xml        text
+*.vm         text
+*.md         text
+Dockerfile   text
+
+# Make cvc-env.sh unix style EOL
+*.sh eol=lf
+# Make *.bat DOS style EOL
+*.bat eol=crlf
+
+# Denote all files that are truly binary and should not be modified.
+*.zip binary
+*.jar binary
+*.war binary
+*.tar binary
+*.rar binary
+*.7z  binary

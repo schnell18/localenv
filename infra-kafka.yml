@@ -2,7 +2,7 @@ version: '3.9'
 services:
 
   kafka1:
-    image: docker.io/schnell18/kafka:3.1.0-1-alpine-amd64
+    image: docker.io/schnell18/kafka:3.1.0-2-alpine
     healthcheck:
       test: "nc -z localhost 9092"
       start_period: 20s
@@ -24,7 +24,7 @@ services:
     restart: on-failure
 
   kafka2:
-    image: docker.io/schnell18/kafka:3.1.0-1-alpine-amd64
+    image: docker.io/schnell18/kafka:3.1.0-2-alpine
     healthcheck:
       test: "nc -z localhost 9092"
       start_period: 20s
@@ -46,7 +46,7 @@ services:
     restart: on-failure
 
   kafka3:
-    image: docker.io/schnell18/kafka:3.1.0-1-alpine-amd64
+    image: docker.io/schnell18/kafka:3.1.0-2-alpine
     healthcheck:
       test: "nc -z localhost 9092"
       start_period: 20s
