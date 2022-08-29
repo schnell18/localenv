@@ -44,7 +44,7 @@ jobs:
       with:
         image: golang-runtime
         build-args: GRPC_HEALTH_PROBE_VERSION=v0.4.11
-        tags: "latest ${{ steps.image_tags.outputs.IMAGE_TAGS }}"
+        tags: ${{ steps.image_tags.outputs.IMAGE_TAGS }}
         archs: amd64, arm64
         context: Containerfiles/golang/runtime/alpine/1.19/
         containerfiles: Containerfiles/golang/runtime/alpine/1.19/Dockerfile
