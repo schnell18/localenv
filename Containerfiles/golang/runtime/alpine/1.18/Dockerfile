@@ -21,6 +21,7 @@ RUN cp /etc/apk/repositories /etc/apk/repositories.orig && \
     DOWNLOAD_URL="https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/$BIN" && \
     echo $DOWNLOAD_URL && \
     curl -L --silent ${DOWNLOAD_URL} -o /usr/bin/grpc_health_probe && \
+    chmod +x /usr/bin/grpc_health_probe && \
     apk del tzdata && \
     mv /etc/apk/repositories.orig /etc/apk/repositories && \
     rm -rf /var/cache/apk/*

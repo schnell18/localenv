@@ -3,15 +3,12 @@ LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 
 ARG GRPC_HEALTH_PROBE_VERSION
 
-COPY grpc_health_probe-* /usr/bin
-
 RUN cp /etc/apk/repositories /etc/apk/repositories.orig && \
     echo https://dl-cdn.alpinelinux.org/alpine/edge/testing/ >> /etc/apk/repositories && \
     apk update && \
     apk add --no-cache --update curl bash bash-completion tcpdump iproute2-ss bind-tools jq delve tzdata && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
-    chmod +x /usr/bin/grpc_health_probe-* && \
     ARCH= && apkArch="$(apk --print-arch)" && \
     case "${apkArch##*-}" in \
         amd64) ARCH='linux-amd64';; \
@@ -24,6 +21,7 @@ RUN cp /etc/apk/repositories /etc/apk/repositories.orig && \
     DOWNLOAD_URL="https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/$BIN" && \
     echo $DOWNLOAD_URL && \
     curl -L --silent ${DOWNLOAD_URL} -o /usr/bin/grpc_health_probe && \
+    chmod +x /usr/bin/grpc_health_probe && \
     apk del tzdata && \
     mv /etc/apk/repositories.orig /etc/apk/repositories && \
     rm -rf /var/cache/apk/*

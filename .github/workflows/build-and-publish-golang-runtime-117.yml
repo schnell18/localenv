@@ -43,7 +43,7 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         image: golang-runtime
-        build-args: TIMEZONE=Asia/Shanghai
+        build-args: GRPC_HEALTH_PROBE_VERSION=v0.4.11
         tags: "latest ${{ steps.image_tags.outputs.IMAGE_TAGS }}"
         archs: amd64, arm64
         context: Containerfiles/golang/runtime/alpine/1.17/
