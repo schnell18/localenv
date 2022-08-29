@@ -44,6 +44,7 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         image: golang-build
+        build-args: TIMEZONE=Asia/Shanghai
         tags: "latest ${{ steps.image_tags.outputs.IMAGE_TAGS }}"
         archs: amd64, arm64
         context: Containerfiles/golang/build/alpine/1.17/
