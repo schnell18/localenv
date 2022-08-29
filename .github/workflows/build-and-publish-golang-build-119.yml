@@ -47,7 +47,7 @@ jobs:
         tags: "latest ${{ steps.image_tags.outputs.IMAGE_TAGS }}"
         archs: amd64, arm64
         context: Containerfiles/golang/build/alpine/1.19/
-        containerfiles: Dockerfile
+        containerfiles: Containerfiles/golang/build/alpine/1.19/Dockerfile
 
 
     - name: Push To quay.io
