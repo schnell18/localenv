@@ -5,7 +5,7 @@ services:
 
   wekan:
     #-------------------------------------------------------------------------------------
-    image: docker.io/wekanteam/wekan:v6.30
+    image: quay.io/wekan/wekan:v6.30
     #-------------------------------------------------------------------------------------
     container_name: wekan-app
     # On CentOS 7 there is seccomp issue with glibc 6, so setting it to unconfined
