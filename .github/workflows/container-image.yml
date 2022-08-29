@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     name: Build and push image
+    environment: production
     runs-on: ubuntu-22.04
 
     steps:
