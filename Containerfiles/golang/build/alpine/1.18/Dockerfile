@@ -2,6 +2,7 @@ FROM docker.io/library/golang:1.18-alpine
 LABEL MAINTAINER="Justin Zhang <schnell18@gmail.com>"
 ARG TIMEZONE="Asia/Shanghai"
 
+
 RUN cp /etc/apk/repositories /etc/apk/repositories.orig && \
     echo https://dl-cdn.alpinelinux.org/alpine/edge/testing/ >> /etc/apk/repositories && \
     apk update && \
