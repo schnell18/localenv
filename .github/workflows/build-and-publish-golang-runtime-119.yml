@@ -1,0 +1,63 @@
+name: build-and-publish-golang-runtime-119
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'podman'
+    paths:
+      - Containerfiles/golang/runtime/alpine/1.19/Dockerfile
+      - Containerfiles/golang/runtime/alpine/1.19/version.json
+
+jobs:
+  build:
+    name: Build and push image
+    environment: production
+    runs-on: ubuntu-22.04
+    env:
+      context: Containerfiles/golang/runtime/alpine/1.19
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install qemu dependency
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-user-static
+
+    - name: Get image tags
+      id: image_tags
+      run: |
+        echo -n ::set-output name=IMAGE_TAGS::
+        VERSION=$(jq -r '.version' ${context}/version.json)
+        if [ "${VERSION}" ] && [ "${VERSION}" != "latest" ]; then
+            echo ${VERSION}
+        elif [[ "${GITHUB_REF}" =~ refs/tags/(.*) ]]; then
+            echo ${BASH_REMATCH[1]}
+        else
+            echo ${{ github.sha }}
+        fi
+
+    - name: Build Image
+      id: build-image
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: golang-runtime
+        tags: "latest ${{ steps.image_tags.outputs.IMAGE_TAGS }}"
+        archs: amd64, arm64
+        context: Containerfiles/golang/runtime/alpine/1.19/
+        containerfiles: Containerfiles/golang/runtime/alpine/1.19/Dockerfile
+
+
+    - name: Push To quay.io
+      id: push-to-quay
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build-image.outputs.image }}
+        tags:  ${{ steps.build-image.outputs.tags }}
+        registry: quay.io/${{ secrets.REGISTRY_USERNAME }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Print image url
+      run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"
