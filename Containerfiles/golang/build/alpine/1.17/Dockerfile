@@ -8,12 +8,6 @@ RUN cp /etc/apk/repositories /etc/apk/repositories.orig && \
                                 jq delve tzdata \
                                 make openssh-client git gcc musl-dev && \
     mkdir -p ~/.ssh && chmod 700 ~/.ssh && \
-    # echo "StrictHostKeyChecking no " > ~/.ssh/config && \
-    # echo "192.168.31.25   git.ucloudadmin.com" >> /etc/hosts && \
-    go env -w GOINSECURE=git.ucloudadmin.com && \
-    go env -w GOPRIVATE=git.ucloudadmin.com && \
-    git config --global url."ssh://git@git.ucloudadmin.com".insteadOf "https://git.ucloudadmin.com" && \
-    git config --global url."ssh://git@git.ucloudadmin.com".insteadOf "http://git.ucloudadmin.com" && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
     apk del tzdata && \
