@@ -7,7 +7,6 @@ RUN cp /etc/apk/repositories /etc/apk/repositories.orig && \
                                 tcpdump iproute2-ss bind-tools \
                                 jq delve tzdata \
                                 make openssh-client git gcc musl-dev && \
-    mkdir -p ~/.ssh && chmod 700 ~/.ssh && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
     apk del tzdata && \
