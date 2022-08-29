@@ -8,8 +8,8 @@ on:
     tags:
       - '*'
     paths:
-      - /Containerfiles/golang/build/alpine/1.17/Dockerfile
-      - /Containerfiles/golang/build/alpine/1.17/version.json
+      - Containerfiles/golang/build/alpine/1.17/Dockerfile
+      - Containerfiles/golang/build/alpine/1.17/version.json
 
 jobs:
   build:
