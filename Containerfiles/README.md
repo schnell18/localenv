@@ -32,6 +32,10 @@ qemu-arch-extra. For example, to install the pre-requisite, you type:
 
     sudo pacman -Sy podman buildah qemu-arch-extra
 
+On Fedora CoreOS, you type:
+
+    rpm-ostree install qemu-user-static
+
 ## java-build
 
 This image is based on zulu-jdk (azul version: 17.34.19, openjdk version:
