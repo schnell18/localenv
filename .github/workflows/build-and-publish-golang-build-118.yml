@@ -30,14 +30,13 @@ jobs:
       run: |
         echo -n ::set-output name=IMAGE_TAGS::
         VERSION=$(jq -r '.version' ${context}/version.json)
-        TAGS=()
         if [ "${VERSION}" ] && [ "${VERSION}" != "latest" ]; then
-            TAGS+=("${VERSION}")
+            echo ${VERSION}
+        elif [[ "${GITHUB_REF}" =~ refs/tags/(.*) ]]; then
+            echo ${BASH_REMATCH[1]}
+        else
+            echo ${{ github.sha }}
         fi
-        if [[ "${GITHUB_REF}" =~ refs/tags/(.*) ]]; then
-            TAGS+=("git-${BASH_REMATCH[1]}")
-        fi
-        ( IFS=$','; echo "${TAGS[*]}" )
 
     - name: Build Image
       id: build-image
