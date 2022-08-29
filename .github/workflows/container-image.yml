@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'master'
+      - 'podman'
 
 jobs:
   docker:
