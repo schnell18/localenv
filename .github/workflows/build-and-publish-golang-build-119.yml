@@ -5,9 +5,9 @@ on:
     branches:
       - 'master'
       - 'podman'
-    # paths:
-    #   - Containerfiles/golang/build/alpine/1.19/Dockerfile
-    #   - Containerfiles/golang/build/alpine/1.19/version.json
+    paths:
+      - Containerfiles/golang/build/alpine/1.19/Dockerfile
+      - Containerfiles/golang/build/alpine/1.19/version.json
 
 jobs:
   build:
@@ -47,9 +47,8 @@ jobs:
         tags: latest ${{ github.sha }}
         archs: amd64, arm64
         containerfiles: |
-          ${context}/Dockerfile
+          ./Containerfiles/golang/build/alpine/1.19/Dockerfile
 
-# ./Containerfiles/golang/build/alpine/1.19/Dockerfile
 
     - name: Push To quay.io
       id: push-to-quay
