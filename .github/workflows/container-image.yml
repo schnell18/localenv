@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build and push image
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v2
@@ -19,7 +19,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y qemu-user-static
 
-    - name: Build Image
+    - name: Build golang-build 1.19 Image
       id: build-image-golang-build-119
       uses: redhat-actions/buildah-build@v2
       with:
@@ -35,7 +35,7 @@ jobs:
       with:
         image: ${{ steps.build-image-golang-build-119.outputs.image }}
         tags: ${{ steps.build-image-golang-build-119.outputs.tags }}
-        registry: quay.io/${{ secrets.REGISTRY_USERNAME }}
+        registry: quay.io/schnell18
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
 
