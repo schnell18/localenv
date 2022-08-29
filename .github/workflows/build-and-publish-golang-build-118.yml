@@ -43,7 +43,7 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         image: golang-build
-        tags: "latest ${{ steps.image_tags.outputs.IMAGE_TAGS }}"
+        tags: ${{ steps.image_tags.outputs.IMAGE_TAGS }}
         archs: amd64, arm64
         context: Containerfiles/golang/build/alpine/1.18
         containerfiles: Containerfiles/golang/build/alpine/1.18/Dockerfile
