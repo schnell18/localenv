@@ -1,0 +1,67 @@
+name: build-and-publish-golang-build-118
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'podman'
+    tags:
+      - '*'
+    paths:
+      - /Containerfiles/golang/build/alpine/1.18/Dockerfile
+      - /Containerfiles/golang/build/alpine/1.18/version.json
+
+jobs:
+  build:
+    name: Build and push image
+    environment: production
+    runs-on: ubuntu-22.04
+    env:
+      context: ./Containerfiles/golang/build/alpine/1.18
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install qemu dependency
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-user-static
+
+    - name: Get image tags
+      id: image_tags
+      run: |
+        echo -n ::set-output name=IMAGE_TAGS::
+        VERSION=$(jq -r '.version' ${context}/version.json)
+        TAGS=('latest')
+        if [ "${VERSION}" ] && [ "${VERSION}" != "latest" ]; then
+            TAGS+=("${VERSION}")
+        fi
+        if [[ "${GITHUB_REF}" =~ refs/tags/(.*) ]]; then
+            TAGS+=("git-${BASH_REMATCH[1]}")
+        fi
+        ( IFS=$','; echo "${TAGS[*]}" )
+
+    - name: Build Image
+      id: build-image
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: golang-build
+        tags: latest ${{ github.sha }}
+        archs: amd64, arm64
+        containerfiles: |
+          ${context}/Dockerfile
+
+# ./Containerfiles/golang/build/alpine/1.18/Dockerfile
+
+    - name: Push To quay.io
+      id: push-to-quay
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build-image.outputs.image }}
+        tags: "${{ steps.image_tags.outputs.IMAGE_TAGS }}"
+        registry: quay.io/schnell18
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Print image url
+      run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"
