@@ -1,15 +1,14 @@
-FROM docker.io/schnell18/java-runtime-jre:17.0.3-17.34.19-4-alpine 
+ARG JRE_RUNTIME_IMG_TAG
+FROM quay.io/schnell18/java-runtime-jre:${JRE_RUNTIME_IMG_TAG}
 LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 
 RUN apk add --no-cache bash gettext nmap-ncat openssl busybox-extras
 
-ARG version
-
 # kafka version
-ENV KAFKA_VERSION ${version}
+ARG KAFKA_VERSION
 
 # kafka home
-ENV KAFKA_HOME  /kafka
+ENV KAFKA_HOME /kafka
 
 WORKDIR  ${KAFKA_HOME}
 

@@ -20,7 +20,7 @@ podman build \
     --jobs 2 \
     --platform linux/amd64,linux/arm64/v8 \
     --manifest ${MANIFEST} \
-    --build-arg version=${ZOOKEEPER_VERSION} \
+    --build-arg ZOOKEEPER_VERSION=${ZOOKEEPER_VERSION} \
     --tag $REGISTRY/$USER/$IMAGE_NAME:$IMAGE_TAG \
     .
 

@@ -1,12 +1,12 @@
-FROM docker.io/schnell18/java-runtime-jre:17.0.3-17.34.19-4-alpine 
+ARG JRE_RUNTIME_IMG_TAG
+FROM quay.io/schnell18/java-runtime-jre:${JRE_RUNTIME_IMG_TAG}
+# FROM docker.io/schnell18/java-runtime-jre:17.0.3-17.34.19-4-alpine 
 LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 
 RUN apk add --no-cache bash gettext nmap-ncat openssl busybox-extras
 
-ARG version
-
 # zookeeper version
-ENV ZOOKEEPER_VERSION ${version}
+ARG ZOOKEEPER_VERSION
 
 # zookeeper home
 ENV ZOOKEEPER_HOME  /zookeeper
@@ -30,7 +30,6 @@ RUN set -eux && \
 EXPOSE 2181
 
 # Export Java options
-# RUN export JAVA_OPT=" -Duser.home=/home/zookeeper"
 
 WORKDIR ${ZOOKEEPER_HOME}/bin
 
