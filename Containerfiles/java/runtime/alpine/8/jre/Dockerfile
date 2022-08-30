@@ -1,6 +1,7 @@
 FROM alpine:3.15
 LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 
+
 ARG ZULU_VERSION
 ARG OPENJDK_VERSION
 
