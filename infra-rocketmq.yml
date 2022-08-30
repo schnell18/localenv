@@ -19,7 +19,7 @@ services:
     command: sh /home/rocketmq/rocketmq-4.9.2/bin/runnamesrv-java17.sh
 
   broker1:
-    image: docker.io/schnell18/rocketmq:4.9.2-2-alpine
+    image: quay.io/schnell18/rocketmq:4.9.2-1-alpine
     healthcheck:
       test: "nc -z localhost 10911"
       interval: 30s

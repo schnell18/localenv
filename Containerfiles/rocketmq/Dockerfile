@@ -5,7 +5,7 @@ LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 RUN apk add --no-cache bash gettext nmap-ncat openssl busybox-extras
 
 # Rocketmq version
-ARG ROCKETMQ_VERSION ${version}
+ARG ROCKETMQ_VERSION
 
 # Rocketmq home
 ENV ROCKETMQ_HOME /home/rocketmq/rocketmq-${ROCKETMQ_VERSION}
