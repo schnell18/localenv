@@ -1,0 +1,5 @@
+{
+  "rocketmqVersion": "4.9.2",
+  "jreRuntimeImageTag": "17.0.3-17.34.19-6-apline",
+  "build": "1"
+}
