@@ -33,7 +33,7 @@ jobs:
       id: openjdk-version
       run: |
         echo -n ::set-output name=OPENJDK_VERSION::
-        jq -r '.openVersion' Containerfiles/java/runtime/alpine/8/version.json
+        jq -r '.openjdkVersion' Containerfiles/java/runtime/alpine/8/version.json
 
     - name: Get build number
       id: build-number
