@@ -17,8 +17,7 @@ RUN apk add --no-cache --update curl bash tzdata && \
   esac && \
   ZULU_JRE="zulu${ZULU_VERSION}-ca-jre${OPENJDK_VERSION}-linux_musl_${ARCH}" && \
   ZULU_DOWNLOAD_URL="https://cdn.azul.com/zulu/bin/${ZULU_JRE}.tar.gz" && \
-  curl -L --silent ${ZULU_DOWNLOAD_URL} | tar -xzf - -C / && mv /$ZULU_JRE /jre && \
-  apk del tzdata
+  curl -L --silent ${ZULU_DOWNLOAD_URL} | tar -xzf - -C / && mv /$ZULU_JRE /jre
 
 ENV PATH $PATH:/jre/bin
 ENV JAVA_HOME /jre
