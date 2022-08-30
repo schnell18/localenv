@@ -1,4 +1,4 @@
-name: build-and-publish-java-runtime-jdk-8
+name: java-runtime-jdk-8
 
 on:
   push:
@@ -49,7 +49,7 @@ jobs:
         build-args: |
           OPENJDK_VERSION=${{ steps.openjdk-version.outputs.OPENJDK_VERSION }}
           ZULU_VERSION=${{ steps.zulu-version.outputs.ZULU_VERSION }}
-        tags: ${{ steps.openjdk-version.outputs.OPENJDK_VERSION }}-${{ steps.zulu-version.outputs.ZULU_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}
+        tags: ${{ steps.openjdk-version.outputs.OPENJDK_VERSION }}-${{ steps.zulu-version.outputs.ZULU_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
         archs: amd64, arm64
         context: Containerfiles/java/runtime/alpine/8/jdk/
         containerfiles: Containerfiles/java/runtime/alpine/8/jdk/Dockerfile

@@ -1,6 +1,7 @@
 FROM alpine:3.14
 LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 
+
 ARG GRPC_HEALTH_PROBE_VERSION
 
 RUN cp /etc/apk/repositories /etc/apk/repositories.orig && \
@@ -22,6 +23,5 @@ RUN cp /etc/apk/repositories /etc/apk/repositories.orig && \
     echo $DOWNLOAD_URL && \
     curl -L --silent ${DOWNLOAD_URL} -o /usr/bin/grpc_health_probe && \
     chmod +x /usr/bin/grpc_health_probe && \
-    apk del tzdata && \
     mv /etc/apk/repositories.orig /etc/apk/repositories && \
     rm -rf /var/cache/apk/*

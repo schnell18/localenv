@@ -1,1 +1,5 @@
-{"version": "17.0.3-17.34.19-5"}
+{
+  "openjdkVersion": "17.0.3",
+  "zuluVersion": "17.34.19",
+  "build": "6"
+}

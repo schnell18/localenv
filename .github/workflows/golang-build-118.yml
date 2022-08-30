@@ -1,4 +1,4 @@
-name: build-and-publish-golang-build-118
+name: golang-build-118
 
 on:
   push:

@@ -2,6 +2,7 @@ FROM docker.io/library/golang:1.18-alpine
 LABEL MAINTAINER="Justin Zhang <schnell18@gmail.com>"
 ARG TIMEZONE="Asia/Shanghai"
 
+
 RUN cp /etc/apk/repositories /etc/apk/repositories.orig && \
     echo https://dl-cdn.alpinelinux.org/alpine/edge/testing/ >> /etc/apk/repositories && \
     apk update && \
@@ -11,6 +12,5 @@ RUN cp /etc/apk/repositories /etc/apk/repositories.orig && \
                                 make openssh-client git gcc musl-dev && \
     cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone && \
-    apk del tzdata && \
     mv /etc/apk/repositories.orig /etc/apk/repositories && \
     rm -rf /var/cache/apk/*

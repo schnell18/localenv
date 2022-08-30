@@ -1,4 +1,4 @@
-name: build-and-publish-java-runtime-jdk-17
+name: java-runtime-jdk-17
 
 on:
   push:
@@ -23,26 +23,33 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y qemu-user-static
 
-    - name: Get image tags
-      id: image_tags
+    - name: Get zulu version
+      id: zulu-version
       run: |
-        echo -n ::set-output name=IMAGE_TAGS::
-        VERSION=$(jq -r '.version' Containerfiles/java/runtime/alpine/17//version.json)
-        if [ "${VERSION}" ] && [ "${VERSION}" != "latest" ]; then
-            echo ${VERSION}
-        elif [[ "${GITHUB_REF}" =~ refs/tags/(.*) ]]; then
-            echo ${BASH_REMATCH[1]}
-        else
-            echo ${{ github.sha }}
-        fi
+        echo -n ::set-output name=ZULU_VERSION::
+        jq -r '.zuluVersion' Containerfiles/java/runtime/alpine/17/version.json
+
+    - name: Get OpenJDK version
+      id: openjdk-version
+      run: |
+        echo -n ::set-output name=OPENJDK_VERSION::
+        jq -r '.openjdkVersion' Containerfiles/java/runtime/alpine/17/version.json
+
+    - name: Get build number
+      id: build-number
+      run: |
+        echo -n ::set-output name=BUILD_NO::
+        jq -r '.build' Containerfiles/java/runtime/alpine/17/version.json
 
     - name: Build Image
       id: build-image
       uses: redhat-actions/buildah-build@v2
       with:
-        image: java-runtime
-        build-args: GRPC_HEALTH_PROBE_VERSION=v0.4.11
-        tags: ${{ steps.image_tags.outputs.IMAGE_TAGS }}
+        image: java-runtime-jdk
+        build-args: |
+          OPENJDK_VERSION=${{ steps.openjdk-version.outputs.OPENJDK_VERSION }}
+          ZULU_VERSION=${{ steps.zulu-version.outputs.ZULU_VERSION }}
+        tags: ${{ steps.openjdk-version.outputs.OPENJDK_VERSION }}-${{ steps.zulu-version.outputs.ZULU_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
         archs: amd64, arm64
         context: Containerfiles/java/runtime/alpine/17/jdk/
         containerfiles: Containerfiles/java/runtime/alpine/17/jdk/Dockerfile
