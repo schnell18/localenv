@@ -1,4 +1,4 @@
-name: build-and-publish-golang-runtime-117
+name: golang-runtime-117
 
 on:
   push:
