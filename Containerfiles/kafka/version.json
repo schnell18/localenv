@@ -1,5 +1,5 @@
 {
-  "kafkaVersion": "3.2.0",
+  "kafkaVersion": "3.2.1",
   "jreRuntimeImageTag": "17.0.3-17.34.19-6-apline",
   "build": "1"
 }
