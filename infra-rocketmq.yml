@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   namesrv:
-    image: docker.io/schnell18/rocketmq:4.9.2-2-alpine
+    image: quay.io/schnell18/rocketmq:4.9.2-1-alpine
     healthcheck:
       test: "nc -z localhost 9876"
       interval: 30s

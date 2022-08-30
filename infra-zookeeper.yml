@@ -2,7 +2,7 @@ version: '3.9'
 services:
 
   zookeeper1:
-    image: docker.io/schnell18/zookeeper:3.5.9-4-alpine
+    image: quay.io/schnell18/zookeeper:3.5.10-1-alpine
     healthcheck:
       test: "nc -z localhost 2181"
       start_period: 20s
@@ -21,7 +21,7 @@ services:
     restart: on-failure
 
   zookeeper2:
-    image: docker.io/schnell18/zookeeper:3.5.9-4-alpine
+    image: quay.io/schnell18/zookeeper:3.5.10-1-alpine
     healthcheck:
       test: "nc -z localhost 2181"
       start_period: 20s
@@ -40,7 +40,7 @@ services:
     restart: on-failure
 
   zookeeper3:
-    image: docker.io/schnell18/zookeeper:3.5.9-4-alpine
+    image: quay.io/schnell18/zookeeper:3.5.10-1-alpine
     healthcheck:
       test: "nc -z localhost 2181"
       start_period: 20s
