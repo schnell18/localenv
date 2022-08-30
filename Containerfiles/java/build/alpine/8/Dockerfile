@@ -1,4 +1,5 @@
-FROM docker.io/schnell18/java-runtime-jdk:8.0.332-8.62.0.19-2-alpine
+ARG JDK_RUNTIME_IMG_TAG
+FROM quay.io/schnell18/java-runtime-jdk:${JDK_RUNTIME_IMG_TAG}
 LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 
 ARG MAVEN_VERSION=3.8.5

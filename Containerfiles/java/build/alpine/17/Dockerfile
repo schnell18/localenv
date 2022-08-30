@@ -19,7 +19,7 @@ RUN set -eux && \
     mkdir -p ~/.ssh && chmod 700 ~/.ssh && \
     echo "StrictHostKeyChecking no " > ~/.ssh/config && \
     curl -L ${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz -o maven-${MAVEN_VERSION}.tgz && \
-    echo "${CHECKSUM}  maven-${MAVEN_VERSION}.tgz" | sha512sum -c - && \
+    echo "${CHECKSUM} maven-${MAVEN_VERSION}.tgz" | sha512sum -c - && \
     tar -xzvf maven-${MAVEN_VERSION}.tgz && \
 	mv apache-maven-$MAVEN_VERSION/* . && \
 	rmdir apache-maven-$MAVEN_VERSION && \
