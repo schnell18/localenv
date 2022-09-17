@@ -50,7 +50,7 @@ jobs:
           NODE_IMG_TAG=${{ steps.node-image-tag.outputs.NODE_IMG_TAG }}
           METEOR_VERSION=${{ steps.meteor-version.outputs.METEOR_VERSION }}
         tags: ${{ steps.meteor-version.outputs.METEOR_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
-        archs: amd64, arm64
+        archs: amd64
         context: Containerfiles/meteor/build/alpine/
         containerfiles: Containerfiles/meteor/build/alpine/Dockerfile
 
