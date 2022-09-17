@@ -1,5 +1,5 @@
 {
   "nodeImageTag": "14.20-alpine",
   "meteorVersion": "2.7.3",
-  "build": "1"
+  "build": "2"
 }
