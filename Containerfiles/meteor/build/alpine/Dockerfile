@@ -21,4 +21,4 @@ RUN apk --no-cache add \
 RUN curl https://install.meteor.com/ | sh 
 
 # work aroud .meteor/packages/meteor-tool/.2.7.3.1mjjp3y.wu0o++os.linux.x86_64+web.browser+web.browser.legacy+web.cordova/mt-os.linux.x86_64/dev_bundle/bin/node: No such file or directory
-RUN sed -i -e 's|exec "$DEV_BUNDLE|exec "/root/.meteor/packages/meteor-tool/2.7.3/mt-os.linux.x86_64/dev_bundle|' /root/.meteor/packages/meteor-tool/2.7.3/mt-os.linux.x86_64/meteor
+RUN sed -i -e 's|exec "$DEV_BUNDLE/bin||' /root/.meteor/packages/meteor-tool/2.7.3/mt-os.linux.x86_64/meteor
