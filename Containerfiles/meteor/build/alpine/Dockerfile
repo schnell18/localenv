@@ -15,5 +15,6 @@ RUN apk --no-cache add \
     curl \
     g++ \
     make \
+    ca-certificates\
     python3
 RUN curl https://install.meteor.com/ | sed -e "s/RELEASE=\"\d\.\d.\d\"/RELEASE=\"$METEOR_VERSION\"/" | sh
