@@ -6,14 +6,14 @@ LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 
 ENV METEOR_ALLOW_SUPERUSER true
 RUN apk --no-cache add \
-	libarchive-tools \
-	gnupg \
-	wget \
-	bzip2 \
-	git \
-	bash \
+    libarchive-tools \
+    gnupg \
+    wget \
+    bzip2 \
+    git \
+    bash \
     curl \
-	g++ \
-	make \
-	python3 && \
-    curl https://install.meteor.com/ | sed -e "s/RELEASE=\"\d\.\d.\d\"/RELEASE=\"$METEOR_VERSION\"/" | sh
+    g++ \
+    make \
+    python3
+RUN curl https://install.meteor.com/ | sed -e "s/RELEASE=\"\d\.\d.\d\"/RELEASE=\"$METEOR_VERSION\"/" | sh
