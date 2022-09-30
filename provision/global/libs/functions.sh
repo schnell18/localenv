@@ -1,7 +1,7 @@
 function getHostIP {
     case `uname` in
         # Darwin) ipconfig getifaddr en0 ;;
-        Darwin) podman machine ssh ip route get 8.8.8.8 | head -1 | cut -d' ' -f7 ;;
+        Darwin) podman machine ssh localenv ip route get 8.8.8.8 | head -1 | cut -d' ' -f7 ;;
         Linux) ip route get 8.8.8.8 | head -1 | cut -d' ' -f7 ;;
         *) echo ""
     esac

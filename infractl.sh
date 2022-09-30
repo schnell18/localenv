@@ -12,6 +12,7 @@ Usage:
                 logs infra1 [infra2 infra3 ...]
                 webui infra1 [infra2 infra3 ...]
                 init
+                destroy
                 list
 EOF
 }
@@ -33,6 +34,16 @@ Crafted by Justin Zhang <schnell18@gmail.com>
 Initialize local environment.
 Usage:
     infractl.sh init
+EOF
+}
+
+usage_destroy() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+Destroy local environment forcefully.
+Usage:
+    infractl.sh destroy
 EOF
 }
 
@@ -154,7 +165,18 @@ list() {
 
 init() {
     if [[ `uname` == 'Darwin' ]]; then
-        podman machine init --rootful -v $HOME:$HOME --now
+        podman machine init localenv --rootful -v $HOME:$HOME --now
+        # Install qemu for multi-arch container image build
+        podman machine ssh --username root localenv rpm-ostree install qemu-user-static
+        podman machine stop localenv
+        podman machine start localenv
+        podman system connection default localenv-root
+    fi
+}
+
+destroy() {
+    if [[ `uname` == 'Darwin' ]]; then
+        podman machine rm localenv --force
     fi
 }
 
@@ -280,6 +302,7 @@ case "${cmd}" in
     attach)      attach $@;;
     list)        list $@;;
     init)        init $@;;
+    destroy)     destroy $@;;
     logs)        logs $@;;
     webui)       webui $@;;
     refresh-db)  refresh_db $@;;

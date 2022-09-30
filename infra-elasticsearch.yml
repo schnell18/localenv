@@ -6,6 +6,7 @@ services:
   es01:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
     # image: docker.elastic.co/elasticsearch/elasticsearch:8.2.2
+    # command: "sh -c 'trap : TERM INT; sleep 9999999999d & wait'"
     environment:
       - node.name=es01
       - cluster.name=es-docker-cluster
@@ -13,6 +14,7 @@ services:
       - cluster.initial_master_nodes=es01
       - bootstrap.memory_lock=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - TAKE_FILE_OWNERSHIP=true
     # ulimits:
     #   memlock:
     #     soft: -1

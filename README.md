@@ -157,9 +157,15 @@ infra 名称。
 容器的构建依赖 podman 及 qemu。
 在 MacOS 上请在 podman 创建的虚拟机中安装`qemu-user-static`。示例如下：
 
-    $ podman machine ssh
+    $ ./infra.sh init
+
+或使用以下命令：
+
+    $ podman machine ssh localenv
     $ rpm-ostree install qemu-user-static
     $ systemctl reboot
+    $ podman system connection default localenv-root
+
 
 
 ## Redis
