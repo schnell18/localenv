@@ -171,6 +171,9 @@ init() {
         podman machine stop localenv
         podman machine start localenv
         podman system connection default localenv-root
+    elif [[ `uname` == 'Linux' ]]; then
+        # Create user owned unix domain socket
+        systemctl enable --now --user podman.socket
     fi
 }
 
