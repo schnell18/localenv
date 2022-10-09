@@ -25,6 +25,7 @@ services:
       - ./.state/elasticsearch/es01/data:/usr/share/elasticsearch/data
       - ./.state/elasticsearch/es01/logs:/usr/share/elasticsearch/logs
       # - data01:/usr/share/elasticsearch/data
+      # - ./provision/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
       - 9200:9200
 
