@@ -1,15 +1,15 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  scan_frequency: 3
+  clean_removed: true
+  paths:
+  - /usr/share/filebeat/logs/**/*.log
+
 filebeat.config:
   modules:
     path: ${path.config}/modules.d/*.yml
     reload.enabled: false
-
-filebeat.autodiscover:
-  providers:
-    - type: docker
-      hints.enabled: true
-
-processors:
-- add_cloud_metadata: ~
 
 output.elasticsearch:
   hosts: '${ELASTICSEARCH_HOSTS:es01:9200}'
