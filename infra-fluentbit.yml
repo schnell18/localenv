@@ -1,0 +1,33 @@
+version: '3.9'
+
+volumes:
+  logs-vol:
+    external: true
+
+services:
+
+  fluentbit:
+    image: docker.io/fluent/fluent-bit:1.9.9-debug
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ./provision/global/etc/localtime:/etc/localtime
+      - ./provision/global/etc/timezone:/etc/timezone
+      - ./provision/fluentbit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - logs-vol:/logs
+
+  buzz:
+    image: busybox:latest
+    command: |
+      sh -c '
+      while true; do
+          echo "Greeting from buzz on $(date -Iseconds)!!!"
+          sleep 1
+      done'
+    depends_on:
+      - fluentbit
+    # logging:
+    #   driver: fluentd
+    #   options:
+    #     tag: buzz
