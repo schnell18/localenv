@@ -165,7 +165,12 @@ list() {
 
 init() {
     if [[ `uname` == 'Darwin' ]]; then
-        podman machine init localenv --rootful -v $HOME:$HOME --now
+        # podman machine init localenv --rootful --image-path /Users/user/.local/share/containers/podman/machine/qemu/fedora-coreos-36.20220511.dev.0-qemu.aarch64.qcow2.xz -v $HOME:$HOME --now
+        # podman machine init localenv --image-path /Users/user/.local/share/containers/podman/machine/qemu/fedora-coreos-36.20220511.dev.0-qemu.aarch64.qcow2.xz -v $HOME:$HOME --now
+        # podman machine init localenv --rootful --image-path https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/36.20221030.3.0/x86_64/fedora-coreos-36.20221030.3.0-qemu.x86_64.qcow2.xz -v $HOME:$HOME --now
+
+        # podman machine init localenv --rootful --image-path stable -v $HOME:$HOME --now
+        podman machine init localenv --rootful --image-path stable -v $HOME:$HOME:rw,security_model=mapped-xattr --now
         # Install qemu for multi-arch container image build
         podman machine ssh --username root localenv rpm-ostree install qemu-user-static
         podman machine stop localenv
@@ -225,6 +230,7 @@ start() {
 
     # start containers managed by podman
     podman-compose $compose_files up -d --force-recreate
+    # podman-compose --podman-run-args '--user 501' $compose_files up -d --force-recreate
 
     # do infra-specific post setup
     for infra in $@; do
