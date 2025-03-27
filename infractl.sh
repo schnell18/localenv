@@ -170,7 +170,7 @@ init() {
         # podman machine init localenv --rootful --image-path https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/36.20221030.3.0/x86_64/fedora-coreos-36.20221030.3.0-qemu.x86_64.qcow2.xz -v $HOME:$HOME --now
 
         # podman machine init localenv --rootful --image-path stable -v $HOME:$HOME --now
-        podman machine init localenv --rootful --image-path stable -v $HOME:$HOME:rw,security_model=mapped-xattr --now
+        podman machine init localenv --memory 6144 --rootful -v $HOME:$HOME:rw,security_model=mapped-xattr --now
         # Install qemu for multi-arch container image build
         podman machine ssh --username root localenv rpm-ostree install qemu-user-static
         podman machine stop localenv
