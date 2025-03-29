@@ -10,22 +10,12 @@ services:
       timeout: 10s
       retries: 15
     environment:
-      # - KAFKA_HEAP_OPTS="-Xmx256M -Xms256M"
-      - AAKAFKA_NODE_ID=3
-      # - KAFKA_LOG_DIRS=/opt/kafka/data
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
     volumes:
-      # - type: bind
-      #   source: ./provision/kafka4/common/log4j2.properties
-      #   target: /opt/kafka/config/log4j2.properties
-      - type: bind
-        source: ./provision/kafka4/broker1/server.properties
-        target: /opt/kafka/config/server.properties
-      - type: bind
-        source: ./.state/kafka4/broker1/data
-        target: /opt/kafka/data
-      - type: bind
-        source: ./.state/kafka4/broker1/logs
-        target: /opt/kafka/logs
+      # - ./provision/kafka4/common/log4j2.properties:/opt/kafka/config/log4j2.properties
+      # - ./provision/kafka4/broker3/server.properties:/opt/kafka/config/server.properties
+      - ./.state/kafka4/broker1/data:/tmp/kraft-combined-logs
+      - ./.state/kafka4/broker1/logs:/opt/kafka/logs
     ports:
       - "9092:9092"
     restart: on-failure
@@ -39,11 +29,11 @@ services:
       timeout: 10s
       retries: 15
     environment:
-      - MAX_HEAP_SIZE=256m
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
     volumes:
       # - ./provision/kafka4/common/log4j2.properties:/opt/kafka/config/log4j2.properties
       # - ./provision/kafka4/broker2/server.properties:/opt/kafka/config/server.properties
-      # - ./.state/kafka4/broker2/data:/var/lib/kafka/data
+      - ./.state/kafka4/broker2/data:/tmp/kraft-combined-logs
       - ./.state/kafka4/broker2/logs:/opt/kafka/logs
     ports:
       - "9093:9092"
@@ -58,11 +48,11 @@ services:
       timeout: 10s
       retries: 15
     environment:
-      - MAX_HEAP_SIZE=256m
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
     volumes:
       # - ./provision/kafka4/common/log4j2.properties:/opt/kafka/config/log4j2.properties
       # - ./provision/kafka4/broker3/server.properties:/opt/kafka/config/server.properties
-      # - ./.state/kafka4/broker3/data:/var/lib/kafka/data
+      - ./.state/kafka4/broker3/data:/tmp/kraft-combined-logs
       - ./.state/kafka4/broker3/logs:/opt/kafka/logs
     ports:
       - "9094:9092"
@@ -81,9 +71,9 @@ services:
         condition: service_healthy
     command: obsidiandynamics/kafdrop
     environment:
-      - KAFKA_BROKERCONNECT=kafka1:9092,kafka2:9092,kafka3:9092
-      - JVM_OPTS=-Xms32M -Xmx64M
-      - SERVER_SERVLET_CONTEXTPATH=/
+      KAFKA_BROKERCONNECT: "kafka1:9092,kafka2:9092,kafka3:9092"
+      JVM_OPTS: "-Xms32M -Xmx64M"
+      SERVER_SERVLET_CONTEXTPATH: "/"
     ports:
       - "9000:9000"
     restart: on-failure
