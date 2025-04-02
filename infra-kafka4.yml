@@ -14,6 +14,7 @@ services:
     volumes:
       # - ./provision/kafka4/common/log4j2.properties:/opt/kafka/config/log4j2.properties
       - ./provision/kafka4/node1/kraft:/opt/kafka/config/kraft
+      - ./provision/kafka4/node1/kraft:/mnt/shared/config
       - ./.state/kafka4/node1/data:/tmp/kraft-combined-logs
       - ./.state/kafka4/node1/logs:/opt/kafka/logs
     ports:
@@ -32,6 +33,7 @@ services:
       KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
     volumes:
       # - ./provision/kafka4/common/log4j2.properties:/opt/kafka/config/log4j2.properties
+      - ./provision/kafka4/node2/kraft:/mnt/shared/config
       - ./provision/kafka4/node2/kraft:/opt/kafka/config/kraft
       - ./.state/kafka4/node2/data:/tmp/kraft-combined-logs
       - ./.state/kafka4/node2/logs:/opt/kafka/logs
@@ -39,7 +41,7 @@ services:
       - "9093:9092"
     restart: on-failure
 
-  kafka2:
+  kafka3:
     image: docker.io/schnell18/kafka:4.0.0-8-alpine
     healthcheck:
       test: "nc -z localhost 9092"
@@ -51,6 +53,7 @@ services:
       KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
     volumes:
       # - ./provision/kafka4/common/log4j2.properties:/opt/kafka/config/log4j2.properties
+      - ./provision/kafka4/node3/kraft:/mnt/shared/config
       - ./provision/kafka4/node3/kraft:/opt/kafka/config/kraft
       - ./.state/kafka4/node3/data:/tmp/kraft-combined-logs
       - ./.state/kafka4/node3/logs:/opt/kafka/logs
@@ -61,6 +64,12 @@ services:
   kafka-ui:
     container_name: kafka-ui
     image: docker.io/provectuslabs/kafka-ui:v0.7.2
+    healthcheck:
+      test: "nc -z localhost 8080"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
     ports:
       - 9000:8080
     depends_on:
