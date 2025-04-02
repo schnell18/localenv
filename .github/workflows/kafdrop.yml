@@ -3,8 +3,7 @@ name: kafdrop
 on:
   push:
     branches:
-      - 'main'
-      - 'podman'
+      - 'master'
     paths:
       - Containerfiles/kafdrop/Dockerfile
       - Containerfiles/kafdrop/version.json
