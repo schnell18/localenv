@@ -134,7 +134,7 @@ status() {
 
 }
 
-stop() {
+stop2() {
     PROFILE=$1
     if [[ -z $PROFILE ]]; then
         usage_stop
@@ -155,6 +155,32 @@ stop() {
 
 }
 
+stop() {
+
+    CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
+    compose_files=""
+    if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
+      compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
+    else
+      PROFILE=$1
+      if [[ -z $PROFILE ]]; then
+          usage_stop
+          exit 1
+      fi
+      if [[ $PROFILE == "all" ]]; then
+          for file in *-*; do
+              compose_files="$compose_files -f $file"
+          done;
+      else
+          for infra in $@; do
+              compose_files="$compose_files -f infra-${infra}.yml"
+          done
+      fi
+    fi
+
+    podman-compose $compose_files down
+
+}
 list() {
     for file in infra-*; do
         if [[ $file =~ ^infra-(.+).yml$ ]]; then

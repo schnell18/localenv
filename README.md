@@ -40,6 +40,7 @@ presented in the table as follows:
 |  09   | powerjob      | 7700  | http://127.0.0.1:7700       |
 |  10   | rabbitmq      | 5672  | http://127.0.0.1:15672      |
 |  11   | grafana       | 3000  | http://127.0.0.1:3000       |
+|  12   | kafka-ui      | 9000  | http://127.0.0.1:9000       |
 
 ## Setup
 

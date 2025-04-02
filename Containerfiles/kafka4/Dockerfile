@@ -6,4 +6,4 @@ LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 USER root
 
 # change server.properties location to /etc/kafka/config
-# RUN sed -i 's#/opt/kafka/config/server.properties#/etc/kafka/config/server.properties#' /etc/kafka/docker/launch
+RUN sed -i 's#/opt/kafka/config/server.properties#/opt/kafka/config/kraft/server.properties#' /etc/kafka/docker/launch
