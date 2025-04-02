@@ -69,6 +69,10 @@ services:
     depends_on:
       kafka1:
         condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
     command: obsidiandynamics/kafdrop
     environment:
       KAFKA_BROKERCONNECT: "kafka1:9092,kafka2:9092,kafka3:9092"

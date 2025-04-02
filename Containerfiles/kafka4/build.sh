@@ -1,10 +1,10 @@
-GOLANG_VERSION=1.19
-REV=2
+KAFKA_VERSION=$(jq -r '.kafkaVersion' version.json)
+REV=$(jq -r '.build' version.json)
 
 REGISTRY=docker.io
 USER=schnell18
-IMAGE_NAME=golang-build
-IMAGE_TAG=${GOLANG_VERSION}-${REV}-alpine
+IMAGE_NAME=kafka
+IMAGE_TAG=${KAFKA_VERSION}-${REV}-alpine
 MANIFEST=${IMAGE_NAME}
 
 # remove local manifest from previous build so that
@@ -15,11 +15,15 @@ if [[ $? -eq 0 ]]; then
 fi
 
 podman manifest create ${MANIFEST}
+
+# --platform linux/amd64,linux/arm64/v8 \
 podman build \
     --jobs 2 \
-    --platform linux/amd64,linux/arm64/v8 \
+    --platform linux/amd64 \
     --manifest ${MANIFEST} \
+    --build-arg KAFKA_VERSION=${KAFKA_VERSION} \
+    --build-arg JRE_RUNTIME_IMG_TAG=${JRE_RUNTIME_IMG_TAG} \
     --tag $REGISTRY/$USER/$IMAGE_NAME:$IMAGE_TAG \
     .
 
-podman manifest push --all ${MANIFEST} docker://$REGISTRY/$USER/$IMAGE_NAME:$IMAGE_TAG
+# podman manifest push --all ${MANIFEST} docker://$REGISTRY/$USER/$IMAGE_NAME:$IMAGE_TAG

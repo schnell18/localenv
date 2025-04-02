@@ -1,13 +1,13 @@
-name: java-runtime-jdk-8
+name: kafdrop
 
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
       - 'podman'
     paths:
-      - Containerfiles/java/runtime/alpine/8/jdk/Dockerfile
-      - Containerfiles/java/runtime/alpine/8/version.json
+      - Containerfiles/kafdrop/Dockerfile
+      - Containerfiles/kafdrop/version.json
 
 jobs:
   build:
@@ -23,36 +23,36 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y qemu-user-static
 
-    - name: Get zulu version
-      id: zulu-version
+    - name: Get JRE runtime iamge tag
+      id: jre-rt-image-tag
       run: |
-        echo -n ::set-output name=ZULU_VERSION::
-        jq -r '.zuluVersion' Containerfiles/java/runtime/alpine/8/version.json
+        echo -n ::set-output name=JRE_RT_IMG_TAG::
+        jq -r '.jreRuntimeImageTag' Containerfiles/kafdrop/version.json
 
-    - name: Get OpenJDK version
-      id: openjdk-version
+    - name: Get kafdrop version
+      id: kafdrop-version
       run: |
-        echo -n ::set-output name=OPENJDK_VERSION::
-        jq -r '.openjdkVersion' Containerfiles/java/runtime/alpine/8/version.json
+        echo -n ::set-output name=KAFDROP_VERSION::
+        jq -r '.kafdropVersion' Containerfiles/kafdrop/version.json
 
     - name: Get build number
       id: build-number
       run: |
         echo -n ::set-output name=BUILD_NO::
-        jq -r '.build' Containerfiles/java/runtime/alpine/8/version.json
+        jq -r '.build' Containerfiles/kafdrop/version.json
 
     - name: Build Image
       id: build-image
       uses: redhat-actions/buildah-build@v2
       with:
-        image: java-runtime-jdk
+        image: kafka
         build-args: |
-          OPENJDK_VERSION=${{ steps.openjdk-version.outputs.OPENJDK_VERSION }}
-          ZULU_VERSION=${{ steps.zulu-version.outputs.ZULU_VERSION }}
-        tags: ${{ steps.openjdk-version.outputs.OPENJDK_VERSION }}-${{ steps.zulu-version.outputs.ZULU_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
+          KAFDROP_VERSION=${{ steps.kafdrop-version.outputs.KAFKA_VERSION }}
+          JRE_RUNTIME_IMG_TAG=${{ steps.jre-rt-image-tag.outputs.JRE_RT_IMG_TAG }}
+        tags: ${{ steps.kafdrop-version.outputs.KAFDROP_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
         archs: amd64, arm64
-        context: Containerfiles/java/runtime/alpine/8/jdk/
-        containerfiles: Containerfiles/java/runtime/alpine/8/jdk/Dockerfile
+        context: Containerfiles/kafdrop/
+        containerfiles: Containerfiles/kafdrop/Dockerfile
 
     - name: Push To quay.io
       id: push-to-quay

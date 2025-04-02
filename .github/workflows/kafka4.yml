@@ -1,21 +1,19 @@
-name: golang-runtime-117
+name: kafka4
 
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
       - 'podman'
     paths:
-      - Containerfiles/golang/runtime/alpine/1.17/Dockerfile
-      - Containerfiles/golang/runtime/alpine/1.17/version.json
+      - Containerfiles/kafka4/Dockerfile
+      - Containerfiles/kafka4/version.json
 
 jobs:
   build:
     name: Build and push image
     environment: production
     runs-on: ubuntu-22.04
-    env:
-      context: Containerfiles/golang/runtime/alpine/1.17
 
     steps:
     - uses: actions/checkout@v2
@@ -25,29 +23,29 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y qemu-user-static
 
-    - name: Get image tags
-      id: image_tags
+    - name: Get kafka version
+      id: kafka-version
       run: |
-        echo -n ::set-output name=IMAGE_TAGS::
-        VERSION=$(jq -r '.version' ${context}/version.json)
-        if [ "${VERSION}" ] && [ "${VERSION}" != "latest" ]; then
-            echo ${VERSION}
-        elif [[ "${GITHUB_REF}" =~ refs/tags/(.*) ]]; then
-            echo ${BASH_REMATCH[1]}
-        else
-            echo ${{ github.sha }}
-        fi
+        echo -n ::set-output name=KAFKA_VERSION::
+        jq -r '.kafkaVersion' Containerfiles/kafka4/version.json
+
+    - name: Get build number
+      id: build-number
+      run: |
+        echo -n ::set-output name=BUILD_NO::
+        jq -r '.build' Containerfiles/kafka4/version.json
 
     - name: Build Image
       id: build-image
       uses: redhat-actions/buildah-build@v2
       with:
-        image: golang-runtime
-        build-args: GRPC_HEALTH_PROBE_VERSION=v0.4.11
-        tags: ${{ steps.image_tags.outputs.IMAGE_TAGS }}
+        image: kafka
+        build-args: |
+          KAFKA_VERSION=${{ steps.kafka-version.outputs.KAFKA_VERSION }}
+        tags: ${{ steps.kafka-version.outputs.KAFKA_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
         archs: amd64, arm64
-        context: Containerfiles/golang/runtime/alpine/1.17/
-        containerfiles: Containerfiles/golang/runtime/alpine/1.17/Dockerfile
+        context: Containerfiles/kafka4/
+        containerfiles: Containerfiles/kafka4/Dockerfile
 
     - name: Push To quay.io
       id: push-to-quay
