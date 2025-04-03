@@ -1,4 +1,4 @@
-source provision/global/libs/functions.sh
+source .infra/global/libs/functions.sh
 
 usage() {
     cat <<EOF

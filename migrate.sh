@@ -30,3 +30,16 @@ find .infra -name "*.sh" | xargs -I {} echo sed -i "''" -e "'s#source provision/
 
 # change reference to ./.state to ../../.state
 find .infra -name "descriptor.yml" | xargs -I {} echo sed -i "''" -e "'s#./.state#../../.state#'" {} > fix.sh
+
+
+# Migrate apps
+for dir in .apps/*; do
+  if [[ $dir =~ ^.apps/(.+)$ ]]; then
+    app=${BASH_REMATCH[1]}
+    if [[ -d "$dir" ]]; then
+      echo "Migrating provision files for $app ..."
+      mkdir -p ".apps/$app/provision"
+      mv .apps/$app/* .apps/$app/provision
+    fi
+  fi
+done
