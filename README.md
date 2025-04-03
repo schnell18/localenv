@@ -41,6 +41,8 @@ presented in the table as follows:
 |  10   | rabbitmq      | 5672  | http://127.0.0.1:15672      |
 |  11   | grafana       | 3000  | http://127.0.0.1:3000       |
 |  12   | kafka-ui      | 9000  | http://127.0.0.1:9000       |
+|  13   | etcd          | 2379  |                             |
+|  14   | jaeger        | 16686 | http://127.0.0.1:16686      |
 
 ## Setup
 
@@ -156,6 +158,7 @@ The following table lists the supported middlewares and databases:
 |  09   | zookeeper                   | zookeeper                       |
 |  10   | kafka                       | kafka                           |
 |  11   | mongodb                     | mongodb                         |
+|  12   | [jaeger][8]                 | jaeger distributed tracing      |
 
 To check if the middlewares are working properly, you may type:
 
@@ -185,10 +188,25 @@ Alternatively, you can install it manually by running the following commands:
 ### Redis Cluster Mode
 
 The redis instance supported by localenv is a 3-node redis cluster with port
-range from 7001 to 7003. The cluster password is `abc123`. You may use any
-redis management tool to interact with the redis cluster. If you use tmux, then
-you may launch the `tmux.sh` which open a CLI session using the `redis-cli`
-tool.
+range from 7001 to 7003. The cluster password is `abc123`.
+To connect using the redis-cli, you can type:
+
+    redis-cli -c -h 127.0.0.1 -p 7001 -a abc123
+
+If you use tmux, then you may launch the `tmux.sh` which open the above session
+in a separate window for you. You may use any other redis management tools to
+interact with the redis cluster.
+
+### Redis Sentinel Mode
+
+The redis instance supported by localenv is a 3-slave 3-sentinel redis sentinel
+on port 6379. The cluster password is `abc123`. To connect using the redis-cli,
+you can type:
+
+    redis-cli -h 127.0.0.1 -p 6379 -a abc123
+
+You may use any other redis management tools to interact with the redis
+cluster.
 
 ## MariaDB (MySQL)
 
@@ -202,6 +220,23 @@ favorite tool to connect the database using the credentials as aforementioned.
 The data files of MariaDB instance are stored under the folder
 `.state/mariadb/data`. The data persist over environment restart as long as you
 don't remove these files.
+
+## ETCD
+
+[ETCD][9] is a strongly consistent, distributed key-value store for distributed
+systems. To start a 3-node ETCD cluster in the localenv, type:
+
+    ./infractl.sh start etcd
+
+## ElasticSearch
+
+The ElasticSearch instance in the localenv can be accessed via 127.0.0.1:9200.
+The companion Kibana is serving on 5601. You can browse http://127.0.0.1:5601 to
+access the web ui. Alternatively, you can type
+
+    ./infractl.sh webui elasticsearch
+
+to access the Kibana webui.
 
 ## RocketMQ
 
@@ -242,6 +277,30 @@ To open the nacos administration page, you may type:
     ./infractl.sh webui nacos
 
 which leads you to the administration UI.
+
+## Jaeger
+
+Jaeger is an open-source distributed tracing tool for modern microservices.
+The Jaeger instance in the localenv uses ElasticSearch as storage, thus it requires
+an ElasticSearch instance. To start Jaeger run:
+
+    ./infractl.sh start elasticsearch jaeger
+
+To open the Jaeger web ui manually, you may type:
+
+    ./infractl.sh webui jaeger
+
+## filebeat
+
+Filebeat is a popular logs collection tool for modern microservices, especially
+running as containers. The filebeat instance in the localenv uses ElasticSearch
+as storage, thus it requires an ElasticSearch instance. To start filebeat run:
+
+    ./infractl.sh start elasticsearch filebeat
+
+To open the Kibana ui manually, you may type:
+
+    ./infractl.sh webui elasticsearch
 
 ## PowerJob
 
@@ -374,3 +433,6 @@ registries as follows:
 [4]: https://rocketmq.apache.org/
 [5]: https://www.rabbitmq.com/
 [6]: https://nacos.io/
+[7]: http://www.powerjob.tech/
+[8]: https://www.jaegertracing.io/
+[9]: https://etcd.io/

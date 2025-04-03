@@ -1,0 +1,93 @@
+# dockerized virtual environment
+version: '3.9'
+
+services:
+
+  redis-snode1:
+    image: docker.io/redis:6.2.1-alpine
+    restart: always
+    entrypoint: [redis-server, /etc/redis/redis.conf]
+    healthcheck:
+      test: "redis-cli -p 6379 info"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ../../.state/redis-sentinel/conf/node1:/etc/redis/
+      - ../../.state/redis-sentinel/data/node1:/data
+    ports:
+      - "6379:6379"
+
+  redis-snode2:
+    image: docker.io/redis:6.2.1-alpine
+    restart: always
+    entrypoint: [redis-server, /etc/redis/redis.conf]
+    healthcheck:
+      test: "redis-cli -p 6380 info"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ../../.state/redis-sentinel/conf/node2:/etc/redis/
+      - ../../.state/redis-sentinel/data/node2:/data
+    ports:
+      - "6380:6380"
+
+  redis-snode3:
+    image: docker.io/redis:6.2.1-alpine
+    restart: always
+    entrypoint: [redis-server, /etc/redis/redis.conf]
+    healthcheck:
+      test: "redis-cli -p 6381 info"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      # - ./provision/redis/node3:/etc/redis/
+      - ../../.state/redis-sentinel/conf/node3:/etc/redis/
+      - ../../.state/redis-sentinel/data/node3:/data
+    ports:
+      - "6381:6381"
+
+  redis-sentinel1:
+    image: docker.io/redis:6.2.1-alpine
+    restart: always
+    entrypoint: [redis-sentinel, /etc/redis/sentinel.conf]
+    healthcheck:
+      test: "redis-cli -p 5001 info"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ../../.state/redis-sentinel/conf/sentinel1:/etc/redis/
+    ports:
+      - "5001:5001"
+
+  redis-sentinel2:
+    image: docker.io/redis:6.2.1-alpine
+    restart: always
+    entrypoint: [redis-sentinel, /etc/redis/sentinel.conf]
+    healthcheck:
+      test: "redis-cli -p 5002 info"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ../../.state/redis-sentinel/conf/sentinel2:/etc/redis/
+    ports:
+      - "5002:5002"
+
+  redis-sentinel3:
+    image: docker.io/redis:6.2.1-alpine
+    restart: always
+    entrypoint: [redis-sentinel, /etc/redis/sentinel.conf]
+    healthcheck:
+      test: "redis-cli -p 5003 info"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ../../.state/redis-sentinel/conf/sentinel3:/etc/redis/
+    ports:
+      - "5003:5003"
+

@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  filebeat:
+    image: docker.elastic.co/beats/filebeat-oss:7.15.2
+    command: filebeat -e --strict.perms=false -E output.elasticsearch.hosts=["es01:9200"]
+    # command: "sh -c 'trap : TERM INT; sleep 9999999999d & wait'"
+    volumes:
+      - ../global/etc/localtime:/etc/localtime
+      - ../global/etc/timezone:/etc/timezone
+      - ../filebeat/provision/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - /run/podman/podman.sock:/var/run/docker.sock
+      - ../../.state/filebeat/logs-vol:/usr/share/filebeat/logs
+    environment:
+      ELASTICSEARCH_HOSTS: http://es01:9200
+    depends_on:
+      es01:
+        condition: service_healthy
+
+  init-es:
+      image: docker.elastic.co/beats/filebeat-oss:7.15.2
+      command: sh /init-es.sh
+      volumes:
+        - ../filebeat/provision/init-es.sh:/init-es.sh
+      depends_on:
+        es01:
+          condition: service_healthy

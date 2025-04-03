@@ -1,4 +1,4 @@
-source provision/global/libs/functions.sh
+source .infra/global/libs/functions.sh
 
 usage() {
     cat <<EOF
@@ -114,48 +114,6 @@ EOF
 }
 
 status() {
-    PROFILE=$1
-    if [[ -z $PROFILE ]]; then
-        usage_status
-        exit 1
-    fi
-
-    compose_files=""
-    if [[ $PROFILE == "all" ]]; then
-        for file in *-*; do
-            compose_files="$compose_files -f $file"
-        done;
-    else
-        for infra in $@; do
-            compose_files="$compose_files -f infra-${infra}.yml"
-        done
-    fi
-    podman-compose $compose_files ps
-
-}
-
-stop2() {
-    PROFILE=$1
-    if [[ -z $PROFILE ]]; then
-        usage_stop
-        exit 1
-    fi
-
-    compose_files=""
-    if [[ $PROFILE == "all" ]]; then
-        for file in *-*; do
-            compose_files="$compose_files -f $file"
-        done;
-    else
-        for infra in $@; do
-            compose_files="$compose_files -f infra-${infra}.yml"
-        done
-    fi
-    podman-compose $compose_files down
-
-}
-
-stop() {
 
     CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
     compose_files=""
@@ -167,23 +125,36 @@ stop() {
           usage_stop
           exit 1
       fi
-      if [[ $PROFILE == "all" ]]; then
-          for file in *-*; do
-              compose_files="$compose_files -f $file"
-          done;
-      else
-          for infra in $@; do
-              compose_files="$compose_files -f infra-${infra}.yml"
-          done
-      fi
+      compose_files=$(get_descrptior_file_paths $PROFILE)
     fi
 
-    podman-compose $compose_files down
+    podman-compose $compose_files ps
+}
+
+stop() {
+
+    CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
+    compose_files=""
+    if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
+      compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
+      podman-compose $compose_files down
+      # remove the profile stat file to cleanup
+      rm $CURRENT_PROFILES_STAT_FILE
+    else
+      PROFILE=$1
+      if [[ -z $PROFILE ]]; then
+          usage_stop
+          exit 1
+      fi
+      compose_files=$(get_descrptior_file_paths $PROFILE)
+      podman-compose $compose_files down
+    fi
 
 }
+
 list() {
-    for file in infra-*; do
-        if [[ $file =~ ^infra-(.+).yml$ ]]; then
+    for file in .infra/*/descriptor.yml; do
+        if [[ $file =~ ^\.infra/(.+)/descriptor.yml$ ]]; then
             echo ${BASH_REMATCH[1]}
         fi
     done;
@@ -222,9 +193,9 @@ webui() {
 
     # do infra-specific post setup
     for infra in $@; do
-        if [[ -f provision/$infra/post/webui.sh ]]; then
+        if [[ -f .infra/$infra/provision/post/webui.sh ]]; then
             echo "Launch webui for $infra..."
-            url=$(sh provision/$infra/post/webui.sh)
+            url=$(sh .infra/$infra/provision/post/webui.sh)
             if [[ ! -z $url ]]; then
                 open_browser $url
             fi
@@ -246,11 +217,11 @@ start() {
 
     compose_files=""
     for infra in $@; do
-        if [[ -f provision/$infra/pre/prepare.sh ]]; then
+        if [[ -f .infra/$infra/provision/pre/prepare.sh ]]; then
             echo "Run prepare script for $infra..."
-            sh provision/$infra/pre/prepare.sh
+            sh .infra/$infra/provision/pre/prepare.sh
         fi
-        compose_files="$compose_files -f infra-${infra}.yml"
+        compose_files="$compose_files -f $(pwd)/.infra/${infra}/descriptor.yml"
     done
     echo $compose_files > .state/compose-files.txt
 
@@ -260,16 +231,16 @@ start() {
 
     # do infra-specific post setup
     for infra in $@; do
-        if [[ -f provision/$infra/post/setup.sh ]]; then
+        if [[ -f .infra/$infra/provision/post/setup.sh ]]; then
             echo "Run post setup script for $infra..."
-            sh provision/$infra/post/setup.sh
+            sh .infra/$infra/provision/post/setup.sh
         fi
     done
 
     for infra in $@; do
-        if [[ -f provision/$infra/post/webui.sh ]]; then
+        if [[ -f .infra/$infra/provision/post/webui.sh ]]; then
             echo "Launch webui for $infra..."
-            url=$(sh provision/$infra/post/webui.sh)
+            url=$(sh .infra/$infra/provision/post/webui.sh)
             if [[ ! -z $url ]]; then
                 open_browser $url
             fi
@@ -286,12 +257,12 @@ attach() {
         exit 1
     fi
 
-    compose_files=""
-    for file in infra-*; do
-        compose_files="$compose_files -f $file"
-    done;
+    CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
+    if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
+      compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
+      podman-compose $compose_files exec $ARG sh
+    fi
 
-    podman-compose $compose_files exec $ARG sh
 
 }
 
@@ -311,17 +282,17 @@ logs() {
         exit 1
     fi
 
-    all_compose_files=""
-    for file in infra-*.yml; do
-        all_compose_files="$all_compose_files -f $file"
-    done
+    CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
+    if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
+      compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
+      podman-compose $compose_files exec $ARG sh
+      all_infras=""
+      for infra in $@; do
+          all_infras=" $infra"
+      done
+      podman-compose $compose_files logs -f $all_infras
+    fi
 
-    all_infras=""
-    for infra in $@; do
-        all_infras=" $infra"
-    done
-
-    podman-compose $all_compose_files logs -f $all_infras
 }
 
 cmd=$1

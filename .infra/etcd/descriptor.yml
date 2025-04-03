@@ -1,0 +1,89 @@
+# dockerized virtual environment
+version: '3.9'
+services:
+
+  etcd1:
+    image: docker.io/schnell18/etcd:3.5.21-1
+    # user: root
+    restart: always
+    healthcheck:
+      test: "curl -s http://127.0.0.1:2379/health | jq .health | grep true"
+      start_period: 10s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    volumes:
+      - ../../.state/etcd/etcd1/data:/etcd_data
+      - ./provision/etcd1/conf:/opt/bitnami/etcd/conf/
+    environment:
+      - ETCD_NAME=etcd1
+      - ETCD_LISTEN_CLIENT_URLS="http://etcd1:2379,http://127.0.0.1:2379"
+      - ETCD_LISTEN_PEER_URLS="http://etcd1:2380"
+      - ETCD_ADVERTISE_CLIENT_URLS="http://etcd1:2379"
+      - ETCD_CONFIG_FILE=/opt/bitnami/etcd/conf/etcd.yaml
+      # - ETCD_INITIAL_CLUSTER="etcd1='http://etcd1:2380',etcd2='http://etcd2:2380',etcd3='http://etcd3:2380'"
+      - ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster-1"
+      - ETCD_INITIAL_CLUSTER_STATE=new
+      - ALLOW_NONE_AUTHENTICATION=yes
+      # - ETCDCTL_API=
+      - ETCD_LOG_LEVEL=debug
+    ports:
+      - "2379:2379/tcp"
+
+  etcd2:
+    image: docker.io/schnell18/etcd:3.5.21-1
+    # user: root
+    restart: always
+    healthcheck:
+      test: "curl -s http://127.0.0.1:2379/health | jq .health | grep true"
+      start_period: 10s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    volumes:
+      - ../../.state/etcd/etcd2/data:/etcd_data
+      - ./provision/etcd2/conf:/opt/bitnami/etcd/conf/
+    environment:
+      - ETCD_NAME=etcd2
+      - ETCD_LISTEN_CLIENT_URLS="http://etcd2:2379,http://127.0.0.1:2379"
+      - ETCD_LISTEN_PEER_URLS="http://etcd2:2380"
+      - ETCD_ADVERTISE_CLIENT_URLS="http://etcd2:2379"
+      - ETCD_CONFIG_FILE=/opt/bitnami/etcd/conf/etcd.yaml
+      # - ETCD_INITIAL_CLUSTER="etcd1='http://etcd1:2380',etcd2='http://etcd2:2380',etcd3='http://etcd3:2380'"
+      - ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster-1"
+      - ETCD_INITIAL_CLUSTER_STATE=new
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_LOG_LEVEL=debug
+      # - ETCDCTL_API=
+    ports:
+      - "2380:2379/tcp"
+
+  etcd3:
+    image: docker.io/schnell18/etcd:3.5.21-1
+    # user: root
+    restart: always
+    healthcheck:
+      test: "curl -s http://127.0.0.1:2379/health | jq .health | grep true"
+      start_period: 10s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    volumes:
+      - ../../.state/etcd/etcd3/data:/etcd_data
+      - ./provision/etcd3/conf:/opt/bitnami/etcd/conf/
+    environment:
+      - ETCD_NAME=etcd3
+      - ETCD_LISTEN_CLIENT_URLS="http://etcd3:2379,http://127.0.0.1:2379"
+      - ETCD_LISTEN_PEER_URLS="http://etcd3:2380"
+      - ETCD_ADVERTISE_CLIENT_URLS="http://etcd3:2379"
+      - ETCD_CONFIG_FILE=/opt/bitnami/etcd/conf/etcd.yaml
+      # - ETCD_INITIAL_CLUSTER="etcd1='http://etcd1:2380',etcd2='http://etcd2:2380',etcd3='http://etcd3:2380'"
+      - ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster-1"
+      - ETCD_INITIAL_CLUSTER_STATE=new
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_LOG_LEVEL=debug
+      # - ETCDCTL_API=
+      # - ETCD_LOG_LEVEL=
+    ports:
+      - "2381:2379/tcp"
+

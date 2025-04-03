@@ -1,0 +1,19 @@
+# dockerized virtual environment
+version: '3.9'
+
+services:
+
+  nginx:
+    image: docker.io/nginx:1.20.1-alpine
+    restart: always
+    healthcheck:
+      test: "curl -s http://localhost"
+      start_period: 40s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    volumes:
+      - ./provision/conf.d:/etc/nginx/conf.d
+    ports:
+      - "80:80/tcp"
+

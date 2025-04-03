@@ -1,0 +1,51 @@
+# dockerized virtual environment
+version: '3.9'
+
+services:
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
+    # image: docker.elastic.co/elasticsearch/elasticsearch:8.2.2
+    # command: "sh -c 'trap : TERM INT; sleep 9999999999d & wait'"
+    healthcheck:
+      test: "nc -z localhost 9200"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01
+      - cluster.initial_master_nodes=es01
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - TAKE_FILE_OWNERSHIP=true
+    # ulimits:
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    volumes:
+      - ../global/etc/localtime:/etc/localtime
+      - ../global/etc/timezone:/etc/timezone
+      - ../../.state/elasticsearch/es01/data:/usr/share/elasticsearch/data
+      - ../../.state/elasticsearch/es01/logs:/usr/share/elasticsearch/logs
+      # - data01:/usr/share/elasticsearch/data
+      # - ./provision/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - 9200:9200
+
+  kib01:
+    image: docker.elastic.co/kibana/kibana:7.15.1
+    # image: docker.elastic.co/kibana/kibana:8.2.2
+    depends_on:
+        es01:
+            condition: service_started
+    volumes:
+      - ../global/etc/localtime:/etc/localtime
+      - ../global/etc/timezone:/etc/timezone
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_URL: http://es01:9200
+      ELASTICSEARCH_HOSTS: http://es01:9200

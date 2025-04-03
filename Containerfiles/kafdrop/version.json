@@ -1,5 +1,5 @@
 {
-  "kafdropVersion": "4.1.0",
+  "kafdropVersion": "3.29.0",
   "jreRuntimeImageTag": "17.0.3-17.34.19-6-apline",
-  "build": "3"
+  "build": "1"
 }

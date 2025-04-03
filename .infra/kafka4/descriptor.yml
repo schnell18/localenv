@@ -1,0 +1,84 @@
+version: '3.9'
+services:
+
+  kafka1:
+    image: docker.io/schnell18/kafka:4.0.0-8-alpine
+    healthcheck:
+      test: "nc -z localhost 9092"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    environment:
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
+    volumes:
+      # - ./provision/common/log4j2.properties:/opt/kafka/config/log4j2.properties
+      - ./provision/node1/kraft:/opt/kafka/config/kraft
+      - ./provision/node1/kraft:/mnt/shared/config
+      - ../.../../.state/kafka4/node1/data:/tmp/kraft-combined-logs
+      - ../.../../.state/kafka4/node1/logs:/opt/kafka/logs
+    ports:
+      - "9092:9092"
+    restart: on-failure
+
+  kafka2:
+    image: docker.io/schnell18/kafka:4.0.0-8-alpine
+    healthcheck:
+      test: "nc -z localhost 9092"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    environment:
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
+    volumes:
+      # - ./provision/common/log4j2.properties:/opt/kafka/config/log4j2.properties
+      - ./provision/node2/kraft:/opt/kafka/config/kraft
+      - ./provision/node2/kraft:/mnt/shared/config
+      - ../.../../.state/kafka4/node2/data:/tmp/kraft-combined-logs
+      - ../.../../.state/kafka4/node2/logs:/opt/kafka/logs
+    ports:
+      - "9093:9092"
+    restart: on-failure
+
+  kafka3:
+    image: docker.io/schnell18/kafka:4.0.0-8-alpine
+    healthcheck:
+      test: "nc -z localhost 9092"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    environment:
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
+    volumes:
+      # - ./provision/common/log4j2.properties:/opt/kafka/config/log4j2.properties
+      - ./provision/node3/kraft:/opt/kafka/config/kraft
+      - ./provision/node3/kraft:/mnt/shared/config
+      - ../.../../.state/kafka4/node3/data:/tmp/kraft-combined-logs
+      - ../.../../.state/kafka4/node3/logs:/opt/kafka/logs
+    ports:
+      - "9094:9092"
+    restart: on-failure
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: docker.io/provectuslabs/kafka-ui:v0.7.2
+    healthcheck:
+      test: "nc -z localhost 8080"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    ports:
+      - 9000:8080
+    depends_on:
+      - kafka1
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9092
+      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
+      SERVER_SERVLET_CONTEXT_PATH: /kafkaui
+      AUTH_TYPE: "LOGIN_FORM"
+      SPRING_SECURITY_USER_NAME: admin
+      SPRING_SECURITY_USER_PASSWORD: abc

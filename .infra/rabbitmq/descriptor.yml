@@ -1,0 +1,22 @@
+# dockerized virtual environment
+version: '3.9'
+
+services:
+
+  rabbitmq:
+    image: docker.io/rabbitmq:3.9.11-management-alpine
+    healthcheck:
+      test: "nc -z localhost 5672"
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 15
+    ports:
+      - 5672:5672
+      - 15672:15672
+    labels:
+      - "mq_broker=true"
+    volumes:
+      - ../global/etc/localtime:/etc/localtime
+      - ../global/etc/timezone:/etc/timezone
+      - ../../.state/rabbitmq:/var/lib/rabbitmq
