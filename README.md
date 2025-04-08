@@ -43,6 +43,7 @@ presented in the table as follows:
 |  12   | kafka-ui      | 9000  | http://127.0.0.1:9000       |
 |  13   | etcd          | 2379  |                             |
 |  14   | jaeger        | 16686 | http://127.0.0.1:16686      |
+|  15   | jaeger        | 16686 | http://127.0.0.1:16686      |
 
 ## Setup
 
@@ -220,6 +221,17 @@ favorite tool to connect the database using the credentials as aforementioned.
 The data files of MariaDB instance are stored under the folder
 `.state/mariadb/data`. The data persist over environment restart as long as you
 don't remove these files.
+
+## Kafka4
+
+[Kafka4][10] is an open-source distributed event streaming platform.
+To start a 3-node kafka cluster in the localenv, type:
+
+    ./infractl.sh start Kafka4
+
+The 3 kafka nodes are exposed to the host on port 19092, 29092, and 39092
+respectively.
+
 
 ## ETCD
 
@@ -436,3 +448,4 @@ registries as follows:
 [7]: http://www.powerjob.tech/
 [8]: https://www.jaegertracing.io/
 [9]: https://etcd.io/
+[10]: https://kafka.apache.org/

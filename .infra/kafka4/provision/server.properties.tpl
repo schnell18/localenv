@@ -28,7 +28,7 @@
 process.roles=broker,controller
 
 # The node id associated with this instance's roles
-node.id=1
+node.id=@NODE_ID@
 
 # The connect string for the controller quorum
 controller.quorum.voters=1@kafka1:9093,2@kafka2:9093,3@kafka3:9093
@@ -50,7 +50,7 @@ inter.broker.listener.name=PLAINTEXT
 
 # Listener name, hostname and port the broker or the controller will advertise to clients.
 # If not set, it uses the value for "listeners".
-advertised.listeners=PLAINTEXT://kafka1:9092
+advertised.listeners=PLAINTEXT://@KAFKA_ADV_HOST_PORT@
 
 # A comma-separated list of the names of the listeners used by the controller.
 # If no explicit mapping set in `listener.security.protocol.map`, default will be using PLAINTEXT protocol
