@@ -42,7 +42,7 @@ jobs:
         image: mariadb
         build-args: |
           MARIADB_VERSION=${{ steps.mariadb-version.outputs.MARIADB_VERSION }}
-        tags: ${{ steps.mariadb-version.outputs.MARIADB_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
+        tags: ${{ steps.mariadb-version.outputs.MARIADB_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}
         archs: amd64, arm64
         context: Containerfiles/mariadb/
         containerfiles: Containerfiles/mariadb/Dockerfile
