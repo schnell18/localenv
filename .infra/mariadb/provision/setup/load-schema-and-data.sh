@@ -37,7 +37,13 @@ user=$2
 database=$3
 basedir=$4
 PWD=$(pwd)
-cd /work/$basedir/$app
+
+if [ -d /work/$basedir/$app/provision ]; then
+  cd /work/$basedir/$app/provision
+else
+  cd /work/$basedir/$app
+fi
+
 load_schema
 load_data
 cd $PWD

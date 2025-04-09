@@ -1,11 +1,16 @@
 # Containerized local development environment
 
 The local virtual development environment offers convenient and consistent
-cross-platform development experience. It manages complex runtime dependencies
+cross-platform development experience that allows developers to run the modern
+full-stack inside their own computer. It manages complex runtime dependencies
 effectively to avoid pollution of host environment by leveraging container
 technology. This approach makes good use of computing powers in developer's
 laptop or workstation and creates sandboxes for safe experiments on the
-software and dependencies.
+software and dependencies. It also addresses the challenge to run clustered
+middlewares (for example redis, kafka) as container, which advertises container
+IP addresses inaccessible from host. The localenv solves this problem by
+carefully crafting the provision scripts that work cross-platform.
+
 The localenv includes following databases and middlewares:
 
 * MariaDB
@@ -17,10 +22,10 @@ The localenv includes following databases and middlewares:
 * ElasticSearch
 * nginx
 * nacos
-* powerjob
 * etcd
 * zookeeper
 * kafka
+* kafka4
 
 Additional databases and middlewares can be included.
 
@@ -37,13 +42,13 @@ presented in the table as follows:
 |  06   | RocketMQ      | 9876  | http://127.0.0.1:7080       |
 |  07   | ElasticSearch | 9200  | http://127.0.0.1:5601       |
 |  08   | nacos         | 8848  | http://127.0.0.1:8848/nacos |
-|  09   | powerjob      | 7700  | http://127.0.0.1:7700       |
 |  10   | rabbitmq      | 5672  | http://127.0.0.1:15672      |
 |  11   | grafana       | 3000  | http://127.0.0.1:3000       |
 |  12   | kafka-ui      | 9000  | http://127.0.0.1:9000       |
 |  13   | etcd          | 2379  |                             |
 |  14   | jaeger        | 16686 | http://127.0.0.1:16686      |
 |  15   | jaeger        | 16686 | http://127.0.0.1:16686      |
+|  16   | kafka4        | 19092 | http://127.0.0.1:9000       |
 
 ## Setup
 
@@ -85,55 +90,33 @@ Additionally, if you want to add frontend project, you put it under the
     cd frontends
     git clone git@<your_git_server>/<your_frontend_project>.git
 
-## config rootless container
+## Tested OSes
 
-If you use Arch/Manjaro Linux, you may refer to [this page][3] for detailed
-setup instructions.
+This project has been tested on the MacOS and Linux. Specifically, MacOS 15.3.2
+and Manjaro Zetar (5.15.179-1-MANJARO).
 
-    usermod --add-subuids 200000-201000 --add-subgids 200000-201000 johndoe
-    grep johndoe /etc/subuid /etc/subgid
-    /etc/subuid:johndoe:200001:1001
-    /etc/subgid:johndoe:200000:1001
+## About the rootful container
 
-If you encounter:
-
-    potentially insufficient UIDs or GIDs available in user namespace
-
-Try to run:
-
-    podman system migrate
-
-or:
-
-    rm -rf $HOME/.local/share/containers/storage
-
-Set environment variable `DOCKER_HOST`:
-
-    export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
-
-Enable `podman.service` for per-user systemd:
-
-    systemctl enable podman.service --user
-
-And start `podman.service`:
-
-    systemctl start podman.service --user
-
-Install, enable and start `dnsmasq`:
-
-    sudo pacman -S dnsmasq
-    sudo systemctl enable dnsmasq
-    sudo systemctl start dnsmasq
+The philosophy of the localenv is to encourage exploration of the ins-and-outs
+of complex tech stack. To facillitate digging into the internals, the storage
+files of the containerized middlewares are mapped to the host under the
+`.state` folder in the localenv. Similarly, the project files are mapped into
+the container under `/work` directory by convention. The containers in localenv
+is intentionally rootful to ease the file sharing between containers and host.
+To ensure security and transparency, all container images used by localenv are
+from offical upstream. For those customized by this project, the Dockerfiles
+are located under the `Containerfiles` folder. These images are built
+automatically thanks to the github action.
 
 ## Launch localenv
 
 Although, the localenv can host multiple middlewares and databases, you start
 only the necessary database or middleware to avoid excessive memory
-consumption. The databases and middlewares are managed by the script `infractl`.
-You may list all supported databases or middlewares by typing:
+consumption. The databases and middlewares are managed by the script
+`infractl.sh`. You may list all supported databases or middlewares by typing:
 
     cd ~/localenv
-    ./infractl list
+    ./infractl.sh list
 
 To start MariaDB only, type:
 
@@ -175,7 +158,7 @@ To build these images on MacOS, the package `qemu-user-static` should be install
 in the virtual machine managed by podman. This is automatically handled when
 you initialize the localenv using command:
 
-    $ ./infra.sh init
+    $ ./infractl.sh init
 
 Alternatively, you can install it manually by running the following commands:
 
@@ -314,31 +297,6 @@ To open the Kibana ui manually, you may type:
 
     ./infractl.sh webui elasticsearch
 
-## PowerJob
-
-[PowerJob][7] is distributed tasks scheduling middleware.
-
-The localenv integrates the PowerJob server and agent node for task execution.
-PowerJob requires relational database to operate. The localenv utilizes the
-mariadb as the underlying database for PowerJob. Therefore, you need start
-mariadb when you launch PowerJob:
-
-    ./infractl.sh start mariadb powerjob
-
-The agent node and the application should be deployed together. For example, to
-deploy the application haydn with a task agent, you should type the following
-command:
-
-    ./appctl.sh start haydn haydn-job-agent
-
-This command registers an application in PowerJob with name and password set to
-`haydn`. You can access the PowerJob administration UI via
-http://127.0.0.1:7700. Alternatively, you can type
-
-    ./infractl.sh webui powerjob
-
-to launch the administration webui.
-
 ## Load Data
 
 The localenv provides tool to load data in .csv format for applications and
@@ -445,7 +403,6 @@ registries as follows:
 [4]: https://rocketmq.apache.org/
 [5]: https://www.rabbitmq.com/
 [6]: https://nacos.io/
-[7]: http://www.powerjob.tech/
 [8]: https://www.jaegertracing.io/
 [9]: https://etcd.io/
 [10]: https://kafka.apache.org/

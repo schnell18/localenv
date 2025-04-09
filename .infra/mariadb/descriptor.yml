@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   mariadb:
-    image: docker.io/mariadb:10.7-focal
+    image: docker.io/schnell18/mariadb:10.7-focal-1
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root

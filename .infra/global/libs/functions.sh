@@ -71,7 +71,7 @@ function refresh_infra_db {
             echo "Prepare database ${db} for infra $(basename $infra)..."
             podman exec -it ${dbContainer} /bin/sh /setup/create-database.sh $db mfg
             echo "Loading schema and data using podman for project $(basename $infra)..."
-            podman exec -it ${dbContainer} /bin/sh /setup/load-schema-and-data.sh $(basename $infra) mfg $db provision
+            podman exec -it ${dbContainer} /bin/sh /setup/load-schema-and-data.sh $(basename $infra) mfg $db .infra
         fi
         cd $PWD
     done;

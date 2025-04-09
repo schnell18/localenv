@@ -7,7 +7,7 @@ LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 
 RUN apk add --no-cache bash gettext nmap-ncat openssl busybox-extras
 COPY --from=upstream /kafdrop.sh /kafdrop.sh
-COPY --from=upstream /kafdrop/ /kafdrop
+COPY --from=upstream /kafdrop-* /kafdrop/
 RUN chmod +x /kafdrop.sh
 EXPOSE 9000
 

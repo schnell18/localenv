@@ -1,13 +1,10 @@
-KAFDROP_VERSION=$(jq -r '.kafdropVersion' version.json)
-JRE_RUNTIME_IMG_TAG=$(jq -r '.jreRuntimeImageTag' version.json)
+MARIADB_VERSION=$(jq -r '.mariadbVersion' version.json)
 REV=$(jq -r '.build' version.json)
-echo "++++++++++"
-echo $JRE_RUNTIME_IMG_TAG
 
 REGISTRY=docker.io
 USER=schnell18
-IMAGE_NAME=kafdrop
-IMAGE_TAG=${KAFDROP_VERSION}-${REV}-alpine
+IMAGE_NAME=mariadb
+IMAGE_TAG=${MARIADB_VERSION}-${REV}
 MANIFEST=${IMAGE_NAME}
 
 # remove local manifest from previous build so that
@@ -24,8 +21,7 @@ podman build \
     --jobs 2 \
     --platform linux/amd64 \
     --manifest ${MANIFEST} \
-    --build-arg KAFDROP_VERSION=${KAFDROP_VERSION} \
-    --build-arg JRE_RUNTIME_IMG_TAG=${JRE_RUNTIME_IMG_TAG} \
+    --build-arg MARIADB_VERSION=${MARIADB_VERSION} \
     --tag $REGISTRY/$USER/$IMAGE_NAME:$IMAGE_TAG \
     .
 
