@@ -2,6 +2,7 @@ source .infra/global/libs/functions.sh
 source .infra/global/libs/libinfractl.sh
 
 
+export DEBUG_INFRACTL=1
 cmd=$1
 if [[ -z $cmd ]]; then
     usage

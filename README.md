@@ -15,7 +15,6 @@ The localenv includes following databases and middlewares:
 
 * MariaDB
 * MongoDB
-* TiDB
 * Redis
 * RocketMQ
 * RabbitMQ
@@ -33,22 +32,21 @@ The databases and middlewares are accessible from the host via port mapping.
 The service ports and admin URLs of these databases and middlewares are
 presented in the table as follows:
 
-|  Seq  | Middleware    | Port  | admin URL                   |
-| ----- | ------------- | ----- | --------------------------- |
-|  01   | MariaDB       | 3306  |                             |
-|  02   | MongoDB       | 27017 |                             |
-|  04   | TiDB          | 4000  |                             |
-|  05   | Redis         | 7001  |                             |
-|  06   | RocketMQ      | 9876  | http://127.0.0.1:7080       |
-|  07   | ElasticSearch | 9200  | http://127.0.0.1:5601       |
-|  08   | nacos         | 8848  | http://127.0.0.1:8848/nacos |
-|  10   | rabbitmq      | 5672  | http://127.0.0.1:15672      |
-|  11   | grafana       | 3000  | http://127.0.0.1:3000       |
-|  12   | kafka-ui      | 9000  | http://127.0.0.1:9000       |
-|  13   | etcd          | 2379  |                             |
-|  14   | jaeger        | 16686 | http://127.0.0.1:16686      |
-|  15   | jaeger        | 16686 | http://127.0.0.1:16686      |
-|  16   | kafka4        | 19092 | http://127.0.0.1:9000       |
+|  Seq  | Middleware       | Port                | admin URL                   |
+| ----- | ---------------- | ------------------- | --------------------------- |
+|  01   | MariaDB          | 3306                |                             |
+|  02   | MongoDB          | 27017               |                             |
+|  03   | Redis(Cluster)   | 7001,7002,7003      |                             |
+|  04   | Redis(Sentinel)  | 6379,6380,6381      |                             |
+|  05   | etcd             | 2379,2380,2381      |                             |
+|  06   | zookeeper        | 2181,2182,2183      |                             |
+|  07   | RocketMQ         | 9876                | http://127.0.0.1:7080       |
+|  08   | ElasticSearch    | 9200                | http://127.0.0.1:5601       |
+|  09   | nacos            | 8848                | http://127.0.0.1:8848/nacos |
+|  10   | rabbitmq         | 5672                | http://127.0.0.1:15672      |
+|  11   | kafka-ui         | 9000                | http://127.0.0.1:9000       |
+|  12   | kafka4           | 19092,29092,39092   | http://127.0.0.1:9000       |
+|  13   | jaeger           | 16686               | http://127.0.0.1:16686      |
 
 ## Setup
 
@@ -57,7 +55,6 @@ To use the localenv, please install podman 4.0.0 or above on the host machine.
 Additionally, install the follow tools on the host machine.
 
 - podman
-- podman-compose
 - podman-dnsname
 - aardvark-dns
 - mysql client
@@ -68,14 +65,16 @@ Additionally, install the follow tools on the host machine.
 - curl
 - xxd
 
-After successful installation of the aforementioned tools, please clone the
-[localenv repository][2] by typing:
+The podman-compose tool is bundled in this project. No separate installation
+is necessary. After successful installation of the aforementioned tools,
+please clone the [localenv repository][2] by typing:
 
-    cd ~/work
+    cd ~
     git clone https://github.com/schnell18/localenv.git
 
-Optionally, you pick a backend project and place it under the `localenv/backends` folder.
-For example, you may add the imaginary project `riemann` to the localenv by following:
+Optionally, you pick a backend project and place it under the
+`localenv/backends` folder. For example, you may add the imaginary project
+`riemann` to the localenv as follows:
 
     cd ~/localenv
     mkdir backends
@@ -92,28 +91,33 @@ Additionally, if you want to add frontend project, you put it under the
 
 ## Tested OSes
 
-This project has been tested on the MacOS and Linux. Specifically, MacOS 15.3.2
-and Manjaro Zetar (5.15.179-1-MANJARO).
+This project has been tested on the MacOS and Linux. Specifically, localenv
+has been tested under:
+- MacOS 15.3.2 on 2019 MacBookPro w/ Intel chip
+- Manjaro Zetar (5.15.179-1-MANJARO) on a 2022 Legend Legion w/ Intel chip
 
-## About the rootful container
+## About the rootness of container
 
 The philosophy of the localenv is to encourage exploration of the ins-and-outs
-of complex tech stack. To facillitate digging into the internals, the storage
+of complex tech stacks. To facilitate digging into the internals, the storage
 files of the containerized middlewares are mapped to the host under the
 `.state` folder in the localenv. Similarly, the project files are mapped into
-the container under `/work` directory by convention. The containers in localenv
-is intentionally rootful to ease the file sharing between containers and host.
-To ensure security and transparency, all container images used by localenv are
-from offical upstream. For those customized by this project, the Dockerfiles
-are located under the `Containerfiles` folder. These images are built
+the container under `/work` directory by convention. The containers in
+localenv is intentionally running as root to ease the file sharing between
+containers and host, since the root user in the container is mapped to user
+running podman on the host, as discussed in [this article][11]. To ensure
+security and transparency, all container images used by localenv are from
+official upstream. For those customized by this project, the Dockerfiles are
+located under the `Containerfiles` folder. These images are built
 automatically thanks to the github action.
 
 ## Launch localenv
 
 Although, the localenv can host multiple middlewares and databases, you start
-only the necessary database or middleware to avoid excessive memory
+only the necessary databases or middlewares to avoid excessive memory
 consumption. The databases and middlewares are managed by the script
-`infractl.sh`. You may list all supported databases or middlewares by typing:
+`infractl.sh`. This script should always be launched under the root directory
+of localenv. You may list all supported databases or middlewares by typing:
 
     cd ~/localenv
     ./infractl.sh list
@@ -126,27 +130,43 @@ To start MariaDB and Redis, type:
 
     ./infractl.sh start mariadb redis-cluster
 
-The following table lists the supported middlewares and databases:
+To launch middleware that has dependencies, the dependencies must be specified
+first in the argument list. For example, to start the nacos registry, mariadb
+must be included as the first argument as follows:
 
-|  Seq  | infra                       | Notes                           |
-| ----- | --------------------------- | ------------------------------- |
-|  01   | elasticsearch               | ElasticSearch                   |
-|  02   | mariadb                     | MariaDB                         |
-|  03   | redis                       | Redis                           |
-|  04   | rocketmq                    | RocketMQ                        |
-|  04   | rabbitmq                    | RabbitMQ                        |
-|  05   | tidb                        | TiDB                            |
-|  06   | nacos                       | nacos                           |
-|  07   | powerjob                    | powerjob                        |
-|  08   | etcd                        | etcd                            |
-|  09   | zookeeper                   | zookeeper                       |
-|  10   | kafka                       | kafka                           |
-|  11   | mongodb                     | mongodb                         |
-|  12   | [jaeger][8]                 | jaeger distributed tracing      |
+    ./infractl.sh start mariadb nacos
+
+Due to implementation limitation, the order of middlewares in the above command
+can't be reversed. In future release, this limitation may be removed.
+
+The following table lists the supported middlewares and their dependencies:
+
+|  Seq  | infra                       | dependencies               | Notes                           |
+| ----- | --------------------------- | -------------------------- | ------------------------------- |
+|  01   | elasticsearch               |                            | ElasticSearch                   |
+|  02   | mariadb                     |                            | MariaDB                         |
+|  03   | redis-cluster               |                            | Redis Cluster mode              |
+|  04   | redis-sentinel              |                            | Redis Sentinel mode             |
+|  05   | rocketmq                    |                            | RocketMQ                        |
+|  06   | rabbitmq                    |                            | RabbitMQ                        |
+|  07   | kafka                       | zookeeper                  | kafka 3                         |
+|  08   | kafka4                      |                            | kafka 4                         |
+|  09   | nacos                       | mariadb                    | Configuration and service reg   |
+|  10   | etcd                        |                            | etcd                            |
+|  11   | zookeeper                   |                            | zookeeper                       |
+|  12   | mongodb                     |                            | mongodb                         |
+|  13   | [jaeger][8]                 | elasticsearch              | jaeger distributed tracing      |
+|  14   | filebeat                    | elasticsearch              | Log collector                   |
+|  15   | fluentbit                   |                            | High performance log collector  |
+|  16   | nginx                       |                            | High performance webserver      |
 
 To check if the middlewares are working properly, you may type:
 
     ./infractl.sh status all
+
+Or simply:
+
+    ./infractl.sh status
 
 ## Build Container Image
 
@@ -257,7 +277,7 @@ to launch the administration webui. Use the guest/guest to login.
 
 ## nacos
 
-[nacos][6] is an open-source applicaiton configuration and service registry.
+[nacos][6] is an open-source application configuration and service registry.
 nacos requires relational database to operate. The localenv utilizes the
 mariadb as the underlying database for nacos. Therefore, you need start mariadb
 when you launch nacos:
@@ -301,9 +321,9 @@ To open the Kibana ui manually, you may type:
 
 The localenv provides tool to load data in .csv format for applications and
 middlewares. The data files and schema definition should be organized according
-to the following directory structure:
+to the following directory structure for applications:
 
-    riemann
+    ./backends/riemann
     ├── Dockerfile
     ├── README.md
     ├── pom.xml
@@ -311,6 +331,19 @@ to the following directory structure:
         ├── data
         │   ├── 001-shipper.csv
         └── schema.sql
+
+And for the middlewares, a similar structure is assumed:
+
+    .infra/nacos
+    ├── descriptor.yml
+    └── provision
+        ├── schema
+        │   ├── data
+        │   │   ├── 01-roles.csv
+        │   │   └── 02-users.csv
+        │   └── schema.sql
+
+The key is to put the `schema` directory under the `provision` directory.
 
 
 ### Load Application Data
@@ -406,3 +439,4 @@ registries as follows:
 [8]: https://www.jaegertracing.io/
 [9]: https://etcd.io/
 [10]: https://kafka.apache.org/
+[11]: https://opensource.com/article/19/2/how-does-rootless-podman-work

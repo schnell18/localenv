@@ -2,6 +2,21 @@
 version: '3.9'
 services:
 
+  # init:
+  #   image: docker.io/schnell18/mariadb:10.7-focal-2
+  #   command: >
+  #     bash -c "
+  #         echo 'Prepare database nacos ...' &&
+  #         sh /setup/create-database.sh nacos mfg &&
+  #         echo 'Loading schema and data for nacos ...' &&
+  #         sh /setup/load-schema-and-data.sh nacos mfg nacos .infra"
+  #   volumes:
+  #     - ../../:/work
+  #     - ./provision/setup:/setup
+  #   depends_on:
+  #     mariadb:
+  #       condition: service_healthy
+
   nacos:
     image: docker.io/schnell18/nacos-server:1.4.2-alpine
     # image: docker.io/nacos/nacos-server:2.0.3-slim
@@ -35,5 +50,6 @@ services:
       - "9848:9848"
       - "9555:9555"
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     restart: on-failure

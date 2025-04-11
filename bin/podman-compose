@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ -z $DEBUG_INFRACTL ]; then
+    bin/podman-compose-wrapper.py $@
+else
+    /usr/bin/python -m pdb bin/podman-compose-wrapper.py $@
+fi

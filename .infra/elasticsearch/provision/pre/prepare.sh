@@ -20,6 +20,7 @@ EOF
 }
 
 function setup_linux {
+    sudo mkdir -p /etc/security/limits.d
     sudo cat<<EOF > /etc/security/limits.d/elasticsearch.conf
 * soft memlock -1
 * hard memlock -1

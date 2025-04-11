@@ -1,9 +1,11 @@
 .vagrant/
 backends/
 frontends/
+__pycache__/
 labs/
 .state/
 *.swp
+*.swo
 *.class
 *.pyc
 *.pyo
@@ -12,8 +14,8 @@ labs/
 *.jar
 *.bz2
 *.zip
-*.swo
 *.bak
 *.pid
 *.log
+*.so
 *.DS_STORE
