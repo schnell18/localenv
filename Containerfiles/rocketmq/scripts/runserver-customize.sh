@@ -80,8 +80,7 @@ calculate_heap_sizes()
     esac
 
     # some systems like the raspberry pi don't report cores, use at least 1
-    if [ "$system_cpu_cores" -lt "1" ]
-    then
+    if [ "$system_cpu_cores" -lt "1" ]; then
         system_cpu_cores="1"
     fi
 
@@ -92,16 +91,13 @@ calculate_heap_sizes()
     # pick the max
     half_system_memory_in_mb=`expr $system_memory_in_mb / 2`
     quarter_system_memory_in_mb=`expr $half_system_memory_in_mb / 2`
-    if [ "$half_system_memory_in_mb" -gt "1024" ]
-    then
+    if [ "$half_system_memory_in_mb" -gt "1024" ]; then
         half_system_memory_in_mb="1024"
     fi
-    if [ "$quarter_system_memory_in_mb" -gt "8192" ]
-    then
+    if [ "$quarter_system_memory_in_mb" -gt "8192" ]; then
         quarter_system_memory_in_mb="8192"
     fi
-    if [ "$half_system_memory_in_mb" -gt "$quarter_system_memory_in_mb" ]
-    then
+    if [ "$half_system_memory_in_mb" -gt "$quarter_system_memory_in_mb" ]; then
         max_heap_size_in_mb="$half_system_memory_in_mb"
     else
         max_heap_size_in_mb="$quarter_system_memory_in_mb"
@@ -114,8 +110,7 @@ calculate_heap_sizes()
 
     desired_yg_in_mb=`expr $max_heap_size_in_mb / 4`
 
-    if [ "$desired_yg_in_mb" -gt "$max_sensible_yg_in_mb" ]
-    then
+    if [ "$desired_yg_in_mb" -gt "$max_sensible_yg_in_mb" ]; then
         HEAP_NEWSIZE="${max_sensible_yg_in_mb}M"
     else
         HEAP_NEWSIZE="${desired_yg_in_mb}M"

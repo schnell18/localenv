@@ -26,4 +26,3 @@ services:
       - ./provision/entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./provision/setup:/setup
       - ../../.state/mariadb/data:/var/lib/mysql
-

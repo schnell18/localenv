@@ -55,7 +55,7 @@ function toDatabasePort {
             result="3306"
             ;;
     esac
-   echo $result
+    echo $result
 }
 
 function refresh_infra_db {
@@ -151,8 +151,7 @@ function setup_topic {
     if [[ -z $mqBrokerContainer ]]; then
         echo "RocketMQ broker is not running, skip topic creation"
     else
-        for t in $TOPICS
-        do
+        for t in $TOPICS; do
             echo "Setup RocketMQ topic $t ..."
             podman exec -it ${mqBrokerContainer} \
                 sh /home/rocketmq/rocketmq-4.9.2/bin/mqadmin updateTopic \
@@ -164,11 +163,11 @@ function setup_topic {
 function get_descrptior_file_paths {
     if [[ $1 == "all" ]]; then
         for file in .infra/*/descriptor.yml; do
-          compose_files="$compose_files -f $(pwd)/$file"
+            compose_files="$compose_files -f $(pwd)/$file"
         done;
     else
         for infra in $@; do
-          compose_files="$compose_files -f $(pwd)/.infra/${infra}/descriptor.yml"
+            compose_files="$compose_files -f $(pwd)/.infra/${infra}/descriptor.yml"
         done
     fi
     echo $compose_files

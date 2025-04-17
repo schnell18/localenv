@@ -4,9 +4,9 @@ version: '3.9'
 services:
 
   wekan:
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     image: quay.io/wekan/wekan:v6.30
-    #-------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
     container_name: wekan-app
     # On CentOS 7 there is seccomp issue with glibc 6, so setting it to unconfined
     # to get WeKan working. See:
@@ -25,26 +25,26 @@ services:
       - 3001:8080
     environment:
       - WRITABLE_PATH=/data
-      #-----------------------------------------------------------------
+      # -----------------------------------------------------------------
       # ==== MONGO_URL ====
       - MONGO_URL=mongodb://root:root@mongodb:27017/wekan?authSource=admin
       - ROOT_URL=http://localhost:3001  #   <=== using only at same laptop/desktop where Wekan is installed
       - CORS=*
       - CORS_ALLOW_HEADERS=Authorization,Content-Type
-      #---------------------------------------------------------------
+      # ---------------------------------------------------------------
       - MAIL_URL=smtp://<mail_url>:25/?ignoreTLS=true&tls={rejectUnauthorized:false}
       - MAIL_FROM=Wekan Notifications <noreply.wekan@mydomain.com>
       # Currently MAIL_SERVICE is not in use.
-      #- MAIL_SERVICE=Outlook365
-      #- MAIL_SERVICE_USER=firstname.lastname@hotmail.com
-      #- MAIL_SERVICE_PASSWORD=SecretPassword
-      #---------------------------------------------------------------
+      # MAIL_SERVICE=Outlook365
+      # MAIL_SERVICE_USER=firstname.lastname@hotmail.com
+      # MAIL_SERVICE_PASSWORD=SecretPassword
+      # ---------------------------------------------------------------
       # https://github.com/wekan/wekan/issues/3585#issuecomment-1021522132
       # Add more Node heap, this is done by default at Dockerfile:
       #   - NODE_OPTIONS="--max_old_space_size=4096"
       # Add more stack, this is done at Dockerfile:
       #   bash -c "ulimit -s 65500; exec node --stack-size=65500 main.js"
-      #---------------------------------------------------------------
+      # ---------------------------------------------------------------
       # ==== OPTIONAL: MONGO OPLOG SETTINGS =====
       # https://github.com/wekan/wekan-mongodb/issues/2#issuecomment-378343587
       # We've fixed our CPU usage problem today with an environment
@@ -62,15 +62,15 @@ services:
       # of less than 10% with only occasional spikes to high usage
       # (I guess when someone is doing a lot of work)
       # - MONGO_OPLOG_URL=mongodb://<username>:<password>@<mongoDbURL>/local?authSource=admin&replicaSet=rsWekan
-      #---------------------------------------------------------------
+      # ---------------------------------------------------------------
       # ==== OPTIONAL: KADIRA PERFORMANCE MONITORING FOR METEOR ====
       # https://github.com/edemaine/kadira-compose
       # https://github.com/meteor/meteor-apm-agent
       # https://blog.meteor.com/kadira-apm-is-now-open-source-490469ffc85f
-      #- APM_OPTIONS_ENDPOINT=http://<kadira-ip>:11011
-      #- APM_APP_ID=
-      #- APM_APP_SECRET=
-      #---------------------------------------------------------------
+      # APM_OPTIONS_ENDPOINT=http://<kadira-ip>:11011
+      # APM_APP_ID=
+      # APM_APP_SECRET=
+      # ---------------------------------------------------------------
       # ==== OPTIONAL: LOGS AND STATS ====
       # https://github.com/wekan/wekan/wiki/Logs
       #
@@ -86,10 +86,10 @@ services:
       #
       # There is Feature Request: Logging date and time of all activity with summary reports,
       # and requesting reason for changing card to other column https://github.com/wekan/wekan/issues/1598
-      #---------------------------------------------------------------
+      # ---------------------------------------------------------------
       # ==== NUMBER OF SEARCH RESULTS PER PAGE BY DEFAULT ====
-      #- RESULTS_PER_PAGE=20
-      #---------------------------------------------------------------
+      # RESULTS_PER_PAGE=20
+      # ---------------------------------------------------------------
       # ==== WEKAN API AND EXPORT BOARD ====
       # Wekan Export Board works when WITH_API=true.
       # https://github.com/wekan/wekan/wiki/REST-API
@@ -97,11 +97,11 @@ services:
       # If you disable Wekan API with false, Export Board does not work.
       - WITH_API=true
 
-      #---------------------------------------------------------------
+      # ---------------------------------------------------------------
       # ==== RICH TEXT EDITOR IN CARD COMMENTS ====
       # https://github.com/wekan/wekan/pull/2560
       - RICHER_CARD_COMMENT_EDITOR=false
-      #---------------------------------------------------------------
+      # ---------------------------------------------------------------
       # ==== CARD OPENED, SEND WEBHOOK MESSAGE ====
       # https://github.com/wekan/wekan/issues/2518
       - CARD_OPENED_WEBHOOK_ENABLED=false

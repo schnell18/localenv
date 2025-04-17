@@ -16,53 +16,53 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Install qemu dependency
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y qemu-user-static
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
 
-    - name: Get JRE runtime iamge tag
-      id: jre-rt-image-tag
-      run: |
-        echo -n ::set-output name=JRE_RT_IMG_TAG::
-        jq -r '.jreRuntimeImageTag' Containerfiles/zookeeper/version.json
+      - name: Get JRE runtime image tag
+        id: jre-rt-image-tag
+        run: |
+          echo -n ::set-output name=JRE_RT_IMG_TAG::
+          jq -r '.jreRuntimeImageTag' Containerfiles/zookeeper/version.json
 
-    - name: Get zookeeper version
-      id: zookeeper-version
-      run: |
-        echo -n ::set-output name=ZOOKEEPER_VERSION::
-        jq -r '.zookeeperVersion' Containerfiles/zookeeper/version.json
+      - name: Get zookeeper version
+        id: zookeeper-version
+        run: |
+          echo -n ::set-output name=ZOOKEEPER_VERSION::
+          jq -r '.zookeeperVersion' Containerfiles/zookeeper/version.json
 
-    - name: Get build number
-      id: build-number
-      run: |
-        echo -n ::set-output name=BUILD_NO::
-        jq -r '.build' Containerfiles/zookeeper/version.json
+      - name: Get build number
+        id: build-number
+        run: |
+          echo -n ::set-output name=BUILD_NO::
+          jq -r '.build' Containerfiles/zookeeper/version.json
 
-    - name: Build Image
-      id: build-image
-      uses: redhat-actions/buildah-build@v2
-      with:
-        image: zookeeper
-        build-args: |
-          JRE_RUNTIME_IMG_TAG=${{ steps.jre-rt-image-tag.outputs.JRE_RT_IMG_TAG }}
-          ZOOKEEPER_VERSION=${{ steps.zookeeper-version.outputs.ZOOKEEPER_VERSION }}
-        tags: ${{ steps.zookeeper-version.outputs.ZOOKEEPER_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
-        archs: amd64, arm64
-        context: Containerfiles/zookeeper/
-        containerfiles: Containerfiles/zookeeper/Dockerfile
+      - name: Build Image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: zookeeper
+          build-args: |
+            JRE_RUNTIME_IMG_TAG=${{ steps.jre-rt-image-tag.outputs.JRE_RT_IMG_TAG }}
+            ZOOKEEPER_VERSION=${{ steps.zookeeper-version.outputs.ZOOKEEPER_VERSION }}
+          tags: ${{ steps.zookeeper-version.outputs.ZOOKEEPER_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
+          archs: amd64, arm64
+          context: Containerfiles/zookeeper/
+          containerfiles: Containerfiles/zookeeper/Dockerfile
 
-    - name: Push To quay.io
-      id: push-to-quay
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        image: ${{ steps.build-image.outputs.image }}
-        tags:  ${{ steps.build-image.outputs.tags }}
-        registry: quay.io/${{ secrets.REGISTRY_USERNAME }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Push To quay.io
+        id: push-to-quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: quay.io/${{ secrets.REGISTRY_USERNAME }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Print image url
-      run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"
+      - name: Print image url
+        run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"

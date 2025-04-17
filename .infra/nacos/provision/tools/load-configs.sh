@@ -13,7 +13,7 @@ for app_dir in $basedir/backends/*/; do
         pushd $app_dir > /dev/null
         static_conf="${app}-impl/src/main/resources/application-virtualenv.yml"
         if [ -f $static_conf ]; then
-    	echo "Load static config into nacos for project $app..."
+            echo "Load static config into nacos for project $app..."
             CONTENT=$(cat $static_conf | xxd -p | tr -d \\n | sed 's/../%&/g')
             curl -s -XPOST 'http://nacos:8848/nacos/v1/cs/configs' \
                  --data-urlencode tenant=dev                       \
@@ -24,7 +24,7 @@ for app_dir in $basedir/backends/*/; do
         fi
         dynamic_conf="${app}-impl/src/main/resources/dynamic.yml"
         if [ -f $dynamic_conf ]; then
-    	echo "Load dynamic config into nacos for project $app..."
+            echo "Load dynamic config into nacos for project $app..."
             CONTENT=$(cat $dynamic_conf | xxd -p | tr -d \\n | sed 's/../%&/g')
             curl -s -XPOST 'http://nacos:8848/nacos/v1/cs/configs' \
                  --data-urlencode tenant=dev                       \

@@ -15,7 +15,3 @@ spring:
                 file-extension: yaml
                 server-addr: nacos:8848
                 namespace: ${app.env}
-
-
-
-

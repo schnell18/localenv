@@ -43,8 +43,8 @@ services:
     depends_on:
       powerjob:
         condition: service_healthy
-      # haydn:
-      #   condition: service_healthy
+        # haydn:
+        #   condition: service_healthy
     volumes:
       - ./.state/haydn/powerjob-agent:/powerjob/logs
     ports:

@@ -16,4 +16,3 @@ services:
       - ./provision/conf.d:/etc/nginx/conf.d
     ports:
       - "80:80/tcp"
-

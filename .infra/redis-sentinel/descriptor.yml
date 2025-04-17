@@ -90,4 +90,3 @@ services:
       - ../../.state/redis-sentinel/conf/sentinel3:/etc/redis/
     ports:
       - "5003:5003"
-

@@ -16,12 +16,11 @@ services:
     depends_on:
       es01:
         condition: service_healthy
-
   init-es:
-      image: docker.elastic.co/beats/filebeat-oss:7.15.2
-      command: sh /init-es.sh
-      volumes:
-        - ../filebeat/provision/init-es.sh:/init-es.sh
-      depends_on:
-        es01:
-          condition: service_healthy
+    image: docker.elastic.co/beats/filebeat-oss:7.15.2
+    command: sh /init-es.sh
+    volumes:
+      - ../filebeat/provision/init-es.sh:/init-es.sh
+    depends_on:
+      es01:
+        condition: service_healthy

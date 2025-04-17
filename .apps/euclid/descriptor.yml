@@ -28,12 +28,12 @@ services:
         condition: service_healthy
       mariadb:
         condition: service_healthy
-      # redis:
-      #   condition: service_healthy
+        # redis:
+        #   condition: service_healthy
       nacos:
         condition: service_healthy
-      # powerjob:
-      #   condition: service_healthy
+        # powerjob:
+        #   condition: service_healthy
     volumes:
       - ./provision/apps/euclid/bootstrap.yml:/etc/bootstrap.yml
     ports:

@@ -16,46 +16,46 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Install qemu dependency
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y qemu-user-static
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
 
-    - name: Get kafka version
-      id: kafka-version
-      run: |
-        echo -n ::set-output name=KAFKA_VERSION::
-        jq -r '.kafkaVersion' Containerfiles/kafka4/version.json
+      - name: Get kafka version
+        id: kafka-version
+        run: |
+          echo -n ::set-output name=KAFKA_VERSION::
+          jq -r '.kafkaVersion' Containerfiles/kafka4/version.json
 
-    - name: Get build number
-      id: build-number
-      run: |
-        echo -n ::set-output name=BUILD_NO::
-        jq -r '.build' Containerfiles/kafka4/version.json
+      - name: Get build number
+        id: build-number
+        run: |
+          echo -n ::set-output name=BUILD_NO::
+          jq -r '.build' Containerfiles/kafka4/version.json
 
-    - name: Build Image
-      id: build-image
-      uses: redhat-actions/buildah-build@v2
-      with:
-        image: kafka
-        build-args: |
-          KAFKA_VERSION=${{ steps.kafka-version.outputs.KAFKA_VERSION }}
-        tags: ${{ steps.kafka-version.outputs.KAFKA_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
-        archs: amd64, arm64
-        context: Containerfiles/kafka4/
-        containerfiles: Containerfiles/kafka4/Dockerfile
+      - name: Build Image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: kafka
+          build-args: |
+            KAFKA_VERSION=${{ steps.kafka-version.outputs.KAFKA_VERSION }}
+          tags: ${{ steps.kafka-version.outputs.KAFKA_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
+          archs: amd64, arm64
+          context: Containerfiles/kafka4/
+          containerfiles: Containerfiles/kafka4/Dockerfile
 
-    - name: Push To docker.io
-      id: push-to-docker
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        image: ${{ steps.build-image.outputs.image }}
-        tags:  ${{ steps.build-image.outputs.tags }}
-        registry: docker.io/${{ secrets.REGISTRY_USERNAME }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Push To docker.io
+        id: push-to-docker
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: docker.io/${{ secrets.REGISTRY_USERNAME }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Print image url
-      run: echo "Image pushed to ${{ steps.push-to-docker.outputs.registry-paths }}"
+      - name: Print image url
+        run: echo "Image pushed to ${{ steps.push-to-docker.outputs.registry-paths }}"

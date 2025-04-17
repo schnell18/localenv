@@ -116,14 +116,14 @@ status() {
     CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
     compose_files=""
     if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
-      compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
+        compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
     else
-      PROFILE=$1
-      if [[ -z $PROFILE ]]; then
-          usage_status
-          exit 1
-      fi
-      compose_files=$(get_descrptior_file_paths $PROFILE)
+        PROFILE=$1
+        if [[ -z $PROFILE ]]; then
+            usage_status
+            exit 1
+        fi
+        compose_files=$(get_descrptior_file_paths $PROFILE)
     fi
 
     bin/podman-compose $compose_files ps
@@ -135,23 +135,23 @@ stop() {
     CURRENT_ACTIVE_INFRAS=".state/active-infras.txt"
     compose_files=""
     if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
-      compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
-      bin/podman-compose $compose_files down
-      # remove the profile stat file to cleanup
-      if [ -f $CURRENT_PROFILES_STAT_FILE ]; then
-          rm -f $CURRENT_PROFILES_STAT_FILE
-      fi
-      if [ -f $CURRENT_ACTIVE_INFRAS ]; then
-          rm -f $CURRENT_ACTIVE_INFRAS
-      fi
+        compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
+        bin/podman-compose $compose_files down
+        # remove the profile stat file to cleanup
+        if [ -f $CURRENT_PROFILES_STAT_FILE ]; then
+            rm -f $CURRENT_PROFILES_STAT_FILE
+        fi
+        if [ -f $CURRENT_ACTIVE_INFRAS ]; then
+            rm -f $CURRENT_ACTIVE_INFRAS
+        fi
     else
-      PROFILE=$1
-      if [[ -z $PROFILE ]]; then
-          usage_stop
-          exit 1
-      fi
-      compose_files=$(get_descrptior_file_paths $PROFILE)
-      bin/podman-compose $compose_files down
+        PROFILE=$1
+        if [[ -z $PROFILE ]]; then
+            usage_stop
+            exit 1
+        fi
+        compose_files=$(get_descrptior_file_paths $PROFILE)
+        bin/podman-compose $compose_files down
     fi
 
 }
@@ -266,8 +266,8 @@ attach() {
 
     CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
     if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
-      compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
-      bin/podman-compose $compose_files exec $ARG sh
+        compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
+        bin/podman-compose $compose_files exec $ARG sh
     fi
 
 
@@ -291,13 +291,13 @@ logs() {
 
     CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
     if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
-      compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
-      bin/podman-compose $compose_files exec $ARG sh
-      all_infras=""
-      for infra in $@; do
-          all_infras=" $infra"
-      done
-      bin/podman-compose $compose_files logs -f $all_infras
+        compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
+        bin/podman-compose $compose_files exec $ARG sh
+        all_infras=""
+        for infra in $@; do
+            all_infras=" $infra"
+        done
+        bin/podman-compose $compose_files logs -f $all_infras
     fi
 
 }

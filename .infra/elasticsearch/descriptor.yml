@@ -39,8 +39,8 @@ services:
     image: docker.elastic.co/kibana/kibana:7.15.1
     # image: docker.elastic.co/kibana/kibana:8.2.2
     depends_on:
-        es01:
-            condition: service_started
+      es01:
+        condition: service_started
     volumes:
       - ../global/etc/localtime:/etc/localtime
       - ../global/etc/timezone:/etc/timezone

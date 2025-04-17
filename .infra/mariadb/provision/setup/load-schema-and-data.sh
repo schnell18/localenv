@@ -19,8 +19,7 @@ load_data() {
         cnt=$(ls *.csv 2>/dev/null | wc -l)
         if [ "$cnt" != "0" ]; then
             echo "Loading data files for database $database ..."
-            for d in *.csv
-            do
+            for d in *.csv; do
                 tab=$(echo $d | cut -d . -f 1 | cut -d - -f 2)
                 cat <<EOF | mysql --defaults-file=/work/.infra/mariadb/provision/appuser.ini -u $user -D $database
 load data local infile "$d"
@@ -39,9 +38,9 @@ basedir=$4
 PWD=$(pwd)
 
 if [ -d /work/$basedir/$app/provision ]; then
-  cd /work/$basedir/$app/provision
+    cd /work/$basedir/$app/provision
 else
-  cd /work/$basedir/$app
+    cd /work/$basedir/$app
 fi
 
 load_schema

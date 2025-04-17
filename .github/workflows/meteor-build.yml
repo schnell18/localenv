@@ -16,53 +16,53 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Install qemu dependency
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y qemu-user-static
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
 
-    - name: Get node iamge tag
-      id: node-image-tag
-      run: |
-        echo -n ::set-output name=NODE_IMG_TAG::
-        jq -r '.nodeImageTag' Containerfiles/meteor/build/alpine/version.json
+      - name: Get node image tag
+        id: node-image-tag
+        run: |
+          echo -n ::set-output name=NODE_IMG_TAG::
+          jq -r '.nodeImageTag' Containerfiles/meteor/build/alpine/version.json
 
-    - name: Get meteor version
-      id: meteor-version
-      run: |
-        echo -n ::set-output name=METEOR_VERSION::
-        jq -r '.meteorVersion' Containerfiles/meteor/build/alpine/version.json
+      - name: Get meteor version
+        id: meteor-version
+        run: |
+          echo -n ::set-output name=METEOR_VERSION::
+          jq -r '.meteorVersion' Containerfiles/meteor/build/alpine/version.json
 
-    - name: Get build number
-      id: build-number
-      run: |
-        echo -n ::set-output name=BUILD_NO::
-        jq -r '.build' Containerfiles/meteor/build/alpine/version.json
+      - name: Get build number
+        id: build-number
+        run: |
+          echo -n ::set-output name=BUILD_NO::
+          jq -r '.build' Containerfiles/meteor/build/alpine/version.json
 
-    - name: Build Image
-      id: build-image
-      uses: redhat-actions/buildah-build@v2
-      with:
-        image: meteor-build
-        build-args: |
-          NODE_IMG_TAG=${{ steps.node-image-tag.outputs.NODE_IMG_TAG }}
-          METEOR_VERSION=${{ steps.meteor-version.outputs.METEOR_VERSION }}
-        tags: ${{ steps.meteor-version.outputs.METEOR_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
-        archs: amd64
-        context: Containerfiles/meteor/build/alpine/
-        containerfiles: Containerfiles/meteor/build/alpine/Dockerfile
+      - name: Build Image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: meteor-build
+          build-args: |
+            NODE_IMG_TAG=${{ steps.node-image-tag.outputs.NODE_IMG_TAG }}
+            METEOR_VERSION=${{ steps.meteor-version.outputs.METEOR_VERSION }}
+          tags: ${{ steps.meteor-version.outputs.METEOR_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
+          archs: amd64
+          context: Containerfiles/meteor/build/alpine/
+          containerfiles: Containerfiles/meteor/build/alpine/Dockerfile
 
-    - name: Push To quay.io
-      id: push-to-quay
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        image: ${{ steps.build-image.outputs.image }}
-        tags:  ${{ steps.build-image.outputs.tags }}
-        registry: quay.io/${{ secrets.REGISTRY_USERNAME }}
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Push To quay.io
+        id: push-to-quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: quay.io/${{ secrets.REGISTRY_USERNAME }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Print image url
-      run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"
+      - name: Print image url
+        run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"

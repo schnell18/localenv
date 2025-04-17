@@ -86,4 +86,3 @@ services:
       # - ETCD_LOG_LEVEL=
     ports:
       - "2381:2379/tcp"
-

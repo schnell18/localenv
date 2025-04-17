@@ -1,0 +1,28 @@
+default_install_hook_types: [pre-commit, commit-msg]
+repos:
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.19.0
+    hooks:
+      - id: yamllint
+        files: \.(yaml|yml)$
+        types: [file, yaml]
+        entry: yamllint --strict -f parsable -c=.yamllintrc
+  - repo: https://github.com/openstack-dev/bashate.git
+    rev: 0.6.0
+    hooks:
+      - id: bashate
+        entry: bashate --error . --ignore=E006
+        # Run bashate check for all bash scripts
+        # Ignores the following rules:
+        # E006: Line longer than 79 columns (as many scripts use jinja
+        #       templating, this is very difficult)
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+
+  - repo: https://github.com/gklein/check_signoff
+    rev: v1.0.5
+    hooks:
+      - id: check-signoff

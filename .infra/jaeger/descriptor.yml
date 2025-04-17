@@ -27,4 +27,3 @@ services:
     environment:
       SPAN_STORAGE_TYPE: "elasticsearch"
       ES_SERVER_URLS: "http://es01:9200"
-
