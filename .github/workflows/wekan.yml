@@ -42,7 +42,7 @@ jobs:
           image: wekan
           build-args: |
             WEKAN_VERSION=${{ steps.wekan-version.outputs.WEKAN_VERSION }}
-          tags: ${{ steps.wekan-version.outputs.WEKAN_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
+          tags: ${{ steps.wekan-version.outputs.WEKAN_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}
           archs: amd64, arm64
           context: Containerfiles/wekan/
           containerfiles: Containerfiles/wekan/Dockerfile

@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   mongodb:
-    image: docker.io/schnell18/mongodb:4.4.14-1
+    image: docker.io/schnell18/mongodb:4.4.14-2
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root

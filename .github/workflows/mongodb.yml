@@ -42,7 +42,7 @@ jobs:
           image: mongodb
           build-args: |
             MONGODB_VERSION=${{ steps.mongodb-version.outputs.MONGODB_VERSION }}
-          tags: ${{ steps.mongodb-version.outputs.MONGODB_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
+          tags: ${{ steps.mongodb-version.outputs.MONGODB_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}
           archs: amd64, arm64
           context: Containerfiles/mongodb/
           containerfiles: Containerfiles/mongodb/Dockerfile
