@@ -197,9 +197,9 @@ webui() {
 
     # do infra-specific post setup
     for infra in $@; do
-        if [[ -f .infra/$infra/provision/post/webui.sh ]]; then
+        if [[ -f .infra/$infra/provision/post/webui.txt ]]; then
             echo "Launch webui for $infra..."
-            url=$(sh .infra/$infra/provision/post/webui.sh)
+            url=$(cat .infra/$infra/provision/post/webui.txt)
             if [[ ! -z $url ]]; then
                 open_browser $url
             fi
@@ -245,9 +245,9 @@ start() {
     done
 
     for infra in $@; do
-        if [[ -f .infra/$infra/provision/post/webui.sh ]]; then
+        if [[ -f .infra/$infra/provision/post/webui.txt ]]; then
             echo "Launch webui for $infra..."
-            url=$(sh .infra/$infra/provision/post/webui.sh)
+            url=$(cat .infra/$infra/provision/post/webui.txt)
             if [[ ! -z $url ]]; then
                 open_browser $url
             fi

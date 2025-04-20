@@ -19,3 +19,4 @@ labs/
 *.log
 *.so
 *.DS_STORE
+*~

@@ -50,11 +50,12 @@ presented in the table as follows:
 
 ## Setup
 
-The localenv has been verified on MacOS. It also works on Linux and Windows.
-To use the localenv, please install podman 4.0.0 or above on the host machine.
-Additionally, install the follow tools on the host machine.
+The localenv has been verified on Linux, MacOS, and Windows. The localenv requires podman to manage
+containers. Previous podman releases, specifically the versions prior to 4.6.0, don't support
+healthy status check, leading to issues [startup hangs][12]. Therefore, Please install a recent
+version of podman, or at least 4.6.0 or above on the host machine. Additionally, install the follow
+optional tools on the host machine to facilitate development.
 
-- podman
 - podman-dnsname
 - aardvark-dns
 - mysql client
@@ -65,9 +66,43 @@ Additionally, install the follow tools on the host machine.
 - curl
 - xxd
 
-The podman-compose tool is bundled in this project. No separate installation
-is necessary. After successful installation of the aforementioned tools,
-please clone the [localenv repository][2] by typing:
+### Install podman on MacOS
+
+The recommended method to install podman on MacOS is to utilize Homebrew:
+
+    brew install podman
+
+### Install podman on Linux
+
+The recommended method to install podman on Linux is to utilize distribution-specific package
+manager. For example, on Debian/Ubuntu type:
+
+    sudo apt-get update && sudo apt-get install podman
+
+On Arch/Manjaro type:
+
+    sudo pacman -S podman
+
+### Install podman on Windows
+
+Grab the Podman Windows installer from podman's github project and install podman with the GUI
+installer.
+
+### Setup podman-compose
+
+The podman-compose tool is bundled in this project. No separate installation is necessary. However,
+make sure you install the following Python packages required by podman-compose:
+
+- pyyaml
+- dotenv
+
+
+### Setup localenv
+
+After successful installation of the aforementioned tools and libraries, please continue to setup
+localenv. The localenv is distributed as github project in source format. No binary package or
+installer is provided. You can install localenv simply by cloning the [localenv repository][2] as
+follows:
 
     cd ~
     git clone https://github.com/schnell18/localenv.git
@@ -113,7 +148,7 @@ automatically thanks to the github action.
 
 ## Launch localenv
 
-Although, the localenv can host multiple middlewares and databases, you start
+Although the localenv can host multiple middlewares and databases, you start
 only the necessary databases or middlewares to avoid excessive memory
 consumption. The databases and middlewares are managed by the script
 `infractl.sh`. This script should always be launched under the root directory
@@ -440,3 +475,5 @@ registries as follows:
 [9]: https://etcd.io/
 [10]: https://kafka.apache.org/
 [11]: https://opensource.com/article/19/2/how-does-rootless-podman-work
+[12]: https://github.com/containers/podman-compose/issues/1178
+[13]: https://github.com/containers/podman-compose/issues/1183
