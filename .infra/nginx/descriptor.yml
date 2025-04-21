@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   nginx:
-    image: docker.io/nginx:1.20.1-alpine
+    image: docker.io/nginx:1.27.5-alpine
     restart: always
     healthcheck:
       test: "curl -s http://localhost"

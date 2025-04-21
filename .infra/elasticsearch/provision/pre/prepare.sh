@@ -26,6 +26,7 @@ convert_to_number() {
         echo $value
     fi
 }
+
 function setup_macos {
     cat<<EOF | podman machine ssh --username root localenv
 cat<<EOT > /etc/security/limits.d/elasticsearch.conf
@@ -49,8 +50,8 @@ function setup_linux {
 
     sudo mkdir -p /etc/security/limits.d
     # Maximum amount of memory Elasticsearch process can lock into RAM
-    echo "* soft memlock -1" | sudo tee /etc/security/limits.d/elasticsearch.conf
-    echo "* hard memlock -1" | sudo tee -a /etc/security/limits.d/elasticsearch.conf
+    echo "* soft memlock -1" | sudo tee /etc/security/limits.d/elasticsearch.conf 1>/dev/null
+    echo "* hard memlock -1" | sudo tee -a /etc/security/limits.d/elasticsearch.conf 1>/dev/null
 
     # Required value
     REQUIRED_MAX_MAP_COUNT=262144
@@ -72,11 +73,11 @@ function setup_linux {
     CURRENT_HARD_NPROC_NUM=$(convert_to_number $CURRENT_HARD_NPROC)
 
     if [[ $CURRENT_SOFT_NPROC_NUM -lt $REQUIRED_SOFT_NPROC ]]; then
-        echo "* soft nproc 4096" | sudo tee -a /etc/security/limits.d/elasticsearch.conf
+        echo "* soft nproc 4096" | sudo tee -a /etc/security/limits.d/elasticsearch.conf 1>/dev/null
     fi
 
     if [[ $CURRENT_HARD_NPROC_NUM -lt $REQUIRED_HARD_NPROC ]]; then
-        echo "* hard nproc 8192" | sudo tee -a /etc/security/limits.d/elasticsearch.conf
+        echo "* hard nproc 8192" | sudo tee -a /etc/security/limits.d/elasticsearch.conf 1>/dev/null
     fi
 
 }
