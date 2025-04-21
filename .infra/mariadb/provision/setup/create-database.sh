@@ -4,7 +4,7 @@ database=$1
 user=$2
 
 echo "Creating empty database $database..."
-cat <<EOF | mysql --defaults-file=/work/.infra/mariadb/provision/root.ini -u root
+cat <<EOF | mysql --defaults-file=/etc/mysql/conf.d/root.ini -u root
 drop database if exists $database;
 create database if not exists $database
     default character set utf8mb4

@@ -8,7 +8,6 @@ services:
     # image: quay.io/wekan/wekan:v6.30
     image: docker.io/schnell18/wekan:v6.30-2
     # -------------------------------------------------------------------------------------
-    container_name: wekan-app
     # On CentOS 7 there is seccomp issue with glibc 6, so setting it to unconfined
     # to get WeKan working. See:
     #   - https://github.com/wekan/wekan/issues/4585

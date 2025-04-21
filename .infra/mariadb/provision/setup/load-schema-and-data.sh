@@ -4,11 +4,11 @@ load_schema() {
     # load schema if any
     if [ -f schema/schema.sql ]; then
         echo "Loading schema for database $database ..."
-        mysql --defaults-file=/work/.infra/mariadb/provision/appuser.ini -u $user -D $database < schema/schema.sql
+        mysql --defaults-file=/etc/mysql/conf.d/appuser.ini -u $user -D $database < schema/schema.sql
     fi
     if [ -f schema/add_foreign_keys.sql ]; then
         echo "Loading foreign key for database $database ..."
-        mysql --defaults-file=/work/.infra/mariadb/provision/appuser.ini -u $user -D $database < schema/add_foreign_keys.sql
+        mysql --defaults-file=/etc/mysql/conf.d/appuser.ini -u $user -D $database < schema/add_foreign_keys.sql
     fi
 }
 
@@ -21,7 +21,7 @@ load_data() {
             echo "Loading data files for database $database ..."
             for d in *.csv; do
                 tab=$(echo $d | cut -d . -f 1 | cut -d - -f 2)
-                cat <<EOF | mysql --defaults-file=/work/.infra/mariadb/provision/appuser.ini -u $user -D $database
+                cat <<EOF | mysql --defaults-file=/etc/mysql/conf.d/appuser.ini -u $user -D $database
 load data local infile "$d"
     into table $tab
     fields terminated by '|';

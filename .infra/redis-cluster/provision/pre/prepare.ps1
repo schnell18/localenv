@@ -26,14 +26,14 @@ function New-RedisClusterScript {
 
     $hostIp = Get-HostIP
 
-    Get-Content ".\.infra\redis-cluster\provision\create-cluster.sh.tpl" |
+    ((Get-Content ".\.infra\redis-cluster\provision\create-cluster.sh.tpl") -join "`n") + "`n" |
         ForEach-Object {
             $_ -replace '@REDIS_PORT1@', $Port1 `
               -replace '@REDIS_PORT2@', $Port2 `
               -replace '@REDIS_PORT3@', $Port3 `
               -replace '@CLUSTER_ANNOUNCE_IP@', $hostIp
         } |
-        Set-Content -Path $OutputFile
+        Set-Content -NoNewline -Path $OutputFile
 }
 
 # Create data directories for each node

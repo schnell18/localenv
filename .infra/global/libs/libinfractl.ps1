@@ -265,8 +265,8 @@ function Start-Infra {
         $activeInfras += " $infra"
     }
 
-    $composeFiles | Out-File -FilePath ".state\compose-files.txt"
-    $activeInfras | Out-File -FilePath ".state\active-infras.txt"
+    $composeFiles | Out-File -Encoding "ascii" -FilePath ".state\compose-files.txt"
+    $activeInfras | Out-File -Encoding "ascii" -FilePath ".state\active-infras.txt"
 
     # Start containers managed by podman
     Start-Process "python" `

@@ -61,7 +61,51 @@ finish properly within a container where systemd is absent. Error message looks 
 Real rootcause is the `podman wait` doesn't support the healthy condition, however, the
 `check_dep_conditions()` function doesn't take account into this and enters infinite loop.
 
+## MariaDB setup script doesn't work in Powershell on Windows
+
+The `setup-infra-databases.sh` script under the `/docker-entrypoint-initdb.d`
+directory is intended to create database, load schema and data for the active
+middlewares that require a database component. The active infras are recorded
+in the `.state/active-infras.txt` which is generated using the OS-dependent
+EOL. However, the `setup-infra-databases.sh` assumes the Unix/Linux style EOL.
+As a result, on Windows the name of infra contains a invisible trailing
+carriage return character, leading to bizarre message as follows:
+
+
+    root@8f045e500115:/docker-entrypoint-initdb.d# bash setup-infra-databases.sh
+    ...ating empty database nacos
+    /setup/load-schema-and-data.sh: 43: cd: can't cd to /work/.infra/nacos
+
+To diagnose this error, attaching to the MariaDB container and running the
+script in debug mode reveal the root cause:
+
+    root@8f045e500115:/docker-entrypoint-initdb.d# bash -x setup-infra-databases.sh
+    + '[' -f /work/.state/active-infras.txt ']'
+    ++ cat /work/.state/active-infras.txt
+    ' infras=' mariadb nacos
+    + for infra in $infras
+    + '[' mariadb '!=' mariadb ']'
+    + for infra in $infras
+    + '[' $'nacos\r' '!=' mariadb ']'
+    + sh /setup/create-database.sh $'nacos\r' mfg
+    ...ating empty database nacos
+    + sh /setup/load-schema-and-data.sh $'nacos\r' mfg $'nacos\r' .infra
+    /setup/load-schema-and-data.sh: 43: cd: can't cd to /work/.infra/nacos
+
+The root cause is failure to account for the EOL difference between Windows and
+Linux. The fix is to convert the Windows EOL to Linux EOL in the
+`setup-infra-databases.sh` script.
+
+## podman port mapping listen only loopback interface on Windows
+
+The redis-cluster creator connects to the host primary IP to establish
+connection to a redis node in order to setup cluster. However, the connection
+fails as the 7001 port on the host is listened on the loopback interface
+rather than the primary network interface. It seems a limitation of podman
+according to [this issue][4].
+
 [1]: https://github.com/containers/podman-compose/issues/866
 [2]: https://github.com/containers/podman-compose/issues/1119
 [3]: https://github.com/containers/podman-compose/pull/1082
+[4]: https://github.com/containers/podman/discussions/22065
 

@@ -42,7 +42,7 @@ jobs:
           image: etcd
           build-args: |
             ETCD_VERSION=${{ steps.etcd-version.outputs.ETCD_VERSION }}
-          tags: ${{ steps.etcd-version.outputs.ETCD_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
+          tags: ${{ steps.etcd-version.outputs.ETCD_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}
           archs: amd64, arm64
           context: Containerfiles/etcd/
           containerfiles: Containerfiles/etcd/Dockerfile

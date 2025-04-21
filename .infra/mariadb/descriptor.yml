@@ -22,7 +22,7 @@ services:
       - "database=true"
     volumes:
       - ../../:/work
-      - ./provision/conf.d:/etc/mysql/conf.d
+      - ../../.state/mariadb/conf:/etc/mysql/conf.d
       - ./provision/entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./provision/setup:/setup
       - ../../.state/mariadb/data:/var/lib/mysql
