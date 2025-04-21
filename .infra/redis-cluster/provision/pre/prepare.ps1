@@ -36,6 +36,17 @@ function New-RedisClusterScript {
         Set-Content -NoNewline -Path $OutputFile
 }
 
+
+function Setup-Kernel-Params-Windows {
+    # Create the command to be executed on the podman machine
+    $podmanCommand = @"
+sysctl -w vm.overcommit_memory=1
+"@
+
+    # Execute the command on the podman machine
+    podman machine ssh --username root localenv $podmanCommand
+}
+
 # Create data directories for each node
 if (-not (Test-Path ".state\redis-cluster\data")) {
     New-Item -Path ".state\redis-cluster\data\node1" -ItemType Directory -Force | Out-Null
@@ -81,15 +92,4 @@ if (-not (Test-Path $clusterScriptPath)) {
 # We'll create the file with the content, but note that execution permissions work differently
 New-RedisClusterScript -Port1 "7001" -Port2 "7002" -Port3 "7003" -OutputFile $clusterScriptPath
 
-# Make the script executable (note: this doesn't directly translate to Windows permissions)
-# In PowerShell/Windows, you typically don't need to change file permissions to execute scripts
-# But we can set ACL if needed
-if ($IsWindows -or $env:OS -eq "Windows_NT") {
-    # For Windows, we don't need chmod equivalent, but we can set it to be executable if needed
-    # This is just a placeholder - Windows handles script execution differently
-} else {
-    # If running in PowerShell Core on Unix-like systems
-    if (Get-Command "chmod" -ErrorAction SilentlyContinue) {
-        & chmod +x $clusterScriptPath
-    }
-}
+Setup-Kernel-Params-Windows
