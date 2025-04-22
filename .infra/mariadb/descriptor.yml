@@ -8,8 +8,8 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: mfg
-      MYSQL_PASSWORD: abc
+      MYSQL_USER: localenv
+      MYSQL_PASSWORD: localenv
     healthcheck:
       test: "/usr/bin/mysql --user=root --password=root --execute 'SHOW DATABASES;'"
       interval: 30s

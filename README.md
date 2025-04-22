@@ -227,10 +227,10 @@ Alternatively, you can install it manually by running the following commands:
 ### Redis Cluster Mode
 
 The redis instance supported by localenv is a 3-node redis cluster with port
-range from 7001 to 7003. The cluster password is `abc123`.
+range from 7001 to 7003. The cluster password is `localenv`.
 To connect using the redis-cli, you can type:
 
-    redis-cli -c -h 127.0.0.1 -p 7001 -a abc123
+    redis-cli -c -h 127.0.0.1 -p 7001 -a localenv
 
 If you use tmux, then you may launch the `tmux.sh` which open the above session
 in a separate window for you. You may use any other redis management tools to
@@ -239,10 +239,10 @@ interact with the redis cluster.
 ### Redis Sentinel Mode
 
 The redis instance supported by localenv is a 3-slave 3-sentinel redis sentinel
-on port 6379. The cluster password is `abc123`. To connect using the redis-cli,
+on port 6379. The cluster password is `localenv`. To connect using the redis-cli,
 you can type:
 
-    redis-cli -h 127.0.0.1 -p 6379 -a abc123
+    redis-cli -h 127.0.0.1 -p 6379 -a localenv
 
 You may use any other redis management tools to interact with the redis
 cluster.
@@ -250,10 +250,10 @@ cluster.
 ## MariaDB (MySQL)
 
 The MariaDB (a MySQL variant) instance in the localenv can be accessed via
-127.0.0.1:3306. For normal application access, use user name `mfg` and password
-`abc` to connect to the database. For administrative access, use password
-`root` for the root user. For tmux user, launching `tmux.sh` will open a
-terminal window to open the mysql shell. If you prefer GUI client, use your
+127.0.0.1:3306. For normal application access, use user name `localenv` and
+password `localenv` to connect to the database. For administrative access, use
+password `root` for the root user. For tmux user, launching `tmux.sh` will open
+a terminal window to open the mysql shell. If you prefer GUI client, use your
 favorite tool to connect the database using the credentials as aforementioned.
 
 The data files of MariaDB instance are stored under the folder

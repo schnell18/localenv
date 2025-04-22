@@ -1,3 +1,106 @@
+function Check-Url-Ready {
+    param (
+        [Parameter(Mandatory=$true)][string]$url,
+        [int]$MaxRetries = 15,
+        [int]$RetryInterval = 3
+    )
+
+
+    $retryCount = 0
+    $success = $false
+
+    while ($retryCount -lt $MaxRetries -and -not $success) {
+        $retryCount++
+
+        try {
+            $request = [System.Net.WebRequest]::Create($url)
+            $request.Method = "GET"
+            $request.Timeout = 5000
+            $resp = $request.GetResponse()
+            $statusCode = [int]$resp.StatusCode
+            $resp.Close()
+
+            if ($statusCode -ge 200 -and $statusCode -lt 400) {
+                $success = $true
+                break
+            }
+        }
+        catch {
+        }
+        Start-Sleep -Seconds $RetryInterval
+    }
+    if ($success) {
+        return $url
+    }
+    else {
+        return $null
+    }
+}
+
+function Get-PythonVersion {
+    $pythonPaths = @("python", "python3")
+    foreach ($pythonCmd in $pythonPaths) {
+        try {
+            $verOut = & $pythonCmd --version 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                $version = $verOut -replace "[^0-9.]", ""
+                return [version]$version
+            }
+        }
+        catch {
+            continue
+        }
+    }
+    return $null
+}
+
+function Check-Podman-Compose-Dep {
+    $verOut = & python -c 'import dotenv;import yaml' 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host @"
+The machine `localenv` doesn't exist. Please run ./infractl.sh init to create
+the machine.
+"@
+        exit 1
+    }
+}
+
+function Check-Environment {
+    $reqPyMajor = 3
+    $reqPyMinor = 11
+    # check if python is installed
+    $pyVer = Get-PythonVersion
+    $actPyMajor = $pyVer.major
+    $actPyMinor = $pyVer.minor
+    if ($pyVer -eq $null) {
+        Write-Host @"
+Python is not installed! Please install Python $reqPyMajor.$reqPyMinor or above!
+"@
+        exit 1
+    }
+    elseif (!($actPyMajor -ge $reqPyMajor -And $actPyMinor -ge $reqPyMinor)) {
+        Write-Host @"
+Python version $actPyMajor.$actPyMinor is not supported! Please install $reqPyMajor.$reqPyMinor or above!
+"@
+        exit 1
+    }
+    else {
+        # check if dotenv and pyyaml are installed
+        Check-Podman-Compose-Dep
+    }
+
+    # check if machine exists and running
+    $StdOutLs = & podman machine ls -q
+    if ($StdOutLs.Contains("localenv")) {
+        $StdOutInsp = & podman machine inspect localenv --format "{{range .}}{{.State}}{{end -}}"
+        if (!$StdOutInsp.Contains("running")) {
+            & podman machine start localenv
+        }
+    }
+    else {
+    }
+}
+
 function Show-Usage {
     Write-Host @"
 Infrastructure control tool for Virtual development environment.
@@ -223,12 +326,13 @@ function Start-WebUi {
         exit 1
     }
 
-    # Do infra-specific post setup
     foreach ($infra in $Infrastructures) {
         $webuiScript = ".infra\$infra\provision\post\webui.txt"
         if (Test-Path $webuiScript) {
             Write-Host "Launch webui for $infra..."
             $url = Get-Content $webuiScript
+            # wait for url become ready
+            $url = Check-Url-Ready $url
             if (![string]::IsNullOrEmpty($url)) {
                 Open-Browser $url
             }
@@ -246,6 +350,8 @@ function Start-Infra {
         Show-UsageStart
         exit 1
     }
+
+    Check-Environment
 
     # Make state directories exist
     if (!(Test-Path ".state")) {
@@ -288,6 +394,8 @@ function Start-Infra {
         if (Test-Path $webuiScript) {
             Write-Host "Launch webui for $infra..."
             $url = Get-Content $webuiScript
+            # wait for url become ready
+            $url = Check-Url-Ready $url
             if (![string]::IsNullOrEmpty($url)) {
                 Open-Browser $url
             }

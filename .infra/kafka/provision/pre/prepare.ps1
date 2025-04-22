@@ -1,28 +1,27 @@
 # Import functions from the global library
 . ".\.infra\global\libs\functions.ps1"
 
-if (-not (Test-Path ".state\kafka\broker1\logs")) {
-    New-Item -Path ".state\kafka\broker1\logs" -ItemType Directory -Force | Out-Null
+function Create-Kafka-Node-Dirs {
+    param(
+        [int]$node_id
+    )
+
+    # Create directories for Kafka node
+    if (-not (Test-Path ".state\kafka\node$node_id\conf")) {
+        $null = New-Item -Path ".state\kafka\node$node_id\conf" -ItemType Directory -Force
+    }
+
+    if (-not (Test-Path ".state\kafka\node$node_id\logs")) {
+        $null = New-Item -Path ".state\kafka\node$node_id\logs" -ItemType Directory -Force
+    }
+
+    if (-not (Test-Path ".state\kafka\node$node_id\data")) {
+        $null = New-Item -Path ".state\kafka\node$node_id\data" -ItemType Directory -Force
+    }
 }
 
-if (-not (Test-Path ".state\kafka\broker1\data")) {
-    New-Item -Path ".state\kafka\broker1\data" -ItemType Directory -Force | Out-Null
+# Create Kafka dirs and generate Kafka config files for all nodes
+1..3 | ForEach-Object {
+    $node_id = $_
+    Create-Kafka-Node-Dirs -node_id $node_id
 }
-
-if (-not (Test-Path ".state\kafka\broker2\logs")) {
-    New-Item -Path ".state\kafka\broker2\logs" -ItemType Directory -Force | Out-Null
-}
-
-if (-not (Test-Path ".state\kafka\broker2\data")) {
-    New-Item -Path ".state\kafka\broker2\data" -ItemType Directory -Force | Out-Null
-}
-
-if (-not (Test-Path ".state\kafka\broker3\logs")) {
-    New-Item -Path ".state\kafka\broker3\logs" -ItemType Directory -Force | Out-Null
-}
-
-if (-not (Test-Path ".state\kafka\broker3\data")) {
-    New-Item -Path ".state\kafka\broker3\data" -ItemType Directory -Force | Out-Null
-}
-
-

@@ -291,9 +291,9 @@ refresh_db() {
                 if [ -f schema/schema.sql ]; then
                     db=$(head -3 schema/schema.sql | grep -i USE | head -1 | cut -d' ' -f2 | sed 's/;//')
                     echo "Prepare database ${db} for project $(basename $app)..."
-                    podman exec -it ${dbContainer} /bin/sh /setup/create-database.sh $db mfg
+                    podman exec -it ${dbContainer} /bin/sh /setup/create-database.sh $db localenv
                     echo "Loading schema and data using podman for project $(basename $app)..."
-                    podman exec -it ${dbContainer} /bin/sh /setup/load-schema-and-data.sh $(basename $app) mfg $db backends
+                    podman exec -it ${dbContainer} /bin/sh /setup/load-schema-and-data.sh $(basename $app) localenv $db backends
                 fi
                 cd $PWD
             fi

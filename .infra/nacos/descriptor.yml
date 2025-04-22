@@ -39,8 +39,8 @@ services:
       - MYSQL_SERVICE_HOST=mariadb
       - MYSQL_SERVICE_DB_NAME=nacos
       - MYSQL_SERVICE_PORT=3306
-      - MYSQL_SERVICE_USER=mfg
-      - MYSQL_SERVICE_PASSWORD=abc
+      - MYSQL_SERVICE_USER=localenv
+      - MYSQL_SERVICE_PASSWORD=localenv
       - MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false
     volumes:
       - ../../.state/nacos/standalone-logs/:/home/nacos/logs

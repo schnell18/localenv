@@ -1,3 +1,33 @@
+check_url_ready() {
+    local url="$1"
+    local max_retries="${2:-15}"
+    local retry_interval="${3:-3}"
+
+    local retry_count=0
+    local success=false
+
+    while [ $retry_count -lt $max_retries ] && [ "$success" = false ]; do
+        retry_count=$((retry_count + 1))
+
+        # Use curl with timeout, follow redirects, and only get the header
+        http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 --location "$url")
+
+        # Check if status code is between 200 and 399
+        if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 400 ]; then
+            success=true
+            break
+        fi
+
+        sleep "$retry_interval"
+    done
+
+    if [ "$success" = true ]; then
+        echo "$url"
+    else
+        echo ""
+    fi
+}
+
 usage() {
     cat <<EOF
 Infrastructure control tool for Virtual development environment.
@@ -200,6 +230,8 @@ webui() {
         if [[ -f .infra/$infra/provision/post/webui.txt ]]; then
             echo "Launch webui for $infra..."
             url=$(cat .infra/$infra/provision/post/webui.txt)
+            # wait for url become ready
+            url=$(check_url_ready $url)
             if [[ ! -z $url ]]; then
                 open_browser $url
             fi
@@ -208,7 +240,7 @@ webui() {
 }
 
 start() {
-    PROFILE=$1
+    PROFILE=$2
     if [[ -z $PROFILE ]]; then
         usage_start
         exit 1
@@ -248,6 +280,8 @@ start() {
         if [[ -f .infra/$infra/provision/post/webui.txt ]]; then
             echo "Launch webui for $infra..."
             url=$(cat .infra/$infra/provision/post/webui.txt)
+            # wait for url become ready
+            url=$(check_url_ready $url)
             if [[ ! -z $url ]]; then
                 open_browser $url
             fi

@@ -156,7 +156,7 @@ infra 名称。
 ### Redis 集群模式
 
 本项目开发环境的 Redis 是 3 个节点的集群模式。端口为 7001～7003。
-请使用连接密码 abc123 连接该集群。
+请使用连接密码 localenv 连接该集群。
 你可根据自己的喜好使用相应的工具连接 Redis。
 如果使用 tmux 的话，可以用 tumx.sh 自动打开命令行 rediscli 工具连接到 redis。
 
@@ -164,7 +164,7 @@ infra 名称。
 ## MariaDB (MySQL)
 
 本项目开发环境的 MariaDB （和兼容 MySQL 的变种） 服务器可以通过 127.0.0.1:3306
-访问。用户为 mfg 密码为 abc。 root 密码为 root。你可根据自己的喜好使用相应的工具连接该数据库。
+访问。用户为 localenv 密码为 localenv。 root 密码为 root。你可根据自己的喜好使用相应的工具连接该数据库。
 如果使用 tmux 的话，可以用 tumx.sh 自动打开命令行 mysql 工具连接到数据库。
 
 MariaDB 的数据文件保存在 .state/mariadb/data 目录下。
