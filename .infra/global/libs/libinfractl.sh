@@ -240,8 +240,7 @@ webui() {
 }
 
 start() {
-    PROFILE=$2
-    if [[ -z $PROFILE ]]; then
+    if [[ -z $1 ]]; then
         usage_start
         exit 1
     fi

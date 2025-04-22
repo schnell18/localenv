@@ -1,0 +1,61 @@
+name: rabbitmq
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'podman'
+    paths:
+      - Containerfiles/rabbitmq/Dockerfile
+      - Containerfiles/rabbitmq/version.json
+
+jobs:
+  build:
+    name: Build and push image
+    environment: production
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Get rabbitmq version
+        id: rabbitmq-version
+        run: |
+          echo -n ::set-output name=RABBITMQ_VERSION::
+          jq -r '.rabbitmqVersion' Containerfiles/rabbitmq/version.json
+
+      - name: Get build number
+        id: build-number
+        run: |
+          echo -n ::set-output name=BUILD_NO::
+          jq -r '.build' Containerfiles/rabbitmq/version.json
+
+      - name: Build Image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: rabbitmq
+          build-args: |
+            RABBITMQ_VERSION=${{ steps.rabbitmq-version.outputs.RABBITMQ_VERSION }}
+          tags: ${{ steps.rabbitmq-version.outputs.RABBITMQ_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}
+          archs: amd64, arm64
+          context: Containerfiles/rabbitmq/
+          containerfiles: Containerfiles/rabbitmq/Dockerfile
+
+      - name: Push To docker.io
+        id: push-to-docker
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: docker.io/${{ secrets.REGISTRY_USERNAME }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Print image url
+        run: echo "Image pushed to ${{ steps.push-to-docker.outputs.registry-paths }}"

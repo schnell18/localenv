@@ -1,0 +1,4 @@
+{
+  "rabbitmqVersion": "4.1.0-management-alpine",
+  "build": "1"
+}
