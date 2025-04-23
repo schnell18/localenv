@@ -7,7 +7,8 @@ function New-RedisConf {
         [Parameter(Mandatory=$true)][string]$OutputFile
     )
 
-    $hostIp = Get-HostIP
+    # $hostIp = Get-HostIP
+    $hostIp = "127.0.0.1"
 
     Get-Content ".\.infra\redis-cluster\provision\redis.conf.tpl" |
         ForEach-Object {
@@ -24,7 +25,9 @@ function New-RedisClusterScript {
         [Parameter(Mandatory=$true)][string]$OutputFile
     )
 
-    $hostIp = Get-HostIP
+    # podman only binds to 127.0.0.1 right now
+    # $hostIp = Get-HostIP
+    $hostIp = "127.0.0.1"
 
     ((Get-Content ".\.infra\redis-cluster\provision\create-cluster.sh.tpl") -join "`n") + "`n" |
         ForEach-Object {

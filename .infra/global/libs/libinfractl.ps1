@@ -405,6 +405,7 @@ function Start-Infra {
 
     $composeFiles = ""
     $activeInfras = ""
+    $inPodFlag = ""
 
     foreach ($infra in $Infrastructures) {
         $prepareScript = ".infra\$infra\provision\pre\prepare.ps1"
@@ -414,6 +415,11 @@ function Start-Infra {
         }
         $composeFiles += " -f $(Get-Location)\.infra\${infra}\descriptor.yml"
         $activeInfras += " $infra"
+
+        $inPodFlagFile = ".infra\$infra\.in-pod-on-windows"
+        if (Test-Path $pinPodFlagFile) {
+            $inPodFlag = "--in-pod=1"
+        }
     }
 
     $composeFiles | Out-File -Encoding "ascii" -FilePath ".state\compose-files.txt"
@@ -422,7 +428,7 @@ function Start-Infra {
     # Start containers managed by podman
     Start-Process "python" `
         -NoNewWindow `
-        -ArgumentList "bin\podman_compose.py $composeFiles up -d --force-recreate" `
+        -ArgumentList "bin\podman_compose.py $composeFiles $inPodFlag up -d --force-recreate" `
         -Wait
 
     # Do infra-specific post setup

@@ -1,13 +1,13 @@
 # dockerized virtual environment
 version: '3.9'
 
-x-podman:
-  in_pod: false
+# x-podman:
+#   in_pod: false
 
 services:
   rabbitmq:
     # image: docker.io/rabbitmq:3.9.11-management-alpine
-    userns_mode: keep-id
+    # userns_mode: keep-id
     image: docker.io/schnell18/rabbitmq:4.1.0-management-alpine-1
     healthcheck:
       test: "nc -z localhost 5672"
@@ -24,6 +24,15 @@ services:
     labels:
       - "mq_broker=true"
     volumes:
-      - ../global/etc/localtime:/etc/localtime
-      - ../global/etc/timezone:/etc/timezone
-      - ../../.state/rabbitmq:/var/lib/rabbitmq
+      - type: bind
+        source: .state/rabbitmq
+        target: /var/lib/rabbitmq
+        options: "z,U=1000,G=1000"
+      - type: bind
+        source: .infra/global/etc/localtime
+        target: /etc/localtime
+      - type: bind
+        source: .infra/global/etc/timezone
+        target: /etc/timezone
+    security_opt:
+      - label=disable
