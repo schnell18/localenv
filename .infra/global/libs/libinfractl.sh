@@ -1,3 +1,66 @@
+get_python_version() {
+    local python_paths=("python" "python3")
+    for python_cmd in "${python_paths[@]}"; do
+        if command -v "$python_cmd" &> /dev/null; then
+            local ver_out
+            ver_out=$("$python_cmd" --version 2>&1)
+            if [ $? -eq 0 ]; then
+                echo "$ver_out" | sed -E 's/[^0-9.]//g'
+                return 0
+            fi
+        fi
+    done
+    return 1
+}
+
+check_podman_compose_dep() {
+    /usr/bin/python -c 'import dotenv;import yaml' 2>&1
+    if [ $? -ne 0 ]; then
+        echo "Missing required python packages, install them now ..."
+        pip install --user dotenv pyyaml
+    fi
+}
+
+check_environment() {
+    local req_py_major=3
+    local req_py_minor=11
+    # check if python is installed
+    local py_ver=get_python_version
+    if [ -z "$py_ver" ]; then
+        echo "Python is not installed! Please install Python $req_py_major.$req_py_minor or above!"
+        exit 1
+    else
+        local act_py_major
+        local act_py_minor
+        act_py_major=$(echo $py_ver | cut -d '.' -f1)
+        act_py_minor=$(echo $py_ver | cut -d '.' -f2)
+
+        if ! ([ "$act_py_major" -ge "$req_py_major" ] && [ "$act_py_minor" -ge "$req_py_minor" ]); then
+            echo "Python version $act_py_major.$act_py_minor is not supported! Please install $req_py_major.$req_py_minor or above!"
+            exit 1
+        else
+            # check if dotenv and pyyaml are installed
+            check_podman_compose_dep
+        fi
+    fi
+
+    if [[ `uname` == 'Darwin' ]]; then
+        # check if machine exists and running
+        local std_out_ls
+        std_out_ls=$(podman machine ls -q)
+        if echo "$std_out_ls" | grep -q "localenv"; then
+            local std_out_insp
+            std_out_insp=$(podman machine inspect localenv --format "{{range .}}{{.State}}{{end -}}")
+            if ! echo "$std_out_insp" | grep -q "running"; then
+                podman machine start localenv
+            fi
+        else
+            echo "The machine `localenv` doesn't exist. Please run ./infractl.sh init to create the machine."
+            exit 1
+        fi
+    fi
+}
+
 check_url_ready() {
     local url="$1"
     local max_retries="${2:-15}"

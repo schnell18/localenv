@@ -57,11 +57,8 @@ function Get-PythonVersion {
 function Check-Podman-Compose-Dep {
     $verOut = & python -c 'import dotenv;import yaml' 2>&1
     if ($LASTEXITCODE -ne 0) {
-        Write-Host @"
-The machine `localenv` doesn't exist. Please run ./infractl.sh init to create
-the machine.
-"@
-        exit 1
+        Write-Host "Missing required python packages, install them now ..."
+        & pip install --user dotenv pyyaml
     }
 }
 
@@ -98,6 +95,11 @@ Python version $actPyMajor.$actPyMinor is not supported! Please install $reqPyMa
         }
     }
     else {
+        Write-Host @"
+The machine `localenv` doesn't exist. Please run ./infractl.sh init to create
+the machine.
+"@
+        exit 1
     }
 }
 
