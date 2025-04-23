@@ -1,3 +1,5 @@
+#!/bin/bash
+
 source .infra/global/libs/functions.sh
 source .infra/global/libs/libinfractl.sh
 

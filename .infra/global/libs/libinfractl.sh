@@ -1,23 +1,45 @@
 get_python_version() {
-    local python_paths=("python" "python3")
+    local python_paths=("python")
     for python_cmd in "${python_paths[@]}"; do
-        if command -v "$python_cmd" &> /dev/null; then
+        local python_path
+        python_path=$(command -v "$python_cmd" >/dev/null 2>&1)
+        if [ $? -eq 0 ]; then
             local ver_out
             ver_out=$("$python_cmd" --version 2>&1)
             if [ $? -eq 0 ]; then
                 echo "$ver_out" | sed -E 's/[^0-9.]//g'
-                return 0
             fi
         fi
     done
-    return 1
+    echo ""
 }
 
 check_podman_compose_dep() {
-    /usr/bin/python -c 'import dotenv;import yaml' 2>&1
+    local podman_path
+    podman_path=$(command -v podman >/dev/null 2>&1)
+    if [ $? -eq 0 ]; then
+        local ver_out
+        ver_out=$(podman --version 2>&1)
+        if [ $? -ne 0 ]; then
+            echo "podman is not installed, please install podman 4.6.0 or above!"
+            exit 1
+        else
+            ver_str=$(echo "$ver_out" | sed -E 's/[^0-9.]//g')
+            major=$(echo $ver_str | cut -d '.' -f1)
+            minor=$(echo $ver_str | cut -d '.' -f2)
+            patch=$(echo $ver_str | cut -d '.' -f3)
+
+            if ([ "$major" -le 4 ] && [ "$minor" -lt 6 ]); then
+                echo "podman version ${major}.${minor}.${patch} doesn't support dependency check! Please install podman 4.6.0 or above!"
+                exit
+            fi
+        fi
+    fi
+    python -c 'import dotenv;import yaml' >/dev/null 2>&1
     if [ $? -ne 0 ]; then
-        echo "Missing required python packages, install them now ..."
-        pip install --user dotenv pyyaml
+        echo "Missing required python packages, please install dotenv and pyyaml!"
+        exit 1
+        # pip install --user dotenv pyyaml
     fi
 }
 
@@ -25,9 +47,10 @@ check_environment() {
     local req_py_major=3
     local req_py_minor=11
     # check if python is installed
-    local py_ver=get_python_version
+    local py_ver
+    py_ver=$(get_python_version)
     if [ -z "$py_ver" ]; then
-        echo "Python is not installed! Please install Python $req_py_major.$req_py_minor or above!"
+        echo "Python is not installed! Please install Python ${req_py_major}.${req_py_minor} or above!"
         exit 1
     else
         local act_py_major
@@ -35,7 +58,7 @@ check_environment() {
         act_py_major=$(echo $py_ver | cut -d '.' -f1)
         act_py_minor=$(echo $py_ver | cut -d '.' -f2)
 
-        if ! ([ "$act_py_major" -ge "$req_py_major" ] && [ "$act_py_minor" -ge "$req_py_minor" ]); then
+        if ([ "$act_py_major" -le "$req_py_major" ] && [ "$act_py_minor" -lt "$req_py_minor" ]); then
             echo "Python version $act_py_major.$act_py_minor is not supported! Please install $req_py_major.$req_py_minor or above!"
             exit 1
         else
@@ -258,6 +281,9 @@ list() {
 }
 
 init() {
+    # ensure the current environment has required software and libraries installed
+    check_environment
+
     if [[ `uname` == 'Darwin' ]]; then
         # podman machine init localenv --rootful --image-path /Users/user/.local/share/containers/podman/machine/qemu/fedora-coreos-36.20220511.dev.0-qemu.aarch64.qcow2.xz -v $HOME:$HOME --now
         # podman machine init localenv --image-path /Users/user/.local/share/containers/podman/machine/qemu/fedora-coreos-36.20220511.dev.0-qemu.aarch64.qcow2.xz -v $HOME:$HOME --now
@@ -307,6 +333,7 @@ start() {
         usage_start
         exit 1
     fi
+    check_environment
 
     # make state directories exist
     if [[ ! -d .state ]]; then
@@ -318,7 +345,7 @@ start() {
     for infra in $@; do
         if [[ -f .infra/$infra/provision/pre/prepare.sh ]]; then
             echo "Run prepare script for $infra..."
-            sh .infra/$infra/provision/pre/prepare.sh
+            bash .infra/$infra/provision/pre/prepare.sh
         fi
         compose_files="$compose_files -f $(pwd)/.infra/${infra}/descriptor.yml"
         active_infras="$active_infras $infra"
@@ -334,7 +361,7 @@ start() {
     for infra in $@; do
         if [[ -f .infra/$infra/provision/post/setup.sh ]]; then
             echo "Run post setup script for $infra..."
-            sh .infra/$infra/provision/post/setup.sh
+            bash .infra/$infra/provision/post/setup.sh
         fi
     done
 

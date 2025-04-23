@@ -55,10 +55,51 @@ function Get-PythonVersion {
 }
 
 function Check-Podman-Compose-Dep {
-    $verOut = & python -c 'import dotenv;import yaml' 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Missing required python packages, install them now ..."
-        & pip install --user dotenv pyyaml
+    # Check if podman is available
+    $podmanPath = Get-Command podman -ErrorAction SilentlyContinue
+    if ($podmanPath) {
+        try {
+            $verOut = & podman --version 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "podman is not installed, please install podman 4.6.0 or above!"
+                exit 1
+            }
+            else {
+                $verStr = $verOut -replace '[^0-9.]', ''
+                $versionParts = $verStr.Split('.')
+                $major = [int]$versionParts[0]
+                $minor = [int]$versionParts[1]
+                $patch = [int]$versionParts[2]
+
+                if ($major -le 4 -and $minor -lt 6) {
+                    Write-Host "podman version $major.$minor.$patch doesn't support dependency check! Please install podman 4.6.0 or above!"
+                    exit 1
+                }
+            }
+        }
+        catch {
+            Write-Host "Error checking podman version: $_"
+            exit 1
+        }
+    }
+    else {
+        Write-Host "podman is not installed, please install podman 4.6.0 or above!"
+        exit 1
+    }
+
+    # Check podman-compose dependencies
+    try {
+        & python -c "import dotenv;import yaml" 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Missing required python packages, please install dotenv and pyyaml!"
+            exit 1
+            # Comment: Equivalent to the original bash comment
+            # & pip install --user dotenv pyyaml
+        }
+    }
+    catch {
+        Write-Host "Error checking Python dependencies: $_"
+        exit 1
     }
 }
 

@@ -1,26 +1,16 @@
 source .infra/global/libs/functions.sh
 
-if [[ ! -d .state/kafka/broker1/logs ]]; then
-    mkdir -p .state/kafka/broker1/logs
-fi
+function create_dirs {
+    local broker_no=$1
+    if [[ ! -d .state/kafka/broker${broker_no}/logs ]]; then
+        mkdir -p .state/kafka/broker${broker_no}/logs
+    fi
 
-if [[ ! -d .state/kafka/broker1/data ]]; then
-    mkdir -p .state/kafka/broker1/data
-fi
+    if [[ ! -d .state/kafka/broker${broker_no}/data ]]; then
+        mkdir -p .state/kafka/broker${broker_no}/data
+    fi
+}
 
-if [[ ! -d .state/kafka/broker2/logs ]]; then
-    mkdir -p .state/kafka/broker2/logs
-fi
-
-if [[ ! -d .state/kafka/broker2/data ]]; then
-    mkdir -p .state/kafka/broker2/data
-fi
-
-if [[ ! -d .state/kafka/broker3/logs ]]; then
-    mkdir -p .state/kafka/broker3/logs
-fi
-
-if [[ ! -d .state/kafka/broker3/data ]]; then
-    mkdir -p .state/kafka/broker3/data
-fi
-
+for broker_no in 1 2 3; do
+    create_dirs $broker_no
+done

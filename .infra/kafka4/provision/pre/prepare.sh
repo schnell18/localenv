@@ -1,40 +1,20 @@
 source .infra/global/libs/functions.sh
 
-if [[ ! -d .state/kafka4/node1/conf ]]; then
-    mkdir -p .state/kafka4/node1/conf
-fi
+function create_dirs {
+    local node_no=$1
 
-if [[ ! -d .state/kafka4/node1/logs ]]; then
-    mkdir -p .state/kafka4/node1/logs
-fi
+    if [[ ! -d .state/kafka4/node${node_no}/conf ]]; then
+        mkdir -p .state/kafka4/node${node_no}/conf
+    fi
 
-if [[ ! -d .state/kafka4/node1/data ]]; then
-    mkdir -p .state/kafka4/node1/data
-fi
+    if [[ ! -d .state/kafka4/node${node_no}/logs ]]; then
+        mkdir -p .state/kafka4/node${node_no}/logs
+    fi
 
-if [[ ! -d .state/kafka4/node2/conf ]]; then
-    mkdir -p .state/kafka4/node2/conf
-fi
-
-if [[ ! -d .state/kafka4/node2/logs ]]; then
-    mkdir -p .state/kafka4/node2/logs
-fi
-
-if [[ ! -d .state/kafka4/node2/data ]]; then
-    mkdir -p .state/kafka4/node2/data
-fi
-
-if [[ ! -d .state/kafka4/node3/conf ]]; then
-    mkdir -p .state/kafka4/node3/conf
-fi
-
-if [[ ! -d .state/kafka4/node3/logs ]]; then
-    mkdir -p .state/kafka4/node3/logs
-fi
-
-if [[ ! -d .state/kafka4/node3/data ]]; then
-    mkdir -p .state/kafka4/node3/data
-fi
+    if [[ ! -d .state/kafka4/node${node_no}/data ]]; then
+        mkdir -p .state/kafka4/node${node_no}/data
+    fi
+}
 
 function generateKafkaConf {
     node_id=$1
@@ -48,5 +28,6 @@ function generateKafkaConf {
 
 # generate redis config file and use host IP
 for node_id in $(seq 1 3); do
+    create_dirs $node_id
     generateKafkaConf $node_id ".state/kafka4/node${node_id}/conf/server.properties"
 done
