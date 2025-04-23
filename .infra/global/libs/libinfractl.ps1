@@ -65,7 +65,8 @@ function Check-Podman-Compose-Dep {
                 exit 1
             }
             else {
-                $verStr = $verOut -replace '[^0-9.]', ''
+                $verStr = $verOut -replace '.exe', ''
+                $verStr = $verStr -replace '[^0-9.]', ''
                 $versionParts = $verStr.Split('.')
                 $major = [int]$versionParts[0]
                 $minor = [int]$versionParts[1]
@@ -116,7 +117,7 @@ Python is not installed! Please install Python $reqPyMajor.$reqPyMinor or above!
 "@
         exit 1
     }
-    elseif (!($actPyMajor -ge $reqPyMajor -And $actPyMinor -ge $reqPyMinor)) {
+    elseif (($actPyMajor -le $reqPyMajor -And $actPyMinor -lt $reqPyMinor)) {
         Write-Host @"
 Python version $actPyMajor.$actPyMinor is not supported! Please install $reqPyMajor.$reqPyMinor or above!
 "@
@@ -338,6 +339,7 @@ function Get-InfraList {
 }
 
 function Initialize-Environment {
+    Check-Environment
     # For Windows
     & podman machine init localenv --memory 6144 --rootful -v ${env:HOME}:${env:HOME}:rw,security_model=mapped-xattr --now
     & podman machine ssh --username root localenv rpm-ostree install qemu-user-static

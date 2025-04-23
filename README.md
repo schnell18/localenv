@@ -7,11 +7,14 @@ effectively to avoid pollution of host environment by leveraging container
 technology. This approach makes good use of computing powers in developer's
 laptop or workstation and creates sandboxes for safe experiments on the
 software and dependencies. It also addresses the challenge to run clustered
-middlewares (for example redis, kafka) as container, which advertises container
-IP addresses inaccessible from host. The localenv solves this problem by
-carefully crafting the provision scripts that work cross-platform.
+middlewares (for example redis, kafka) as containers, which advertises
+container IP addresses inaccessible from host. The localenv solves this problem
+by carefully crafting the provision scripts that work cross-platform.
+Additionally, localenv offers a single login (localenv) and password (localenv)
+to access all middlewares or databases it manages, which minimizes the password
+management burden.
 
-The localenv includes following databases and middlewares:
+Currently, the localenv includes following databases and middlewares:
 
 * MariaDB
 * MongoDB
@@ -129,6 +132,7 @@ Additionally, if you want to add frontend project, you put it under the
 This project has been tested on the MacOS and Linux. Specifically, localenv
 has been tested under:
 - MacOS 15.3.2 on 2019 MacBookPro w/ Intel chip
+- Windows 11 10.0.26100 w/ Intel chip
 - Manjaro Zetar (5.15.179-1-MANJARO) on a 2022 Legend Legion w/ Intel chip
 
 ## About the rootness of container
