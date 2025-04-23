@@ -1,6 +1,6 @@
 #/bin/sh
 
-echo "yes" | redis-cli -h redis-cnode1 -p 7001 -a abc123 \
+echo "yes" | redis-cli -h redis-cnode1 -p 7001 -a localenv \
   --cluster create \
     @CLUSTER_ANNOUNCE_IP@:@REDIS_PORT1@ \
     @CLUSTER_ANNOUNCE_IP@:@REDIS_PORT2@ \

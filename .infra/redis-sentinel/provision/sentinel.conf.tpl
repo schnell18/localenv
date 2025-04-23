@@ -6,4 +6,4 @@ sentinel parallel-syncs mymaster 1
 
 sentinel announce-ip @SENTINEL_ANNOUNCE_IP@
 sentinel announce-port @SENTINEL_PORT@
-sentinel auth-pass mymaster abc123
+sentinel auth-pass mymaster localenv

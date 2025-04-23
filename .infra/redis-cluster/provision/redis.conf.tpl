@@ -7,5 +7,5 @@ cluster-announce-ip @CLUSTER_ANNOUNCE_IP@
 cluster-announce-port @REDIS_PORT@
 appendonly yes
 pidfile /var/run/redis.pid
-masterauth abc123
-requirepass abc123
+masterauth localenv
+requirepass localenv
