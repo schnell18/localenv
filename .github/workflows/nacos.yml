@@ -1,4 +1,4 @@
-name: zookeeper
+name: nacos
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - 'master'
       - 'podman'
     paths:
-      - Containerfiles/zookeeper/Dockerfile
-      - Containerfiles/zookeeper/version.json
+      - Containerfiles/nacos/Dockerfile
+      - Containerfiles/nacos/version.json
 
 jobs:
   build:
@@ -27,32 +27,32 @@ jobs:
         id: jre-rt-image-tag
         run: |
           echo -n ::set-output name=JRE_RT_IMG_TAG::
-          jq -r '.jreRuntimeImageTag' Containerfiles/zookeeper/version.json
+          jq -r '.jreRuntimeImageTag' Containerfiles/nacos/version.json
 
-      - name: Get zookeeper version
-        id: zookeeper-version
+      - name: Get nacos version
+        id: nacos-version
         run: |
-          echo -n ::set-output name=ZOOKEEPER_VERSION::
-          jq -r '.zookeeperVersion' Containerfiles/zookeeper/version.json
+          echo -n ::set-output name=NACOS_VERSION::
+          jq -r '.nacosVersion' Containerfiles/nacos/version.json
 
       - name: Get build number
         id: build-number
         run: |
           echo -n ::set-output name=BUILD_NO::
-          jq -r '.build' Containerfiles/zookeeper/version.json
+          jq -r '.build' Containerfiles/nacos/version.json
 
       - name: Build Image
         id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: zookeeper
+          image: nacos-server
           build-args: |
             JRE_RUNTIME_IMG_TAG=${{ steps.jre-rt-image-tag.outputs.JRE_RT_IMG_TAG }}
-            ZOOKEEPER_VERSION=${{ steps.zookeeper-version.outputs.ZOOKEEPER_VERSION }}
-          tags: ${{ steps.zookeeper-version.outputs.ZOOKEEPER_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
+            NACOS_VERSION=${{ steps.nacos-version.outputs.NACOS_VERSION }}
+          tags: ${{ steps.nacos-version.outputs.NACOS_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}-alpine
           archs: amd64, arm64
-          context: Containerfiles/zookeeper/
-          containerfiles: Containerfiles/zookeeper/Dockerfile
+          context: Containerfiles/nacos/
+          containerfiles: Containerfiles/nacos/Dockerfile
 
       - name: Push To docker.io
         id: push-to-docker

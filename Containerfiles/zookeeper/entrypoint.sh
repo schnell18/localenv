@@ -29,6 +29,6 @@ JAVA_OPT="${JAVA_OPT} -XX:-UseLargePages -XX:-UseBiasedLocking"
 JAVA_OPT="${JAVA_OPT} -cp $CLASSPATH"
 #JAVA_OPT="${JAVA_OPT} -Xdebug -Xrunjdwp:transport=dt_socket,address=9555,server=y,suspend=n"
 
-java ${JAVA_OPT} $ZOOMAIN "$ZOOCFG"
+exec java ${JAVA_OPT} $ZOOMAIN "$ZOOCFG"
 
 

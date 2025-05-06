@@ -1,5 +1,5 @@
 {
-  "zookeeperVersion": "3.8.0",
+  "nacosVersion": "1.4.2",
   "jreRuntimeImageTag": "17.0.3-17.34.19-4-alpine",
   "build": "2"
 }

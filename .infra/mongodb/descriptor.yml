@@ -7,10 +7,10 @@ services:
     image: docker.io/schnell18/mongodb:4.4.14-2
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_ROOT_USERNAME: localenv
+      MONGO_INITDB_ROOT_PASSWORD: localenv
     healthcheck:
-      test: "/usr/bin/mongo -uroot -proot --eval 'version()'"
+      test: "/usr/bin/mongo -ulocalenv -plocalenv --eval 'version()'"
       interval: 30s
       timeout: 10s
       retries: 5
