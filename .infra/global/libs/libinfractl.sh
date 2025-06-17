@@ -1,5 +1,5 @@
 get_python_version() {
-    local python_paths=("python")
+    local python_paths=("python", "python3")
     for python_cmd in "${python_paths[@]}"; do
         local python_path
         python_path=$(command -v "$python_cmd" >/dev/null 2>&1)
@@ -44,6 +44,7 @@ check_podman_compose_dep() {
 }
 
 check_environment() {
+    _stage=${1:-beyond_init}
     local req_py_major=3
     local req_py_minor=11
     # check if python is installed
@@ -67,7 +68,7 @@ check_environment() {
         fi
     fi
 
-    if [[ `uname` == 'Darwin' ]]; then
+    if [[ `uname` == 'Darwin' && $_stage == 'beyond_init' ]]; then
         # check if machine exists and running
         local std_out_ls
         std_out_ls=$(podman machine ls -q)
@@ -78,7 +79,7 @@ check_environment() {
                 podman machine start localenv
             fi
         else
-            echo "The machine `localenv` doesn't exist. Please run ./infractl.sh init to create the machine."
+            echo "The machine localenv doesn't exist. Please run ./infractl.sh init to create the machine."
             exit 1
         fi
     fi
@@ -282,7 +283,7 @@ list() {
 
 init() {
     # ensure the current environment has required software and libraries installed
-    check_environment
+    check_environment "init"
 
     if [[ `uname` == 'Darwin' ]]; then
         # podman machine init localenv --rootful --image-path /Users/user/.local/share/containers/podman/machine/qemu/fedora-coreos-36.20220511.dev.0-qemu.aarch64.qcow2.xz -v $HOME:$HOME --now
