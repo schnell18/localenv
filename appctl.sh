@@ -112,13 +112,13 @@ build() {
     elif [[ -f ~/.ssh/id_rsa ]]; then
         ID_FILE=id_rsa
     else
-        echo "Please setup ssh key to access gitlab properly!"
+        echo "Please setup ssh key to access git properly!"
         exit 2
     fi
 
     for APP in $@; do
-        if [[ ! -d ./backends/$APP && ! -d ./frontends/$APP ]]; then
-            echo "Project '$APP' does not exist under backends or frontends directory!"
+        if [[ ! -d ./.apps/$APP ]]; then
+            echo "Project '$APP' does not exist under .apps!"
             exit 3
         fi
     done
@@ -129,15 +129,15 @@ build() {
     done
 
     for APP in $@; do
-        TMP_PRIV_DIR="./backends/$APP/.ssh"
+        TMP_PRIV_DIR="./.apps/$APP/.ssh"
         TMP_PRIV_FILE="$TMP_PRIV_DIR/$ID_FILE"
         mkdir -p $TMP_PRIV_DIR
         cp ~/.ssh/$ID_FILE $TMP_PRIV_FILE
 
-        TMP_MVN_DIR="./backends/$APP/.m2"
+        TMP_MVN_DIR="./.apps/$APP/.m2"
         if [[ -f ~/.m2/settings.xml ]]; then
             mkdir -p $TMP_MVN_DIR
-            TMP_MVN_SETTINGS="./backends/$APP/.m2/settings.xml"
+            TMP_MVN_SETTINGS="./.apps/$APP/.m2/settings.xml"
             cp ~/.m2/settings.xml $TMP_MVN_SETTINGS
         fi
 
@@ -284,16 +284,16 @@ refresh_db() {
 
     basedir=$(pwd)
     if [ $databaseReady -eq 1 ]; then
-        for app in $basedir/backends/*/; do
+        for app in $basedir/.apps/*/; do
             if [[ $# == 0 || $* =~ $(basename $app) ]]; then
                 PWD=$(pwd)
                 cd $app
-                if [ -f schema/schema.sql ]; then
-                    db=$(head -3 schema/schema.sql | grep -i USE | head -1 | cut -d' ' -f2 | sed 's/;//')
+                if [ -f project_root/schema/schema.sql ]; then
+                    db=$(head -3 project_root/schema/schema.sql | grep -i USE | head -1 | cut -d' ' -f2 | sed 's/;//')
                     echo "Prepare database ${db} for project $(basename $app)..."
                     podman exec -it ${dbContainer} /bin/sh /setup/create-database.sh $db localenv
                     echo "Loading schema and data using podman for project $(basename $app)..."
-                    podman exec -it ${dbContainer} /bin/sh /setup/load-schema-and-data.sh $(basename $app) localenv $db backends
+                    podman exec -it ${dbContainer} /bin/sh /setup/load-schema-and-data.sh $(basename $app) localenv $db .apps
                 fi
                 cd $PWD
             fi

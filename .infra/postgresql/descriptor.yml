@@ -31,7 +31,7 @@ services:
     image: docker.io/schnell18/pgadmin:9.6.0-1
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@localenv.local
+      PGADMIN_DEFAULT_EMAIL: admin@localenv.org
       PGADMIN_DEFAULT_PASSWORD: localenv
       PGADMIN_DISABLE_POSTFIX: "true"
     healthcheck:

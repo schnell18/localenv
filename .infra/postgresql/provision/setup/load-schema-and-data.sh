@@ -1,39 +1,51 @@
 #!/bin/bash
 
-database=$1
+load_schema() {
+    # load schema if any
+    if [ -f schema/schema.sql ]; then
+        echo "Loading schema for database $database ..."
+        PGPASSWORD=$user psql -h localhost -U $user -d $database -f schema/schema.sql
+    fi
+    if [ -f schema/add_foreign_keys.sql ]; then
+        echo "Loading foreign key for database $database ..."
+        PGPASSWORD=$user psql -h localhost -U $user -d $database -f schema/add_foreign_keys.sql
+    fi
+}
+
+load_data() {
+    # load data for test data if any
+    if [ -d schema/data ]; then
+        cd schema/data
+        cnt=$(ls *.csv 2>/dev/null | wc -l)
+        if [ "$cnt" != "0" ]; then
+            echo "Loading data files for database $database ..."
+            for d in *.csv; do
+                tab=$(echo $d | cut -d . -f 1 | cut -d - -f 2)
+                cat <<EOF | mysql --defaults-file=/etc/mysql/conf.d/appuser.ini -u $user -D $database
+load data local infile "$d"
+    into table $tab
+    fields terminated by '|';
+EOF
+            done
+        fi
+    fi
+}
+
+app=$1
 user=$2
-schema_file=$3
-data_file=$4
+database=$3
+basedir=$4
+PWD=$(pwd)
 
-if [[ -z $database || -z $user ]]; then
-    echo "Usage: $0 <database> <user> [schema_file] [data_file]"
-    exit 1
+if [ -d /work/$basedir/$app/provision ]; then
+    cd /work/$basedir/$app/provision
+elif [ -d /work/$basedir/$app/project_root ]; then
+    cd /work/$basedir/$app/project_root
+else
+    echo "Nothing to load"
+    exit 0
 fi
 
-echo "Loading schema and data into database $database..."
-
-# Load schema if provided
-if [[ -n $schema_file && -f $schema_file ]]; then
-    echo "Loading schema from $schema_file..."
-    PGPASSWORD=$user psql -h localhost -U $user -d $database -f $schema_file
-    if [[ $? -eq 0 ]]; then
-        echo "Schema loaded successfully"
-    else
-        echo "Failed to load schema"
-        exit 1
-    fi
-fi
-
-# Load data if provided
-if [[ -n $data_file && -f $data_file ]]; then
-    echo "Loading data from $data_file..."
-    PGPASSWORD=$user psql -h localhost -U $user -d $database -f $data_file
-    if [[ $? -eq 0 ]]; then
-        echo "Data loaded successfully"
-    else
-        echo "Failed to load data"
-        exit 1
-    fi
-fi
-
-echo "Schema and data loading completed for database $database"
+load_schema
+# load_data
+cd $PWD
