@@ -42,6 +42,8 @@ function Get-DatabaseStatus {
 
     if ($DbType -eq "TiDB") {
         & podman exec $Container sh -c "echo select 'running' | mysql -N -h 127.0.0.1 -P $port -u root" 2>$null
+    } elseif ($DbType -eq "PostgreSQL") {
+        & podman exec $Container sh -c "PGPASSWORD=localenv psql -h 127.0.0.1 -p $port -U localenv -d localenv -c 'SELECT ''running'' as status' -t" 2>$null
     } else {
         & podman exec $Container sh -c "echo select 'running' | mysql -N -h 127.0.0.1 -P $port -u root -proot" 2>$null
     }
@@ -84,6 +86,7 @@ function Get-DatabasePort {
     switch ($DbType) {
         "TiDB" { return "4000" }
         "MariaDB" { return "3306" }
+        "PostgreSQL" { return "5432" }
         default { return "3306" }
     }
 }
@@ -212,6 +215,11 @@ function Test-DatabaseExists {
 
     if ($DbType -eq "TiDB") {
         $ret = & podman exec $Container sh -c "echo show databases | mysql -N -h 127.0.0.1 -P $port -u root | grep $Database" 2>$null
+        if ([string]::IsNullOrEmpty($ret)) {
+            $result = "false"
+        }
+    } elseif ($DbType -eq "PostgreSQL") {
+        $ret = & podman exec $Container sh -c "PGPASSWORD=localenv psql -h 127.0.0.1 -p $port -U localenv -d postgres -lqt | cut -d '|' -f 1 | grep -w $Database" 2>$null
         if ([string]::IsNullOrEmpty($ret)) {
             $result = "false"
         }
