@@ -5,7 +5,7 @@ This directory contains the PostgreSQL infrastructure configuration for the loca
 ## Overview
 
 This infrastructure provides:
-- PostgreSQL 15 database server (Alpine Linux based)
+- PostgreSQL 17 database server (Alpine Linux based)
 - pgAdmin 4 web-based administration interface
 - Cross-platform support (Linux, macOS, Windows)
 - Pre-configured with localenv conventions
@@ -37,7 +37,7 @@ Opens pgAdmin at http://127.0.0.1:5050/
 
 ### Default Credentials
 - **PostgreSQL Admin**: `localenv` / `localenv`
-- **pgAdmin Web Interface**: `admin@localenv.local` / `localenv`
+- **pgAdmin Web Interface**: `admin@localenv.org` / `localenv`
 
 ### Default Databases
 The following databases are created automatically:
