@@ -20,6 +20,8 @@ case "${cmd}" in
     destroy)     destroy $@;;
     logs)        logs $@;;
     webui)       webui $@;;
+    init-tcs)    init_tcs $@;;
+    dockerhost)  dockerhost $@;;
     refresh-db)  refresh_db $@;;
     *) usage && exit 1;;
 esac

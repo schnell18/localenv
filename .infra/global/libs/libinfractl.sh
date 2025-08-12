@@ -127,6 +127,8 @@ Usage:
                 logs infra1 [infra2 infra3 ...]
                 webui infra1 [infra2 infra3 ...]
                 init
+                init-tcs
+                dockerhost
                 destroy
                 list
 EOF
@@ -228,6 +230,18 @@ Usage:
 EOF
 }
 
+
+usage_dockerhost() {
+    cat <<EOF
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+Usage:
+    infractl.sh dockerhost [machine_name]
+Display the command to set DOCKER_HOST for specified machine on MacOS.
+EOF
+}
+
+
 status() {
 
     CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
@@ -301,6 +315,158 @@ init() {
         # Create user owned unix domain socket
         systemctl enable --now --user podman.socket
     fi
+}
+
+init_tcs() {
+    if [[ `uname` == 'Darwin' ]]; then
+        podman machine init testcontainers --memory 2048 --now
+        podman machine stop testcontainers
+        podman machine start testcontainers
+    elif [[ `uname` == 'Linux' ]]; then
+        # Create user owned unix domain socket
+        systemctl enable --now --user podman.socket
+    fi
+}
+
+dockerhost() {
+    machine=$1
+    if [[ `uname` == 'Darwin' ]]; then
+        if [[ -z $machine ]]; then
+            usage_dockerhost
+            exit 1
+        fi
+        if podman machine inspect $machine > /dev/null 2>&1; then
+            echo "export DOCKER_HOST=unix://$(podman machine inspect $machine --format '{{.ConnectionInfo.PodmanSocket.Path}}')"
+        else
+            echo "Invalid machine $machine!" >&2
+            exit 2
+        fi
+    elif [[ `uname` == 'Linux' ]]; then
+        echo "export DOCKER_HOST=unix:///${XDG_RUNTIME_DIR}/podman/podman.sock"
+    fi
+}
+
+destroy() {
+    if [[ `uname` == 'Darwin' ]]; then
+        podman machine rm localenv --force
+    fi
+}
+
+webui() {
+    if [[ -z $1 ]]; then
+        usage_webui
+        exit 1
+    fi
+
+    # do infra-specific post setup
+    for infra in $@; do
+        if [[ -f .infra/$infra/provision/post/webui.txt ]]; then
+            echo "Launch webui for $infra..."
+            url=$(cat .infra/$infra/provision/post/webui.txt)
+            # wait for url become ready
+            url=$(check_url_ready $url)
+            if [[ ! -z $url ]]; then
+                open_browser $url
+            fi
+        fi
+    done
+}
+
+start() {
+    if [[ -z $1 ]]; then
+        usage_start
+        exit 1
+    fi
+    check_environment
+
+    # make state directories exist
+    if [[ ! -d .state ]]; then
+        mkdir .state
+    fi
+
+    compose_files=""
+    active_infras=""
+    for infra in $@; do
+        if [[ -f .infra/$infra/provision/pre/prepare.sh ]]; then
+            echo "Run prepare script for $infra..."
+            bash .infra/$infra/provision/pre/prepare.sh
+        fi
+        compose_files="$compose_files -f $(pwd)/.infra/${infra}/descriptor.yml"
+        active_infras="$active_infras $infra"
+    done
+    echo $compose_files > .state/compose-files.txt
+    echo $active_infras > .state/active-infras.txt
+
+    # start containers managed by podman
+    bin/podman-compose $compose_files up -d --force-recreate
+    # bin/podman-compose --podman-run-args '--user 501' $compose_files up -d --force-recreate
+
+    # do infra-specific post setup
+    for infra in $@; do
+        if [[ -f .infra/$infra/provision/post/setup.sh ]]; then
+            echo "Run post setup script for $infra..."
+            bash .infra/$infra/provision/post/setup.sh
+        fi
+    done
+
+    for infra in $@; do
+        if [[ -f .infra/$infra/provision/post/webui.txt ]]; then
+            echo "Launch webui for $infra..."
+            url=$(cat .infra/$infra/provision/post/webui.txt)
+            # wait for url become ready
+            url=$(check_url_ready $url)
+            if [[ ! -z $url ]]; then
+                open_browser $url
+            fi
+        fi
+    done
+
+}
+
+attach() {
+
+    ARG=$1
+    if [[ -z $ARG ]]; then
+        usage_attach
+        exit 1
+    fi
+
+    CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
+    if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
+        compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
+        bin/podman-compose $compose_files exec $ARG sh
+    fi
+
+
+}
+
+refresh_db() {
+    if [[ -z $1 ]]; then
+        usage_refresh_db
+        exit 1
+    fi
+
+    refresh_infra_db $@
+
+}
+
+logs() {
+    if [[ -z $1 ]]; then
+        usage_logs
+        exit 1
+    fi
+
+    CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
+    if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
+        compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
+        bin/podman-compose $compose_files exec $ARG sh
+        all_infras=""
+        for infra in $@; do
+            all_infras=" $infra"
+        done
+        bin/podman-compose $compose_files logs -f $all_infras
+    fi
+
 }
 
 destroy() {
