@@ -1,0 +1,22 @@
+# dockerized virtual environment
+version: '3.9'
+
+services:
+
+  cockroachdb:
+    image: docker.io/schnell18/cockroachdb:v25.2.4-1
+    restart: always
+    healthcheck:
+      test: "cockroach sql --insecure -e='SELECT 1;'"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "26257:26257"  # SQL port
+      - "8080:8080"    # Admin UI port
+    labels:
+      - "dbtype=CockroachDB"
+      - "database=true"
+    volumes:
+      - ../../:/work
+      - ../../.state/cockroachdb/data:/cockroach/cockroach-data

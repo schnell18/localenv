@@ -1,0 +1,61 @@
+name: cockroachdb
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'podman'
+    paths:
+      - Containerfiles/cockroachdb/Dockerfile
+      - Containerfiles/cockroachdb/version.json
+
+jobs:
+  build:
+    name: Build and push image
+    environment: production
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Get CockroachDB version
+        id: cockroachdb-version
+        run: |
+          echo -n ::set-output name=COCKROACHDB_VERSION::
+          jq -r '.cockroachdbVersion' Containerfiles/cockroachdb/version.json
+
+      - name: Get build number
+        id: build-number
+        run: |
+          echo -n ::set-output name=BUILD_NO::
+          jq -r '.build' Containerfiles/cockroachdb/version.json
+
+      - name: Build Image
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: cockroachdb
+          build-args: |
+            COCKROACHDB_VERSION=${{ steps.cockroachdb-version.outputs.COCKROACHDB_VERSION }}
+          tags: ${{ steps.cockroachdb-version.outputs.COCKROACHDB_VERSION }}-${{ steps.build-number.outputs.BUILD_NO }}
+          archs: amd64, arm64
+          context: Containerfiles/cockroachdb/
+          containerfiles: Containerfiles/cockroachdb/Dockerfile
+
+      - name: Push To docker.io
+        id: push-to-docker
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: docker.io/${{ secrets.REGISTRY_USERNAME }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Print image url
+        run: echo "Image pushed to ${{ steps.push-to-docker.outputs.registry-paths }}"

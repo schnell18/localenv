@@ -13,6 +13,8 @@ function getDatabaseStatus {
         podman exec $1 sh -c "echo select \'running\' | mysql -N -h 127.0.0.1 -P $port -u root" 2>/dev/null
     elif [[ $2 == PostgreSQL ]]; then
         podman exec $1 sh -c "PGPASSWORD=localenv psql -h 127.0.0.1 -p $port -U localenv -d localenv -c 'SELECT '\''running'\'' as status' -t" 2>/dev/null
+    elif [[ $2 == CockroachDB ]]; then
+        podman exec $1 sh -c "cockroach sql --insecure --host=127.0.0.1 --port=$port --execute='SELECT '\''running'\'' as status;' --format=tsv" 2>/dev/null
     else
         podman exec $1 sh -c "echo select \'running\' | mysql -N -h 127.0.0.1 -P $port -u root -proot" 2>/dev/null
     fi
@@ -55,6 +57,9 @@ function toDatabasePort {
             ;;
         PostgreSQL)
             result="5432"
+            ;;
+        CockroachDB)
+            result="26257"
             ;;
         *)
             result="3306"
@@ -141,6 +146,11 @@ function check_database_exists {
         fi
     elif [[ $2 == PostgreSQL ]]; then
         ret=$(podman exec $1 sh -c "PGPASSWORD=localenv psql -h 127.0.0.1 -p $port -U localenv -d postgres -lqt | cut -d \| -f 1 | grep -w $database" 2>/dev/null)
+        if [[ -z $ret ]]; then
+            result="false"
+        fi
+    elif [[ $2 == CockroachDB ]]; then
+        ret=$(podman exec $1 sh -c "cockroach sql --insecure --host=127.0.0.1 --port=$port --execute='SHOW DATABASES;' --format=tsv | grep -w $database" 2>/dev/null)
         if [[ -z $ret ]]; then
             result="false"
         fi
