@@ -342,7 +342,7 @@ dockerhost() {
             exit 2
         fi
     elif [[ `uname` == 'Linux' ]]; then
-        echo "export DOCKER_HOST=unix:///${XDG_RUNTIME_DIR}/podman/podman.sock"
+        echo "export DOCKER_HOST=unix://${XDG_RUNTIME_DIR}/podman/podman.sock"
     fi
 }
 

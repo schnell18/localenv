@@ -20,21 +20,18 @@ services:
     volumes:
       - ../../:/work
       - ../../.state/cockroachdb/data:/cockroach/cockroach-data
-  cockroachdb-init:
-    image: docker.io/schnell18/cockroachdb:v25.2.4-1
-    depends_on:
-      - cockroachdb
-    restart: "no"
     entrypoint: >
       sh -c "
-        echo '⏳ Waiting for CockroachDB...';
-        until cockroach sql --insecure --host=cockroachdb:26257 -e 'SELECT 1;' >/dev/null 2>&1; do
+        cockroach start-single-node --insecure --host=0.0.0.0 --background;
+        echo '⏳ Waiting for CockroachDB to be ready...';
+        until cockroach sql --insecure -e 'SELECT 1;' >/dev/null 2>&1; do
           sleep 2;
         done;
-        echo '✅ CockroachDB is up, creating user...';
-        cockroach sql --insecure --host=cockroachdb:26257 \
+        echo '✅ CockroachDB is up, creating localenv super user...';
+        cockroach sql --insecure \
           -e \"CREATE USER IF NOT EXISTS localenv;\" \
           -e \"GRANT admin TO localenv;\" \
           -e \"GRANT ALL ON DATABASE defaultdb TO localenv;\";
         echo '🎉 User localenv created with admin rights';
+        tail -f /dev/null;
       "
