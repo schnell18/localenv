@@ -5,10 +5,6 @@ LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 # switch back to root to ease file sharing between container and host
 USER root
 
-# Copy initialization script
-COPY init-cockroach.sh /docker-entrypoint-initdb.d/
-RUN chmod +x /docker-entrypoint-initdb.d/init-cockroach.sh
-
 # Expose CockroachDB ports
 EXPOSE 26257 8080
 

@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   cockroachdb:
-    image: docker.io/schnell18/cockroachdb:v25.2.4-1
+    image: docker.io/schnell18/cockroachdb:v25.2.4-2
     restart: always
     healthcheck:
       test: "cockroach sql --insecure -e='SELECT 1;'"
