@@ -7,9 +7,3 @@ USER root
 
 # Expose CockroachDB ports
 EXPOSE 26257 8080
-
-# Create entrypoint script that starts CockroachDB and sets up the user
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]

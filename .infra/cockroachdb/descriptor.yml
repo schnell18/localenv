@@ -4,7 +4,7 @@ version: '3.9'
 services:
 
   cockroachdb-1:
-    image: docker.io/schnell18/cockroachdb:v25.2.4-2
+    image: docker.io/schnell18/cockroachdb:v25.2.4-3
     hostname: cockroachdb-1
     restart: always
     healthcheck:
@@ -50,7 +50,7 @@ services:
       "
 
   cockroachdb-2:
-    image: docker.io/schnell18/cockroachdb:v25.2.4-2
+    image: docker.io/schnell18/cockroachdb:v25.2.4-3
     hostname: cockroachdb-2
     restart: always
     healthcheck:
@@ -87,7 +87,7 @@ services:
       "
 
   cockroachdb-3:
-    image: docker.io/schnell18/cockroachdb:v25.2.4-2
+    image: docker.io/schnell18/cockroachdb:v25.2.4-3
     hostname: cockroachdb-3
     restart: always
     healthcheck:
