@@ -29,8 +29,7 @@ services:
           --advertise-addr=cockroachdb-1:26257 \
           --http-addr=cockroachdb-1:8080 \
           --listen-addr=cockroachdb-1:26257 \
-          --sql-addr=cockroachdb-1:26257 \
-          --join=cockroachdb-1:26257,cockroachdb-2:26257,cockroachdb-3:26257 \
+          --join=cockroachdb-1:26257,cockroachdb-2:26258,cockroachdb-3:26259 \
           --background;
         echo '⏳ Waiting for other nodes...';
         sleep 10;
@@ -59,8 +58,8 @@ services:
       timeout: 10s
       retries: 5
     ports:
-      - "26258:26257"  # SQL port
-      - "8081:8080"    # Admin UI port
+      - "26258:26258"  # SQL port
+      - "8081:8081"    # Admin UI port
     labels:
       - "dbtype=CockroachDB"
       - "database=true"
@@ -76,11 +75,10 @@ services:
         sleep 15;
         cockroach start \
           --insecure \
-          --advertise-addr=cockroachdb-2:26257 \
-          --http-addr=cockroachdb-2:8080 \
-          --listen-addr=cockroachdb-2:26257 \
-          --sql-addr=cockroachdb-2:26257 \
-          --join=cockroachdb-1:26257,cockroachdb-2:26257,cockroachdb-3:26257 \
+          --advertise-addr=cockroachdb-2:26258 \
+          --http-addr=cockroachdb-2:8081 \
+          --listen-addr=cockroachdb-2:26258 \
+          --join=cockroachdb-1:26257,cockroachdb-2:26258,cockroachdb-3:26259 \
           --background;
         echo '✅ CockroachDB node 2 started';
         tail -f /dev/null;
@@ -91,13 +89,13 @@ services:
     hostname: cockroachdb-3
     restart: always
     healthcheck:
-      test: "cockroach sql --insecure --host=cockroachdb-3:26257 -e='SELECT 1;'"
+      test: "cockroach sql --insecure --host=cockroachdb-3:26259 -e='SELECT 1;'"
       interval: 30s
       timeout: 10s
       retries: 5
     ports:
-      - "26259:26257"  # SQL port
-      - "8082:8080"    # Admin UI port
+      - "26259:26259"  # SQL port
+      - "8082:8082"    # Admin UI port
     labels:
       - "dbtype=CockroachDB"
       - "database=true"
@@ -113,11 +111,10 @@ services:
         sleep 20;
         cockroach start \
           --insecure \
-          --advertise-addr=cockroachdb-3:26257 \
-          --http-addr=cockroachdb-3:8080 \
-          --listen-addr=cockroachdb-3:26257 \
-          --sql-addr=cockroachdb-3:26257 \
-          --join=cockroachdb-1:26257,cockroachdb-2:26257,cockroachdb-3:26257 \
+          --advertise-addr=cockroachdb-3:26259 \
+          --http-addr=cockroachdb-3:8082 \
+          --listen-addr=cockroachdb-3:26259 \
+          --join=cockroachdb-1:26257,cockroachdb-2:26258,cockroachdb-3:26259 \
           --background;
         echo '✅ CockroachDB node 3 started';
         tail -f /dev/null;
