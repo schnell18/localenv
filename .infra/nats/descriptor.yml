@@ -2,7 +2,7 @@ version: '3.9'
 services:
 
   nats:
-    image: docker.io/library/nats:2.11.8
+    image: docker.io/library/nats:2.11.8-alpine
     healthcheck:
       test: "nc -z localhost 4222"
       start_period: 10s
@@ -20,7 +20,7 @@ services:
       - "mq_broker=true"
 
   nui:
-    image: ghcr.io/nats-nui/nui:0.8
+    image: "docker.io/schnell18/nui:0.8-1"
     healthcheck:
       test: "nc -z localhost 31311"
       start_period: 15s
