@@ -30,10 +30,9 @@ services:
     depends_on:
       nats:
         condition: service_healthy
-    environment:
-      - NATS_URL=nats://nats:4222
     volumes:
       - ../../.state/nats/nui-db:/db
+      - ./provision/contexts/:/contexts
     ports:
       - "31311:31311"
     restart: on-failure

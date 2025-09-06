@@ -411,6 +411,15 @@ start() {
 
     for infra in $@; do
         if [[ -f .infra/$infra/provision/post/webui.txt ]]; then
+            url=$(cat .infra/$infra/provision/post/webui.txt)
+            if [[ -f .infra/$infra/provision/post/web-init.sh ]]; then
+                # wait for url become ready
+                url=$(check_url_ready $url)
+                if [[ ! -z $url ]]; then
+                    echo "Launch web-init script for $infra..."
+                    bash .infra/$infra/provision/post/web-init.sh
+                fi
+            fi
             echo "Launch webui for $infra..."
             url=$(cat .infra/$infra/provision/post/webui.txt)
             # wait for url become ready
@@ -420,130 +429,6 @@ start() {
             fi
         fi
     done
-
-}
-
-attach() {
-
-    ARG=$1
-    if [[ -z $ARG ]]; then
-        usage_attach
-        exit 1
-    fi
-
-    CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
-    if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
-        compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
-        bin/podman-compose $compose_files exec $ARG sh
-    fi
-
-
-}
-
-refresh_db() {
-    if [[ -z $1 ]]; then
-        usage_refresh_db
-        exit 1
-    fi
-
-    refresh_infra_db $@
-
-}
-
-logs() {
-    if [[ -z $1 ]]; then
-        usage_logs
-        exit 1
-    fi
-
-    CURRENT_PROFILES_STAT_FILE=".state/compose-files.txt"
-    if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
-        compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
-        bin/podman-compose $compose_files exec $ARG sh
-        all_infras=""
-        for infra in $@; do
-            all_infras=" $infra"
-        done
-        bin/podman-compose $compose_files logs -f $all_infras
-    fi
-
-}
-
-destroy() {
-    if [[ `uname` == 'Darwin' ]]; then
-        podman machine rm localenv --force
-    fi
-}
-
-webui() {
-    if [[ -z $1 ]]; then
-        usage_webui
-        exit 1
-    fi
-
-    # do infra-specific post setup
-    for infra in $@; do
-        if [[ -f .infra/$infra/provision/post/webui.txt ]]; then
-            echo "Launch webui for $infra..."
-            url=$(cat .infra/$infra/provision/post/webui.txt)
-            # wait for url become ready
-            url=$(check_url_ready $url)
-            if [[ ! -z $url ]]; then
-                open_browser $url
-            fi
-        fi
-    done
-}
-
-start() {
-    if [[ -z $1 ]]; then
-        usage_start
-        exit 1
-    fi
-    check_environment
-
-    # make state directories exist
-    if [[ ! -d .state ]]; then
-        mkdir .state
-    fi
-
-    compose_files=""
-    active_infras=""
-    for infra in $@; do
-        if [[ -f .infra/$infra/provision/pre/prepare.sh ]]; then
-            echo "Run prepare script for $infra..."
-            bash .infra/$infra/provision/pre/prepare.sh
-        fi
-        compose_files="$compose_files -f $(pwd)/.infra/${infra}/descriptor.yml"
-        active_infras="$active_infras $infra"
-    done
-    echo $compose_files > .state/compose-files.txt
-    echo $active_infras > .state/active-infras.txt
-
-    # start containers managed by podman
-    bin/podman-compose $compose_files up -d --force-recreate
-    # bin/podman-compose --podman-run-args '--user 501' $compose_files up -d --force-recreate
-
-    # do infra-specific post setup
-    for infra in $@; do
-        if [[ -f .infra/$infra/provision/post/setup.sh ]]; then
-            echo "Run post setup script for $infra..."
-            bash .infra/$infra/provision/post/setup.sh
-        fi
-    done
-
-    for infra in $@; do
-        if [[ -f .infra/$infra/provision/post/webui.txt ]]; then
-            echo "Launch webui for $infra..."
-            url=$(cat .infra/$infra/provision/post/webui.txt)
-            # wait for url become ready
-            url=$(check_url_ready $url)
-            if [[ ! -z $url ]]; then
-                open_browser $url
-            fi
-        fi
-    done
-
 }
 
 attach() {

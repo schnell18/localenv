@@ -251,6 +251,7 @@ Currently, the localenv includes following databases and middlewares:
 * zookeeper
 * kafka
 * kafka4
+* NATS
 
 Additional databases and middlewares can be included.
 
@@ -273,6 +274,7 @@ presented in the table as follows:
 |  11   | kafka-ui         | 9000                | http://127.0.0.1:9000       |
 |  12   | kafka4           | 19092,29092,39092   | http://127.0.0.1:9000       |
 |  13   | jaeger           | 16686               | http://127.0.0.1:16686      |
+|  14   | NATS             | 4222                | http://127.0.0.1:31311      |
 
 
 ### Redis Cluster Mode (redis-cluster)
@@ -402,6 +404,19 @@ as storage, thus it requires an ElasticSearch instance. To start filebeat run:
 To open the Kibana ui manually, you may type:
 
     ./infractl.sh webui elasticsearch
+
+### NATS
+
+NATS is a lightweight, high-performance open-source messaging system
+designed for cloud-native applications, IoT, and microservices.
+
+The NATS instance in the localenv is companioned by nui which offers an
+intuitive webui to manage NATS. To start NATS run:
+
+    ./infractl.sh start nats
+
+Upon successful startup, the nui admin page will be displayed in your
+default browser.
 
 ## Load Data
 
