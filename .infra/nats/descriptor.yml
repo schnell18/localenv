@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+
+  nats:
+    image: docker.io/library/nats:2.11.8
+    healthcheck:
+      test: "nc -z localhost 4222"
+      start_period: 10s
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    command: ["-js", "-m", "8222", "-p", "4222", "--name", "nats-server"]
+    volumes:
+      - ../../.state/nats/data:/data
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    restart: on-failure
+    labels:
+      - "mq_broker=true"
+
+  nui:
+    image: ghcr.io/nats-nui/nui:0.8
+    healthcheck:
+      test: "nc -z localhost 31311"
+      start_period: 15s
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    depends_on:
+      nats:
+        condition: service_healthy
+    environment:
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - ../../.state/nats/nui-db:/db
+    ports:
+      - "31311:31311"
+    restart: on-failure
+    labels:
+      - "nui=true"
+      - "webui=true"
