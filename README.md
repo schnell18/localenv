@@ -22,16 +22,18 @@ has been tested under:
 - MacOS 15.3.2 on 2019 MacBookPro w/ Intel chip
 - Windows 11 10.0.26100 w/ Intel chip
 - Manjaro Zetar (5.15.179-1-MANJARO) on a 2022 Legend Legion w/ Intel chip
+- Ubuntu 2404
 
-Instead of docker, localenv leverages [podman][18] to manage containers. The reasonale is that
-podman is free and open-sourced and more secure due to its rootless approach, as indicated by [this
-research][14]. Previous podman releases, specifically the versions prior to 4.6.0, don't support
-healthy status check, leading to issues [startup hangs][12]. Therefore, a recent version of podman,
-or at least 4.6.0 is mandatory to run localenv. Additionally, if you plan to use the companion
-`tmux.sh` to setup a multi-window termnal development UI, it is hightly recommended you install the
-follow optional tools on the host machine: facilitate development.
+To avoid docker license issue, localenv leverages [podman][18] to manage
+containers as podman is free open-source software. Previous podman
+releases, specifically the versions prior to 4.6.0, don't support
+healthy status check, leading to issues [startup hangs][12]. Therefore,
+a recent version of podman, or at least 4.6.0 is mandatory to run
+localenv. Additionally, if you plan to use the companion `tmux.sh` to
+setup a multi-window termnal development UI, it is hightly recommended
+you install the follow additional tools on the host machine:
 
-- mysql client
+- [DBeaver Community][19]
 - redis client
 - git
 - tmux
@@ -41,21 +43,26 @@ follow optional tools on the host machine: facilitate development.
 
 ## Install dependencies
 
-The minimal mandatory dependencies of localenv include Python 3.11+, podman 4.6.0+, and the two
-Python packages required by podman-compose: dotenv and pyyaml.
+The minimal mandatory dependencies of localenv include Python 3.11+,
+podman 4.6.0+, and the two Python packages required by podman-compose:
+dotenv and pyyaml.
 
 ### Install Python
-You may install Python using the official release from [python.org][15] or using the OS-specific
-package manager. Additionally, you may use the miniconda to setup virtual env for specific Python
-version. The localenv has been tested with this approach.
+
+You may install Python using the official release from [python.org][15]
+or using the OS-specific package manager. Additionally, you may use the
+[uv][20] to setup virtual env for specific Python version. The localenv
+has been tested with this approach.
 
 ### Install podman
 
-On MacOS, the recommended method to install podman on MacOS is to utilize Homebrew:
+On MacOS, the recommended method to install podman on MacOS is to
+utilize Homebrew:
 
     brew install podman
 
-On Linux, you can utilize distribution-specific package manager. For example, on Debian/Ubuntu type:
+On Linux, you can utilize distribution-specific package manager. For
+example, on Debian/Ubuntu type:
 
     sudo apt-get update && sudo apt-get install podman
 
@@ -63,48 +70,57 @@ On Arch/Manjaro type:
 
     sudo pacman -S podman
 
-On Windows, grab the Podman Windows installer from podman's github project and install podman with
-the GUI installer. Alternatively, if you are comfortable with command line, you can type:
+On Windows, grab the Podman Windows installer from podman's github
+project and install podman with the GUI installer. Alternatively, if you
+are comfortable with command line, you can type:
 
     winget install podman
 
 ### Setup podman-compose
 
-The official podman-compose 1.3.0 has [a defect][16] which prevents it from reliably launching
-containers depending on the successful startup of other containers. The [pull request PR #1184][17]
-fixes this issue and is under review. To facilitate setup, the patched podman-compose from [PR
-#1184][17] is bundled in this project. You don't have to install podman-compose separately. However,
-you still need install the required Python packages dotenv and pyyaml.
+The official podman-compose 1.3.0 has [a defect][16] which prevents it
+from reliably launching containers depending on the successful startup
+of other containers. The [pull request PR #1184][17] fixes this issue
+and is under review. To facilitate setup, the patched podman-compose
+from [PR #1184][17] is bundled in this project. You don't have to
+install podman-compose separately. However, you still need install the
+required Python packages dotenv and pyyaml.
 
 ### Setup localenv
 
-Setup of localenv can only be performed after successful installation of the aforementioned tools
-and libraries. You can install localenv simply by cloning the [localenv repository][2]. The localenv
-is distributed as github project in source format. No binary package or will be installed on your
-computer. The command to clone this project is as follows:
+Setup of localenv can only be performed after successful installation of
+the aforementioned tools and libraries. You can install localenv simply
+by cloning the [localenv repository][2]. The localenv is distributed as
+github project in source format. No binary package or will be installed
+on your computer. The command to clone this project is as follows:
 
     cd ~
     git clone https://github.com/schnell18/localenv.git
 
-Since you will interact localenv frequently using command line, put the localenv project under your
-home directory is hightly recommended to avoid typing long directory names.
+Since you will interact localenv frequently using command line, put the
+localenv project under your home directory is hightly recommended to
+avoid typing long directory names.
 
 ## Using localenv
 
-The databases and middlewares, abstracted as infra in the localenv, are managed by the script
-`infractl.sh` on MacOS/Linux, `infractl.ps1` on Windows. The two scripts should always be launched
-under the root directory of localenv. The localenv isn't able to resolve dependencies between infras
-so far. If you start infra with dependencies, you should the start them together and the
-dependencies should go first in the argument list. This limitation may be removed in future release.
+The databases and middlewares, abstracted as infra in the localenv, are
+managed by the script `infractl.sh` on MacOS/Linux, `infractl.ps1` on
+Windows. The two scripts should always be launched under the root
+directory of localenv. The localenv isn't able to resolve dependencies
+between infras so far. If you start infra with dependencies, you should
+the start them together and the dependencies should go first in the
+argument list. This limitation may be removed in future release.
 
-The infras managed by localenv are crafted with minimal memory consumption in mind. However, if you
-start too many infras than necessary, you may render your laptop or workstation irresponsive due to
+The infras managed by localenv are crafted with minimal memory
+consumption in mind. However, if you start too many infras than
+necessary, you may render your laptop or workstation irresponsive due to
 excessive memory consumption or high CPU usage.
 
 ### Initialize localenv
 
-Depending on your OS, the localenv may require a intermediate virtual machine which is managed
-automatically. Prior to you'd better initialize this virtual machine by using the `init` subcommand.
+Depending on your OS, the localenv may require a intermediate virtual
+machine which is managed automatically. Prior to you'd better initialize
+this virtual machine by using the `init` subcommand.
 
 For example, on MacOS/Linux, type:
 
@@ -116,16 +132,19 @@ On Windows, you execute the following commands in a Powershell terminal:
     cd localenv
     .\infractl.ps1 init
 
-You skip this step and start the infras directly. The localenv will detect whether it needs
-a virtual machine and initializes and starts it as necessary.
+You skip this step and start the infras directly. The localenv will
+detect whether it needs a virtual machine and initializes and starts it
+as necessary.
 
 ### Launch infras
 
-It is straitforward to launch an infra in localenv. First, you change to the root directory where
-localenv located, then type the `./infractl.sh` or `infractl.ps1` script followed by the names of
-the infra. However, when the infra has dependencies, You should start infra and its dependencies
-together. The dependencies should go first. For instance, to launch kafka which depends on
-zookeeper, you execute commands on MacOS/Linux as follows:
+It is straitforward to launch an infra in localenv. First, you change to
+the root directory where localenv located, then type the `./infractl.sh`
+or `infractl.ps1` script followed by the names of the infra. However,
+when the infra has dependencies, You should start infra and its
+dependencies together. The dependencies should go first. For instance,
+to launch jaeger which depends on elasticsearch, you execute commands on
+MacOS/Linux as follows:
 
     cd localenv
     ./infractl.sh zookeeper kafka

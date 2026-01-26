@@ -1,11 +1,17 @@
 # dockerized virtual environment
-version: '3.9'
+version: "3.9"
+
+networks:
+  localenv:
+    external: true
+    name: localenv
 
 services:
-
   redis-cnode1:
-    image: docker.io/redis:6.2.1-alpine
+    image: docker.io/redis:7.0.15-alpine
     restart: always
+    networks:
+      - localenv
     entrypoint: [redis-server, /etc/redis/redis.conf]
     healthcheck:
       test: "redis-cli -p 7001 info"
@@ -20,8 +26,10 @@ services:
       - "17001:17001"
 
   redis-cnode2:
-    image: docker.io/redis:6.2.1-alpine
+    image: docker.io/redis:7.0.15-alpine
     restart: always
+    networks:
+      - localenv
     entrypoint: [redis-server, /etc/redis/redis.conf]
     healthcheck:
       test: "redis-cli -p 7002 info"
@@ -36,8 +44,10 @@ services:
       - "17002:17002"
 
   redis-cnode3:
-    image: docker.io/redis:6.2.1-alpine
+    image: docker.io/redis:7.0.15-alpine
     restart: always
+    networks:
+      - localenv
     entrypoint: [redis-server, /etc/redis/redis.conf]
     healthcheck:
       test: "redis-cli -p 7003 info"
@@ -53,11 +63,27 @@ services:
       - "17003:17003"
 
   redis-cluster-creator:
-    image: docker.io/redis:6.2.1-alpine
+    image: docker.io/redis:7.0.15-alpine
     entrypoint: [sh, -c, /usr/local/bin/create-cluster.sh]
+    networks:
+      - localenv
     volumes:
       - ../../.state/redis-cluster/bin/create-cluster.sh:/usr/local/bin/create-cluster.sh
     depends_on:
       - redis-cnode1
       - redis-cnode2
       - redis-cnode3
+
+  redis-ui:
+    image: docker.io/patrikx3/p3x-redis-ui:2025.10.110
+    networks:
+      - localenv
+    healthcheck:
+      test: "true"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "7843:7843"
+    volumes:
+      - ../../.state/redis-cluster/redis-ui:/settings

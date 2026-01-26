@@ -1,9 +1,15 @@
 # dockerized virtual environment
-version: '3.9'
+version: "3.9"
+
+networks:
+  localenv:
+    external: true
+    name: localenv
 
 services:
-
   es01:
+    networks:
+      - localenv
     image: docker.elastic.co/elasticsearch/elasticsearch:7.15.1
     # image: docker.elastic.co/elasticsearch/elasticsearch:8.2.2
     # command: "sh -c 'trap : TERM INT; sleep 9999999999d & wait'"
@@ -38,6 +44,8 @@ services:
   kib01:
     image: docker.elastic.co/kibana/kibana:7.15.1
     # image: docker.elastic.co/kibana/kibana:8.2.2
+    networks:
+      - localenv
     depends_on:
       es01:
         condition: service_started

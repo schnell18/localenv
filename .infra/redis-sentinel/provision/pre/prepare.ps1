@@ -1,73 +1,81 @@
 # Import global functions (assuming there's a PowerShell equivalent)
 # . ".\.infra\global\libs\functions.ps1"
 
-function GenerateMasterRedisConf {
+function New-MasterRedisConf {
     param(
-        [string]$port,
-        [string]$file
+        [Parameter(Mandatory=$true)][string]$Port,
+        [Parameter(Mandatory=$true)][string]$OutputFile
     )
-    (Get-Content ".\.infra\redis-sentinel\provision\redis.conf.tpl") -replace "@REDIS_PORT@", $port |
-        Set-Content -Path $file
+
+    (Get-Content ".\.infra\redis-sentinel\provision\redis.conf.tpl") -replace "@REDIS_PORT@", $Port |
+        Set-Content -Path $OutputFile
 }
 
-function GenerateSlaveRedisConf {
+function New-SlaveRedisConf {
     param(
-        [string]$port,
-        [string]$file,
-        [string]$master_port,
-        [string]$master_ip
+        [Parameter(Mandatory=$true)][string]$Port,
+        [Parameter(Mandatory=$true)][string]$OutputFile,
+        [Parameter(Mandatory=$true)][string]$MasterPort,
+        [Parameter(Mandatory=$true)][string]$MasterIp
     )
-    (Get-Content ".\.infra\redis-sentinel\provision\redis-slave.conf.tpl") -replace "@REDIS_PORT@", $port -replace "@MASTER_IP@", $master_ip -replace "@MASTER_PORT@", $master_port |
-        Set-Content -Path $file
+
+    (Get-Content ".\.infra\redis-sentinel\provision\redis-slave.conf.tpl") `
+        -replace "@REDIS_PORT@", $Port `
+        -replace "@MASTER_IP@", $MasterIp `
+        -replace "@MASTER_PORT@", $MasterPort |
+        Set-Content -Path $OutputFile
 }
 
-function GenerateSentinelConf {
+function New-SentinelConf {
     param(
-        [string]$sentinel_port,
-        [string]$file,
-        [string]$master_port,
-        [string]$hostip,
-        [string]$masterip
+        [Parameter(Mandatory=$true)][string]$SentinelPort,
+        [Parameter(Mandatory=$true)][string]$OutputFile,
+        [Parameter(Mandatory=$true)][string]$MasterPort,
+        [Parameter(Mandatory=$true)][string]$HostIp,
+        [Parameter(Mandatory=$true)][string]$MasterIp
     )
-    (Get-Content ".\.infra\redis-sentinel\provision\sentinel.conf.tpl") -replace "@SENTINEL_PORT@", $sentinel_port -replace "@MASTER_IP@", $masterip -replace "@MASTER_PORT@", $master_port -replace "@SENTINEL_ANNOUNCE_IP@", $hostip |
-        Set-Content -Path $file
-}
 
-function GetHostIP {
-    # This is a placeholder for the getHostIP function from the original script
-    # You would replace this with your actual IP retrieval logic
-    return (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias Ethernet | Where-Object {$_.IPAddress -notlike "127.*"}).IPAddress
+    (Get-Content ".\.infra\redis-sentinel\provision\sentinel.conf.tpl") `
+        -replace "@SENTINEL_PORT@", $SentinelPort `
+        -replace "@MASTER_IP@", $MasterIp `
+        -replace "@MASTER_PORT@", $MasterPort `
+        -replace "@SENTINEL_ANNOUNCE_IP@", $HostIp |
+        Set-Content -Path $OutputFile
 }
 
 # Create data directories if they don't exist
 if (-not (Test-Path ".state\redis-sentinel\data")) {
-    New-Item -Path ".state\redis-sentinel\data\node1" -ItemType Directory -Force
-    New-Item -Path ".state\redis-sentinel\data\node2" -ItemType Directory -Force
-    New-Item -Path ".state\redis-sentinel\data\node3" -ItemType Directory -Force
+    New-Item -Path ".state\redis-sentinel\data\node1" -ItemType Directory -Force | Out-Null
+    New-Item -Path ".state\redis-sentinel\data\node2" -ItemType Directory -Force | Out-Null
+    New-Item -Path ".state\redis-sentinel\data\node3" -ItemType Directory -Force | Out-Null
+    Write-Host "Created Redis Sentinel data directories."
 }
 
 # Create config directories if they don't exist
 if (-not (Test-Path ".state\redis-sentinel\conf")) {
-    New-Item -Path ".state\redis-sentinel\conf\node1" -ItemType Directory -Force
-    New-Item -Path ".state\redis-sentinel\conf\node2" -ItemType Directory -Force
-    New-Item -Path ".state\redis-sentinel\conf\node3" -ItemType Directory -Force
-    New-Item -Path ".state\redis-sentinel\conf\sentinel1" -ItemType Directory -Force
-    New-Item -Path ".state\redis-sentinel\conf\sentinel2" -ItemType Directory -Force
-    New-Item -Path ".state\redis-sentinel\conf\sentinel3" -ItemType Directory -Force
+    New-Item -Path ".state\redis-sentinel\conf\node1" -ItemType Directory -Force | Out-Null
+    New-Item -Path ".state\redis-sentinel\conf\node2" -ItemType Directory -Force | Out-Null
+    New-Item -Path ".state\redis-sentinel\conf\node3" -ItemType Directory -Force | Out-Null
+    New-Item -Path ".state\redis-sentinel\conf\sentinel1" -ItemType Directory -Force | Out-Null
+    New-Item -Path ".state\redis-sentinel\conf\sentinel2" -ItemType Directory -Force | Out-Null
+    New-Item -Path ".state\redis-sentinel\conf\sentinel3" -ItemType Directory -Force | Out-Null
+    Write-Host "Created Redis Sentinel config directories."
 }
 
-# Generate Redis config files
-GenerateMasterRedisConf -port "6379" -file ".state\redis-sentinel\conf\node1\redis.conf"
+# Generate Redis config files and use host IP
+Write-Host "Generating Redis Sentinel configuration files..."
+New-MasterRedisConf -Port "6379" -OutputFile ".state\redis-sentinel\conf\node1\redis.conf"
 
-$hostip = GetHostIP
-GenerateSlaveRedisConf -port "6380" -file ".state\redis-sentinel\conf\node2\redis.conf" -master_port "6379" -master_ip $hostip
-GenerateSlaveRedisConf -port "6381" -file ".state\redis-sentinel\conf\node3\redis.conf" -master_port "6379" -master_ip $hostip
+$hostIp = Get-HostIP
+New-SlaveRedisConf -Port "6380" -OutputFile ".state\redis-sentinel\conf\node2\redis.conf" -MasterPort "6379" -MasterIp $hostIp
+New-SlaveRedisConf -Port "6381" -OutputFile ".state\redis-sentinel\conf\node3\redis.conf" -MasterPort "6379" -MasterIp $hostIp
 
-GenerateSentinelConf -sentinel_port "5001" -file ".state\redis-sentinel\conf\sentinel1\sentinel.conf" -master_port "6379" -hostip $hostip -masterip $hostip
-GenerateSentinelConf -sentinel_port "5002" -file ".state\redis-sentinel\conf\sentinel2\sentinel.conf" -master_port "6379" -hostip $hostip -masterip $hostip
-GenerateSentinelConf -sentinel_port "5003" -file ".state\redis-sentinel\conf\sentinel3\sentinel.conf" -master_port "6379" -hostip $hostip -masterip $hostip
+New-SentinelConf -SentinelPort "5001" -OutputFile ".state\redis-sentinel\conf\sentinel1\sentinel.conf" -MasterPort "6379" -HostIp $hostIp -MasterIp $hostIp
+New-SentinelConf -SentinelPort "5002" -OutputFile ".state\redis-sentinel\conf\sentinel2\sentinel.conf" -MasterPort "6379" -HostIp $hostIp -MasterIp $hostIp
+New-SentinelConf -SentinelPort "5003" -OutputFile ".state\redis-sentinel\conf\sentinel3\sentinel.conf" -MasterPort "6379" -HostIp $hostIp -MasterIp $hostIp
 
 # Remove node files to work around IP change
+Write-Host "Cleaning up node data files..."
 Remove-Item -Path ".state\redis-sentinel\data\node1\*" -Force -Recurse -ErrorAction SilentlyContinue
 Remove-Item -Path ".state\redis-sentinel\data\node2\*" -Force -Recurse -ErrorAction SilentlyContinue
 Remove-Item -Path ".state\redis-sentinel\data\node3\*" -Force -Recurse -ErrorAction SilentlyContinue

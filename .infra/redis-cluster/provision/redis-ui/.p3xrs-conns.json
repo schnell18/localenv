@@ -1,0 +1,40 @@
+{
+    "update": "2025-03-29T14:10:53.960Z",
+    "license": "MIT",
+    "list": [
+        {
+            "id": "p3xrslocalenv",
+            "name": "redis-cluster",
+            "host": "redis-cnode1",
+            "port": 7001,
+            "username": "",
+            "password": "localenv",
+            "readonly": false,
+            "askAuth": false,
+            "cluster": true,
+            "sentinel": false,
+            "nodes": [
+                {
+                    "host": "redis-cnode1",
+                    "port": 7001,
+                    "id": "P3X-redis-cnode1",
+                    "password": "localenv"
+                },
+                {
+                    "host": "redis-cnode2",
+                    "port": 7002,
+                    "id": "P3X-redis-cnode2",
+                    "password": "localenv"
+                },
+                {
+                    "host": "redis-cnode3",
+                    "port": 7003,
+                    "id": "P3X-redis-cnode3",
+                    "password": "localenv"
+                }
+            ],
+
+            "ssh": false
+        }
+    ]
+}

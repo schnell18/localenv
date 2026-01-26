@@ -20,6 +20,8 @@ switch ($cmd) {
     "attach"     { Attach-Container $cmdArgs }
     "list"       { Get-InfraList }
     "init"       { Initialize-Environment }
+    "init-tcs"   { Initialize-Testcontainers }
+    "dockerhost" { Get-DockerHost $cmdArgs[0] }
     "destroy"    { Destroy-Environment }
     "logs"       { Show-Logs $cmdArgs }
     "webui"      { Start-WebUi $cmdArgs }

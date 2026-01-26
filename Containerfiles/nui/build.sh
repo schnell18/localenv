@@ -21,7 +21,7 @@ podman build \
     --jobs 2 \
     --platform linux/amd64 \
     --manifest ${MANIFEST} \
-    --build-arg NUI_VERSION=${NUI_VERSION} \
+    --build-arg VERSION=${NUI_VERSION} \
     --tag $REGISTRY/$USER/$IMAGE_NAME:$IMAGE_TAG \
     .
 

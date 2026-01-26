@@ -1,5 +1,5 @@
-ARG NUI_VERSION
-FROM ghcr.io/nats-nui/nui:${NUI_VERSION}
+ARG VERSION=latest
+FROM ghcr.io/nats-nui/nui:${VERSION}
 LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 
 # Fix for health check failure, see

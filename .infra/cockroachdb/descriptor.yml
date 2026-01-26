@@ -1,124 +1,45 @@
 # dockerized virtual environment
-version: '3.9'
+version: "3.9"
+
+networks:
+  localenv:
+    external: true
+    name: localenv
 
 services:
-
-  cockroachdb-1:
+  cockroachdb:
+    networks:
+      - localenv
     image: docker.io/schnell18/cockroachdb:v25.2.4-2
-    hostname: cockroachdb-1
     restart: always
     healthcheck:
-      test: "cockroach sql --insecure --host=cockroachdb-1:26257 -e='SELECT 1;'"
+      test: "cockroach sql --insecure -e='SELECT 1;'"
       interval: 30s
       timeout: 10s
       retries: 5
     ports:
-      - "26257:26257"  # SQL port
-      - "8080:8080"    # Admin UI port
+      # SQL port
+      - "26257:26257"
+      # Admin UI port
+      - "8080:8080"
     labels:
       - "dbtype=CockroachDB"
       - "database=true"
-      - "cluster-node=1"
     volumes:
       - ../../:/work
-      - ../../.state/cockroachdb/node1:/cockroach/cockroach-data
+      - ../../.state/cockroachdb/data:/cockroach/cockroach-data
     entrypoint: >
       sh -c "
-        cockroach start \
-          --insecure \
-          --advertise-addr=cockroachdb-1:26257 \
-          --http-addr=cockroachdb-1:8080 \
-          --listen-addr=cockroachdb-1:26257 \
-          --sql-addr=cockroachdb-1:26257 \
-          --join=cockroachdb-1:26257,cockroachdb-2:26257,cockroachdb-3:26257 \
-          --background;
-        echo '⏳ Waiting for other nodes...';
-        sleep 10;
-        echo '🚀 Initializing CockroachDB cluster...';
-        cockroach init --insecure --host=cockroachdb-1:26257;
-        echo '⏳ Waiting for CockroachDB cluster to be ready...';
-        until cockroach sql --insecure --host=cockroachdb-1:26257 -e 'SELECT 1;' >/dev/null 2>&1; do
+        cockroach start-single-node --insecure --host=0.0.0.0 --background;
+        echo 'Waiting for CockroachDB to be ready...';
+        until cockroach sql --insecure -e 'SELECT 1;' >/dev/null 2>&1; do
           sleep 2;
         done;
-        echo '✅ CockroachDB cluster is up, creating localenv super user...';
-        cockroach sql --insecure --host=cockroachdb-1:26257 \
+        echo 'CockroachDB is up, creating localenv super user...';
+        cockroach sql --insecure \
           -e \"CREATE USER IF NOT EXISTS localenv;\" \
           -e \"GRANT admin TO localenv;\" \
           -e \"GRANT ALL ON DATABASE defaultdb TO localenv;\";
-        echo '🎉 User localenv created with admin rights';
-        tail -f /dev/null;
-      "
-
-  cockroachdb-2:
-    image: docker.io/schnell18/cockroachdb:v25.2.4-2
-    hostname: cockroachdb-2
-    restart: always
-    healthcheck:
-      test: "cockroach sql --insecure --host=cockroachdb-2:26257 -e='SELECT 1;'"
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    ports:
-      - "26258:26257"  # SQL port
-      - "8081:8080"    # Admin UI port
-    labels:
-      - "dbtype=CockroachDB"
-      - "database=true"
-      - "cluster-node=2"
-    volumes:
-      - ../../:/work
-      - ../../.state/cockroachdb/node2:/cockroach/cockroach-data
-    depends_on:
-      - cockroachdb-1
-    entrypoint: >
-      sh -c "
-        echo '⏳ Waiting for first node...';
-        sleep 15;
-        cockroach start \
-          --insecure \
-          --advertise-addr=cockroachdb-2:26257 \
-          --http-addr=cockroachdb-2:8080 \
-          --listen-addr=cockroachdb-2:26257 \
-          --sql-addr=cockroachdb-2:26257 \
-          --join=cockroachdb-1:26257,cockroachdb-2:26257,cockroachdb-3:26257 \
-          --background;
-        echo '✅ CockroachDB node 2 started';
-        tail -f /dev/null;
-      "
-
-  cockroachdb-3:
-    image: docker.io/schnell18/cockroachdb:v25.2.4-2
-    hostname: cockroachdb-3
-    restart: always
-    healthcheck:
-      test: "cockroach sql --insecure --host=cockroachdb-3:26257 -e='SELECT 1;'"
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    ports:
-      - "26259:26257"  # SQL port
-      - "8082:8080"    # Admin UI port
-    labels:
-      - "dbtype=CockroachDB"
-      - "database=true"
-      - "cluster-node=3"
-    volumes:
-      - ../../:/work
-      - ../../.state/cockroachdb/node3:/cockroach/cockroach-data
-    depends_on:
-      - cockroachdb-1
-    entrypoint: >
-      sh -c "
-        echo '⏳ Waiting for first node...';
-        sleep 20;
-        cockroach start \
-          --insecure \
-          --advertise-addr=cockroachdb-3:26257 \
-          --http-addr=cockroachdb-3:8080 \
-          --listen-addr=cockroachdb-3:26257 \
-          --sql-addr=cockroachdb-3:26257 \
-          --join=cockroachdb-1:26257,cockroachdb-2:26257,cockroachdb-3:26257 \
-          --background;
-        echo '✅ CockroachDB node 3 started';
+        echo 'User localenv created with admin rights';
         tail -f /dev/null;
       "

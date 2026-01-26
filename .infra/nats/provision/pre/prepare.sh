@@ -14,4 +14,8 @@ if [[ ! -d "${state_dir}/nui-db" ]]; then
     mkdir -p "${state_dir}/nui-db"
 fi
 
+if [[ ! -d "${state_dir}/nui-contexts" ]]; then
+    echo "Creating NUI contexts directory..."
+    cp -r ${basedir}/.infra/nats/provision/contexts/ ${state_dir}/nui-contexts
+fi
 echo "NATS preparation completed."

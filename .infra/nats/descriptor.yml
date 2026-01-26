@@ -1,7 +1,8 @@
-version: '3.9'
+version: "3.9"
 services:
-
   nats:
+    networks:
+      - localenv
     image: docker.io/library/nats:2.11.8-alpine
     healthcheck:
       test: "nc -z localhost 4222"
@@ -9,7 +10,18 @@ services:
       interval: 30s
       timeout: 10s
       retries: 10
-    command: ["-js", "-m", "8222", "-p", "4222", "--name", "nats-server"]
+    command:
+      [
+        "-js",
+        "-sd",
+        "/data",
+        "-m",
+        "8222",
+        "-p",
+        "4222",
+        "--name",
+        "nats-server",
+      ]
     volumes:
       - ../../.state/nats/data:/data
     ports:
@@ -20,6 +32,8 @@ services:
       - "mq_broker=true"
 
   nui:
+    networks:
+      - localenv
     image: "docker.io/schnell18/nui:0.8-1"
     healthcheck:
       test: "nc -z localhost 31311"
@@ -32,7 +46,7 @@ services:
         condition: service_healthy
     volumes:
       - ../../.state/nats/nui-db:/db
-      - ./provision/contexts/:/contexts
+      - ../../.state/nats/nui-contexts:/contexts
     ports:
       - "31311:31311"
     restart: on-failure

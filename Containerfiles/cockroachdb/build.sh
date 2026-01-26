@@ -21,7 +21,7 @@ podman build \
     --jobs 2 \
     --platform linux/amd64 \
     --manifest ${MANIFEST} \
-    --build-arg COCKROACHDB_VERSION=${COCKROACHDB_VERSION} \
+    --build-arg VERSION=${COCKROACHDB_VERSION} \
     --tag $REGISTRY/$USER/$IMAGE_NAME:$IMAGE_TAG \
     .
 

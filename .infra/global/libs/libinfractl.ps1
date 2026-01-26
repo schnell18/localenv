@@ -105,6 +105,10 @@ function Check-Podman-Compose-Dep {
 }
 
 function Check-Environment {
+    param (
+        [string]$Stage = "beyond_init"
+    )
+
     $reqPyMajor = 3
     $reqPyMinor = 11
     # check if python is installed
@@ -128,20 +132,22 @@ Python version $actPyMajor.$actPyMinor is not supported! Please install $reqPyMa
         Check-Podman-Compose-Dep
     }
 
-    # check if machine exists and running
-    $StdOutLs = & podman machine ls -q
-    if ($StdOutLs.Contains("localenv")) {
-        $StdOutInsp = & podman machine inspect localenv --format "{{range .}}{{.State}}{{end -}}"
-        if (!$StdOutInsp.Contains("running")) {
-            & podman machine start localenv
+    if ($Stage -eq "beyond_init") {
+        # check if machine exists and running
+        $StdOutLs = & podman machine ls -q
+        if ($StdOutLs -ne $null -and $StdOutLs.Contains("localenv")) {
+            $StdOutInsp = & podman machine inspect localenv --format "{{range .}}{{.State}}{{end -}}"
+            if (!$StdOutInsp.Contains("running")) {
+                & podman machine start localenv
+            }
         }
-    }
-    else {
-        Write-Host @"
-The machine `localenv` doesn't exist. Please run ./infractl.sh init to create
+        else {
+            Write-Host @"
+The machine `localenv` doesn't exist. Please run ./infractl.ps1 init to create
 the machine.
 "@
-        exit 1
+            exit 1
+        }
     }
 }
 
@@ -157,6 +163,8 @@ Usage:
                  logs infra1 [infra2 infra3 ...]
                  webui infra1 [infra2 infra3 ...]
                  init
+                 init-tcs
+                 dockerhost
                  destroy
                  list
 "@
@@ -258,6 +266,16 @@ Usage:
 "@
 }
 
+function Show-UsageDockerHost {
+    Write-Host @"
+Infrastructure control tool for Virtual development environment.
+Crafted by Justin Zhang <schnell18@gmail.com>
+Usage:
+    infractl.ps1 dockerhost [machine_name]
+Display the command to set DOCKER_HOST for specified machine on Windows.
+"@
+}
+
 function Get-DescriptorFilePaths {
     param (
         [string[]]$Profiles
@@ -310,6 +328,17 @@ function Stop-Infra {
             -NoNewWindow `
             -ArgumentList "bin\podman_compose.py $composeFiles down" `
             -Wait
+        # Run shutdown hooks for active infrastructures
+        if (Test-Path $CurrentActiveInfras) {
+            $activeInfras = (Get-Content $CurrentActiveInfras).Split(' ') | Where-Object { $_ -ne '' }
+            foreach ($infra in $activeInfras) {
+                $shutdownHook = ".infra\$infra\provision\shutdown\cleanup.ps1"
+                if (Test-Path $shutdownHook) {
+                    Write-Host "Running shutdown hook for $infra..."
+                    & $shutdownHook
+                }
+            }
+        }
         # Remove profile stat files to cleanup
         if (Test-Path $CurrentProfilesStatFile) {
             Remove-Item -Path $CurrentProfilesStatFile -Force
@@ -327,6 +356,15 @@ function Stop-Infra {
             -NoNewWindow `
             -ArgumentList "bin\podman_compose.py $composeFiles down" `
             -Wait
+        # Run shutdown hooks for specified profiles
+        $infraList = $Infra.Split(' ') | Where-Object { $_ -ne '' }
+        foreach ($infraItem in $infraList) {
+            $shutdownHook = ".infra\$infraItem\provision\shutdown\cleanup.ps1"
+            if (Test-Path $shutdownHook) {
+                Write-Host "Running shutdown hook for $infraItem..."
+                & $shutdownHook
+            }
+        }
     }
 }
 
@@ -339,13 +377,45 @@ function Get-InfraList {
 }
 
 function Initialize-Environment {
-    Check-Environment
+    Check-Environment -Stage "init"
     # For Windows
     & podman machine init localenv --memory 6144 --rootful -v ${env:HOME}:${env:HOME}:rw,security_model=mapped-xattr --now
-    & podman machine ssh --username root localenv rpm-ostree install qemu-user-static
     & podman machine stop localenv
     & podman machine start localenv
     & podman system connection default localenv-root
+}
+
+function Initialize-Testcontainers {
+    # For Windows
+    & podman machine init testcontainers --memory 2048 --now
+    & podman machine stop testcontainers
+    & podman machine start testcontainers
+}
+
+function Get-DockerHost {
+    param (
+        [string]$MachineName
+    )
+
+    if ([string]::IsNullOrEmpty($MachineName)) {
+        Show-UsageDockerHost
+        exit 1
+    }
+
+    try {
+        $machineInfo = & podman machine inspect $MachineName 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Invalid machine $MachineName!"
+            exit 2
+        }
+
+        $socketPath = & podman machine inspect $MachineName --format "{{.ConnectionInfo.PodmanSocket.Path}}"
+        Write-Host "export DOCKER_HOST=unix://$socketPath"
+    }
+    catch {
+        Write-Error "Invalid machine $MachineName!"
+        exit 2
+    }
 }
 
 function Destroy-Environment {
@@ -403,6 +473,13 @@ function Start-Infra {
         New-Item -Path ".state" -ItemType Directory | Out-Null
     }
 
+    # Ensure localenv network exists
+    $networkExists = & podman network exists localenv 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Creating localenv network..."
+        & podman network create localenv --driver bridge
+    }
+
     $composeFiles = ""
     $activeInfras = ""
 
@@ -437,6 +514,16 @@ function Start-Infra {
     foreach ($infra in $Infrastructures) {
         $webuiScript = ".infra\$infra\provision\post\webui.txt"
         if (Test-Path $webuiScript) {
+            $url = Get-Content $webuiScript
+            $webInitScript = ".infra\$infra\provision\post\web-init.ps1"
+            if (Test-Path $webInitScript) {
+                # wait for url become ready
+                $url = Check-Url-Ready $url
+                if (![string]::IsNullOrEmpty($url)) {
+                    Write-Host "Launch web-init script for $infra..."
+                    & $webInitScript
+                }
+            }
             Write-Host "Launch webui for $infra..."
             $url = Get-Content $webuiScript
             # wait for url become ready

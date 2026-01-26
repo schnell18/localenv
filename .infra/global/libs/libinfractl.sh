@@ -268,6 +268,17 @@ stop() {
     if [[ -f $CURRENT_PROFILES_STAT_FILE ]]; then
         compose_files=$(cat $CURRENT_PROFILES_STAT_FILE)
         bin/podman-compose $compose_files down
+        # Run shutdown hooks for active infrastructures
+        if [[ -f $CURRENT_ACTIVE_INFRAS ]]; then
+            active_infras=$(cat $CURRENT_ACTIVE_INFRAS)
+            for infra in $active_infras; do
+                shutdown_hook=".infra/$infra/provision/shutdown/cleanup.sh"
+                if [[ -f $shutdown_hook ]]; then
+                    echo "Running shutdown hook for $infra..."
+                    bash $shutdown_hook
+                fi
+            done
+        fi
         # remove the profile stat file to cleanup
         if [ -f $CURRENT_PROFILES_STAT_FILE ]; then
             rm -f $CURRENT_PROFILES_STAT_FILE
@@ -283,6 +294,14 @@ stop() {
         fi
         compose_files=$(get_descrptior_file_paths $PROFILE)
         bin/podman-compose $compose_files down
+        # Run shutdown hooks for specified profiles
+        for infra in $PROFILE; do
+            shutdown_hook=".infra/$infra/provision/shutdown/cleanup.sh"
+            if [[ -f $shutdown_hook ]]; then
+                echo "Running shutdown hook for $infra..."
+                bash $shutdown_hook
+            fi
+        done
     fi
 
 }
@@ -382,6 +401,12 @@ start() {
     # make state directories exist
     if [[ ! -d .state ]]; then
         mkdir .state
+    fi
+
+    # ensure localenv network exists
+    if ! podman network exists localenv >/dev/null 2>&1; then
+        echo "Creating localenv network..."
+        podman network create localenv --driver bridge
     fi
 
     compose_files=""

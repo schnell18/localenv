@@ -1,5 +1,5 @@
-ARG COCKROACHDB_VERSION
-FROM docker.io/cockroachdb/cockroach:${COCKROACHDB_VERSION}
+ARG VERSION=latest
+FROM docker.io/cockroachdb/cockroach:${VERSION}
 LABEL MAINTAINER Justin Zhang "schnell18@gmail.com"
 
 # switch back to root to ease file sharing between container and host

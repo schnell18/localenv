@@ -1,8 +1,15 @@
 # dockerized virtual environment
-version: '3.9'
-services:
+version: "3.9"
 
+networks:
+  localenv:
+    external: true
+    name: localenv
+
+services:
   jaeger:
+    networks:
+      - localenv
     image: docker.io/jaegertracing/all-in-one:1.68.0
     healthcheck:
       test: "nc -z localhost 16686"
