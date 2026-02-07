@@ -1,4 +1,10 @@
 version: "3.9"
+
+networks:
+  localenv:
+    external: true
+    name: localenv
+
 services:
   nats:
     networks:
