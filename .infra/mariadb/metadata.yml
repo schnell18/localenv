@@ -1,0 +1,4 @@
+displayName: MariaDB
+description: MariaDB 10.7 MySQL-compatible relational database
+category: database
+icon: mariadb

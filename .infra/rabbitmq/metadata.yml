@@ -1,0 +1,4 @@
+displayName: RabbitMQ
+description: RabbitMQ message broker with management console
+category: message_broker
+icon: rabbitmq

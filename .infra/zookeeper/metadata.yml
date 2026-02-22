@@ -1,0 +1,4 @@
+displayName: ZooKeeper
+description: Apache ZooKeeper 3-node coordination ensemble
+category: config_registry
+icon: zookeeper

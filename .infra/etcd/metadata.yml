@@ -1,0 +1,4 @@
+displayName: etcd
+description: etcd distributed key-value store
+category: config_registry
+icon: etcd

@@ -1,0 +1,4 @@
+displayName: PostgreSQL
+description: PostgreSQL 17 relational database with pgAdmin web console
+category: database
+icon: postgresql

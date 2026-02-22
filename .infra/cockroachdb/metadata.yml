@@ -1,0 +1,4 @@
+displayName: CockroachDB
+description: CockroachDB distributed SQL database with web admin console
+category: database
+icon: cockroachdb

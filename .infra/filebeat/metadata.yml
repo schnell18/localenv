@@ -1,0 +1,4 @@
+displayName: Filebeat
+description: Filebeat log collector for Elasticsearch
+category: logging
+icon: filebeat

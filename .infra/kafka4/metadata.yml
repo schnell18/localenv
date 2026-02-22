@@ -1,0 +1,4 @@
+displayName: Kafka 4
+description: Kafka 4 KRaft-mode cluster with Kafka UI console
+category: message_broker
+icon: kafka

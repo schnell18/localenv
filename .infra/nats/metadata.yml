@@ -1,0 +1,4 @@
+displayName: NATS
+description: NATS with JetStream and NUI web client
+category: message_broker
+icon: nats

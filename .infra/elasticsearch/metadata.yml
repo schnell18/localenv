@@ -1,0 +1,4 @@
+displayName: Elasticsearch
+description: Elasticsearch 7.15 search engine with Kibana dashboard
+category: search_analytics
+icon: elasticsearch

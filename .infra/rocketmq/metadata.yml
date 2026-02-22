@@ -1,0 +1,4 @@
+displayName: RocketMQ
+description: Apache RocketMQ with web admin dashboard
+category: message_broker
+icon: rocketmq

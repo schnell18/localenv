@@ -1,0 +1,4 @@
+displayName: Redis Cluster
+description: Redis 7 cluster with 3 nodes and P3X Redis UI
+category: cache
+icon: redis

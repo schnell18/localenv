@@ -1,0 +1,4 @@
+displayName: Redis Sentinel
+description: Redis Sentinel high-availability master-replica setup
+category: cache
+icon: redis

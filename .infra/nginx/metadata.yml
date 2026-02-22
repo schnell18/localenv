@@ -1,0 +1,4 @@
+displayName: Nginx
+description: Nginx reverse proxy and load balancer
+category: web_server
+icon: nginx

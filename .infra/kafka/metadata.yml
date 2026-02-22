@@ -1,0 +1,4 @@
+displayName: Kafka
+description: Kafka 3-broker cluster with ZooKeeper and Kafdrop web UI
+category: message_broker
+icon: kafka

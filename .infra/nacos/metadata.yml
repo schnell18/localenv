@@ -1,0 +1,4 @@
+displayName: Nacos
+description: Nacos service discovery and configuration management
+category: config_registry
+icon: nacos

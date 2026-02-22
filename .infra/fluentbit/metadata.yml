@@ -1,0 +1,4 @@
+displayName: Fluent Bit
+description: Fluent Bit lightweight log processor and forwarder
+category: logging
+icon: fluentbit
