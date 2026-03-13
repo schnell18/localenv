@@ -1,4 +1,4 @@
 {
-  "postgresqlVersion": "17-alpine",
+  "postgresqlVersion": "18-debian13",
   "build": "1"
 }
