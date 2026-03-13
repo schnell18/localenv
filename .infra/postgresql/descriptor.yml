@@ -1,6 +1,11 @@
 # dockerized virtual environment
 version: "3.9"
 
+networks:
+  localenv:
+    external: true
+    name: localenv
+
 services:
   postgresql:
     networks:
