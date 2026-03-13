@@ -10,7 +10,7 @@ services:
   postgresql:
     networks:
       - localenv
-    image: docker.io/schnell18/postgresql:17-alpine-1
+    image: docker.io/schnell18/postgresql:18-trixie-1
     restart: always
     environment:
       POSTGRES_USER: localenv
@@ -31,10 +31,10 @@ services:
       - ../../.state/postgresql/conf:/etc/postgresql/conf.d
       - ./provision/entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./provision/setup:/setup
-      - ../../.state/postgresql/data:/var/lib/postgresql/data
+      - ../../.state/postgresql/data:/var/lib/postgresql
 
   pgadmin:
-    image: docker.io/schnell18/pgadmin:9.6.0-1
+    image: docker.io/schnell18/pgadmin:9.13.0-1
     restart: always
     networks:
       - localenv

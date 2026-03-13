@@ -1,4 +1,4 @@
 {
-  "postgresqlVersion": "18-debian13",
+  "postgresqlVersion": "18-trixie",
   "build": "1"
 }
