@@ -314,6 +314,61 @@ list() {
     done;
 }
 
+OVERFITZ_HOST="code.overfitz.xyz"
+OVERFITZ_CA_ANCHOR="overfitz-root-ca"
+
+install_overfitz_root_ca() {
+    local overfitz_host="${1:-$OVERFITZ_HOST}"
+    local anchor_name="${2:-$OVERFITZ_CA_ANCHOR}"
+
+    local tmp_certs tmp_pem
+    tmp_certs=$(mktemp -t acr-certs.XXXXXX)
+    tmp_pem=$(mktemp -t acr-ca.XXXXXX.pem)
+    trap 'rm -f "$tmp_certs" "$tmp_pem"' RETURN
+
+    echo "Extracting root CA from https://${overfitz_host}..."
+    # -k: accept self-signed; %{certs} writeout dumps the full PEM chain to stdout
+    # (requires curl >= 7.88.0, which ships with macOS 14+ and current Fedora/Ubuntu).
+    if ! curl -ksS -w '%{certs}' -o /dev/null "https://${overfitz_host}/" > "$tmp_certs"; then
+        echo "error: failed to fetch certificate chain from ${overfitz_host}" >&2
+        return 1
+    fi
+
+    # Keep the last PEM block in the writeout — that is the root CA at the
+    # top of the chain returned by the server.
+    awk '
+        /-----BEGIN CERTIFICATE-----/ { cert=""; capture=1 }
+        capture                       { cert=cert$0"\n" }
+        /-----END CERTIFICATE-----/   { last=cert; capture=0 }
+        END                           { printf "%s", last }
+    ' "$tmp_certs" > "$tmp_pem"
+
+    if [[ ! -s "$tmp_pem" ]]; then
+        echo "error: no certificate found in chain returned by curl (is curl >= 7.88.0?)" >&2
+        return 1
+    fi
+
+    if [[ `uname` == 'Darwin' ]]; then
+        echo "Installing root CA into podman machine localenv..."
+        podman machine ssh localenv \
+            "sudo tee /etc/pki/ca-trust/source/anchors/${anchor_name}.crt > /dev/null && sudo update-ca-trust" \
+            < "$tmp_pem"
+    elif [[ `uname` == 'Linux' ]]; then
+        if [[ -d /etc/pki/ca-trust/source/anchors ]]; then
+            echo "Installing root CA into /etc/pki/ca-trust/source/anchors/ (requires sudo)..."
+            sudo tee "/etc/pki/ca-trust/source/anchors/${anchor_name}.crt" > /dev/null < "$tmp_pem"
+            sudo update-ca-trust
+        elif [[ -d /usr/local/share/ca-certificates ]]; then
+            echo "Installing root CA into /usr/local/share/ca-certificates/ (requires sudo)..."
+            sudo tee "/usr/local/share/ca-certificates/${anchor_name}.crt" > /dev/null < "$tmp_pem"
+            sudo update-ca-certificates
+        else
+            echo "warning: no supported CA trust directory on this host; skipping" >&2
+            return 0
+        fi
+    fi
+}
+
 init() {
     # ensure the current environment has required software and libraries installed
     check_environment "init"
@@ -334,6 +389,8 @@ init() {
         # Create user owned unix domain socket
         systemctl enable --now --user podman.socket
     fi
+
+    install_overfitz_root_ca
 }
 
 init_tcs() {

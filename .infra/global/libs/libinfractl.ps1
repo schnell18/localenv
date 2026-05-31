@@ -376,6 +376,68 @@ function Get-InfraList {
     }
 }
 
+$script:OverfitzHost = "code.overfitz.xyz"
+$script:OverfitzCaAnchor = "overfitz-root-ca"
+
+function Install-OverfitzRootCa {
+    param(
+        [string]$OverfitzHost = $script:OverfitzHost,
+        [string]$AnchorName = $script:OverfitzCaAnchor
+    )
+
+    Write-Host "Extracting root CA from https://$OverfitzHost..."
+
+    # Use .NET SslStream with a chain-capturing callback so we don't depend on
+    # openssl or a curl new enough to expose the %{certs} writeout.
+    #
+    # Clone each chain element to raw bytes *inside* the callback: the X509Chain
+    # the SslStream hands us is owned by the stream, and its CERT_CONTEXT
+    # handles are released on Dispose -- ChainElements then reads back empty.
+    # The closure + hashtable also sidesteps Windows PowerShell 5.1's flaky
+    # $script:-scope propagation across a .NET delegate boundary.
+    $capture = @{ RawCerts = @() }
+    $scriptBlock = {
+        param($sender, $cert, $chain, $errors)
+        if ($chain -and $chain.ChainElements.Count -gt 0) {
+            $bytes = foreach ($el in $chain.ChainElements) { ,$el.Certificate.RawData }
+            $capture.RawCerts = @($bytes)
+        }
+        return $true
+    }.GetNewClosure()
+    $callback = [System.Net.Security.RemoteCertificateValidationCallback]$scriptBlock
+
+    $tcpClient = New-Object System.Net.Sockets.TcpClient
+    try {
+        $tcpClient.Connect($OverfitzHost, 443)
+        $sslStream = New-Object System.Net.Security.SslStream(
+            $tcpClient.GetStream(), $false, $callback)
+        try {
+            $sslStream.AuthenticateAsClient($OverfitzHost)
+        }
+        finally {
+            $sslStream.Dispose()
+        }
+    }
+    finally {
+        $tcpClient.Dispose()
+    }
+
+    if (-not $capture.RawCerts -or $capture.RawCerts.Count -eq 0) {
+        Write-Error "Failed to capture certificate chain from $OverfitzHost"
+        return
+    }
+
+    # Last chain element is the root CA at the top of the chain.
+    $rootBytes = $capture.RawCerts[$capture.RawCerts.Count - 1]
+    $b64 = [Convert]::ToBase64String(
+        $rootBytes, [System.Base64FormattingOptions]::InsertLineBreaks)
+    $pem = "-----BEGIN CERTIFICATE-----`n$b64`n-----END CERTIFICATE-----`n"
+
+    Write-Host "Installing root CA into podman machine localenv..."
+    $pem | & podman machine ssh localenv `
+        "sudo tee /etc/pki/ca-trust/source/anchors/$AnchorName.crt > /dev/null && sudo update-ca-trust"
+}
+
 function Initialize-Environment {
     Check-Environment -Stage "init"
     # For Windows
@@ -383,6 +445,8 @@ function Initialize-Environment {
     & podman machine stop localenv
     & podman machine start localenv
     & podman system connection default localenv-root
+
+    Install-OverfitzRootCa
 }
 
 function Initialize-Testcontainers {
